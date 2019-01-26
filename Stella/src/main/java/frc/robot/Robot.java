@@ -10,6 +10,10 @@ package frc.robot;
 import edu.wpi.first.wpilibj.IterativeRobot;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+import edu.wpi.first.wpilibj.Timer;
+import edu.wpi.first.wpilibj.Joystick;
+import frc.robot.Map.JoystickPort;
+import edu.wpi.first.wpilibj.DriverStation;
 
 /**
  * The VM is configured to automatically run this class, and to call the
@@ -23,6 +27,7 @@ public class Robot extends IterativeRobot {
   private static final String kCustomAuto = "My Auto";
   private String m_autoSelected;
   private final SendableChooser<String> m_chooser = new SendableChooser<>();
+  
 
   /**
    * This function is run when the robot is first started up and should be
@@ -33,6 +38,32 @@ public class Robot extends IterativeRobot {
     m_chooser.setDefaultOption("Default Auto", kDefaultAuto);
     m_chooser.addOption("My Auto", kCustomAuto);
     SmartDashboard.putData("Auto choices", m_chooser);
+
+    		/* Joystick */
+        try {
+	        m_driverJoystick = new Joystick(JoystickPort.Joystick_Port);
+	            
+	    } catch(Exception ex) {
+	        DriverStation.reportError("Couldn't instantiate Joystick", false);
+	            
+      }
+
+      		/* Chassis */
+	    try {
+        m_chassis = new Chassis();
+            
+    } catch(Exception ex) {
+        DriverStation.reportError("Couldnt instantiate Chassis", false);
+    }
+
+    		/* Mech */
+		try {
+      m_mech = new Mech();
+      
+  } catch(Exception ex) {
+      DriverStation.reportError("Couldn't instantiate Mech", false);
+      
+  }
   }
 
   /**
@@ -87,6 +118,12 @@ public class Robot extends IterativeRobot {
    */
   @Override
   public void teleopPeriodic() {
+    while (isOperatorControl() && isEnabled()) {
+      Timer.delay(0.005);
+      m_chassis.periodic(m_driverJoystick);
+  m_mech.periodic(m_driverJoystick);
+  
+  }
   }
 
   /**
@@ -94,5 +131,9 @@ public class Robot extends IterativeRobot {
    */
   @Override
   public void testPeriodic() {
-  }
+
+  }    
+    public Chassis m_chassis;
+    public Mech m_mech;
+    public Joystick m_driverJoystick;
 }
