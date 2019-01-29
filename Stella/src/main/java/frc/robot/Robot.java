@@ -12,7 +12,7 @@ import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.Joystick;
-import frc.robot.Map.JoystickPort;
+import frc.robot.RobotMap.JoystickPort;
 import edu.wpi.first.wpilibj.DriverStation;
 
 /**
@@ -50,7 +50,7 @@ public class Robot extends IterativeRobot {
 
       		/* Chassis */
 	    try {
-        m_chassis = new Chassis();
+        m_chassis = new RobotChassis();
             
     } catch(Exception ex) {
         DriverStation.reportError("Couldnt instantiate Chassis", false);
@@ -58,7 +58,7 @@ public class Robot extends IterativeRobot {
 
     		/* Mech */
 		try {
-      m_mech = new Mech();
+      m_mech = new RobotMech();
       
   } catch(Exception ex) {
       DriverStation.reportError("Couldn't instantiate Mech", false);
@@ -118,12 +118,12 @@ public class Robot extends IterativeRobot {
    */
   @Override
   public void teleopPeriodic() {
-    while (isOperatorControl() && isEnabled()) {
+    //while (isOperatorControl() && isEnabled()) {
       Timer.delay(0.005);
-      m_chassis.periodic(m_driverJoystick);
-  m_mech.periodic(m_driverJoystick);
+     // m_chassis.periodic(m_driverJoystick);
+      m_mech.periodic(m_driverJoystick);
   
-  }
+  //}
   }
 
   /**
@@ -133,7 +133,7 @@ public class Robot extends IterativeRobot {
   public void testPeriodic() {
 
   }    
-    public Chassis m_chassis;
-    public Mech m_mech;
+    public RobotChassis m_chassis;
+    public RobotMech m_mech;
     public Joystick m_driverJoystick;
 }
