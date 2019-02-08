@@ -165,7 +165,6 @@ public class RobotMech {
     private Arm  m_intakeArm;
     private Roller m_roller;
     private Shooter m_shooter;
-
     private DigitalInput m_clawSwitch;
         
     }
