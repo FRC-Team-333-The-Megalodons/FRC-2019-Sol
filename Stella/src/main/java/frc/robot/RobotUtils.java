@@ -502,11 +502,12 @@ class TeleopTransDrive {
     public static final double LOW_THRESHOLD = 0.40;
     public static final double SLOW_MODE_CAP = 0.70;
 
+    private int m_button_forceLowTrans;
     private History m_history;
     private DifferentialDrive m_drive;
     private Solenoidal m_transmission;
 
-    public TeleopTransDrive(DifferentialDrive drive, Solenoidal transmission) {
+    public TeleopTransDrive(DifferentialDrive drive, Solenoidal transmission, int button_forceLowTrans) {
         m_transmission = transmission;
         m_drive = drive;
         m_drive.setExpiration(0.1);
@@ -531,7 +532,7 @@ class TeleopTransDrive {
         // turn it on later.
         m_history.appendToHistory(joystick_Y);
 
-        if (stick.getRawButton(11) || stick.getRawButton(12)) {
+        if (stick.getRawButton(m_button_forceLowTrans)) {
             if (lowTransmission()) {
                 System.out.println("Force-Switching to Low Transmission");
             }

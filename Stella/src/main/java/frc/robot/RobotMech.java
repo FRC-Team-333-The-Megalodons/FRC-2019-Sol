@@ -1,172 +1,150 @@
 package frc.robot;
 
-//import frc.robot.Map.TalonPort;
-import frc.robot.RobotMap.SparkPort;
-import edu.wpi.first.wpilibj.DigitalInput;
+import frc.robot.RobotMap.DigitalInputPort;
+import frc.robot.RobotMap.PlayerButton;
+import frc.robot.RobotMap.SolenoidPort;
+import frc.robot.RobotMap.TalonPort;
+import edu.wpi.first.wpilibj.DoubleSolenoid;
 
 //import com.ctre.phoenix.motorcontrol.ControlMode;
 //import com.ctre.phoenix.motorcontrol.can.TalonSRX;
 
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.Joystick;
-import edu.wpi.first.wpilibj.Spark;
-import edu.wpi.first.wpilibj.Victor;
-import frc.robot.RobotMap.VictorPort;
-import frc.robot.RobotMap.digitalInputs;
+
+import edu.wpi.first.wpilibj.DoubleSolenoid.Value;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
 public class RobotMech {
-    
+
     public static final double MOTOR_POWER = 0.4;
+    public static final double SHOOTER_POWER = -1.0;
+    public static final double INTAKE_POWER = .5;
+
+    public static final boolean CARGO_IN = false;
+    public static final boolean CARGO_OUT = true;
+
+    private RobotArm m_intakeArm;
+    private RobotRoller m_roller;
+    private RobotShooter m_shooter;
+    // private TalonSRX talon;
+    private SolenoidT m_hatchGrab;
+    private DoubleSolenoid m_rollerSolenoids;
+    private RobotCargoState m_cargoState;
 
     public RobotMech() {
-        
+        /* Roller */
         try {
-            m_intakeArm = new Arm(new Victor(VictorPort.IntakeArm));
+            m_roller = new RobotRoller(TalonPort.Roller);
+        } catch (Exception e) {
+
+            DriverStation.reportError("Couldn't instantiate Roller\n", false);
+        }
+
+        /* Arm */
+        try {
+            m_intakeArm = new RobotArm(TalonPort.IntakeArm);
+        } catch (Exception e) {
+            DriverStation.reportError("Couldn't instantiate Arm\n", false);
+        }
+
+        /* Shooter */
+        try {
+            m_shooter = new RobotShooter(TalonPort.Shooter);
+        } catch (Exception e) {
+            DriverStation.reportError("Couldn't instantiate Shooter\n", false);
+        }
+
+        try {
+            m_cargoState = new RobotCargoState(DigitalInputPort.CLAW_SWITCH);
+        } catch (Exception e) {
+            DriverStation.reportError("Could not instantiate limit switch\n", false);
+        }
+
+        /* Instantiate the Roller solenoids */
+        try {
+            m_rollerSolenoids = new DoubleSolenoid(SolenoidPort.ROLLER_UP, SolenoidPort.ROLLER_DOWN);
         } catch (Exception ex) {
-            DriverStation.reportError("Could not instantiate the Arm\n", false);
+            DriverStation.reportError("Could not instantiate the roller solenoids\n", false);
         }
 
+        /* Instantiate the Hatch grab */
         try {
-            m_roller = new Roller(new Victor(VictorPort.Roller));
+            m_hatchGrab = new SolenoidT(SolenoidPort.HATCH_GRAB);
         } catch (Exception ex) {
-            DriverStation.reportError("Could not instantiate the Roller\n", false);
+            DriverStation.reportError("Could not instantiate hatch grab mechanism\n", false);
         }
-
-        try {
-            m_shooter = new Shooter(new Victor(VictorPort.Shooter));
-        } catch (Exception ex) {
-            DriverStation.reportError("Could not instantiate the Shooter\n", false);
-        }
-
-        m_clawSwitch = new DigitalInput(digitalInputs.CLAW_SWITCH);
-    
-
-     /*   //Instantiate Test Motor w/ Encoder
-        try {
-            talon = new TalonSRX(TalonPort.TEST_MOTOR);
-        } catch(Exception ex) {
-            DriverStation.reportError("Could not instatiate test motor\n", false);
-        }
-     */   
-  /*      //Instantiate Test Motor
-        try {
-            motor = new Spark(SparkPort.MOTOR_A);
-        }catch (Exception ex) {
-            DriverStation.reportError("Coudn't instantitate Motor_A",false);
-        }
-     */   
     }
 
-    
     public void periodic(Joystick stick) {
-        if(stick == null) {
+        if (stick == null) {
             DriverStation.reportError("No Joystick, cannot run Mech periodic\n", false);
             return;
         }
 
-        //ARM : PWM 6
+        // ARM : PWM 6
         // 7: Raise arm up
         // 9: Lower arm down
-        if (stick.getRawButton(7)) {
-            m_intakeArm.m_victor.set(.75);
-        } else if (stick.getRawButton(9)) {
-            m_intakeArm.m_victor.set(-.10);
+        if (stick.getRawButton(PlayerButton.ARM_UP)) {
+            m_intakeArm.moveArmUp();
+        } else if (stick.getRawButton(PlayerButton.ARM_DOWN)) {
+            m_intakeArm.moveArmDown();
         } else {
-            m_intakeArm.stop();
+            m_intakeArm.stopArm();
         }
 
-        //ROLLER : PWM 6
-        // 5: Take cargo in
-        // 6: Give ball out
-        if (stick.getRawButton(5)) {
-            m_roller.m_victor.set(1);
-        } else if (stick.getRawButton(6)) {
-            m_roller.m_victor.set(-1);
+        // ROLLER : PWM 6
+        // 3: Take cargo in
+        // 5: Give ball out
+        if (stick.getRawButton(PlayerButton.INTAKE)) {
+            if (m_cargoState.isCargoPresent()) {
+                m_roller.stopRoller();
+            } else {
+                m_roller.pullRollerIn();
+            }
+        } else if (stick.getRawButton(PlayerButton.PUSH_ROLLER_OUT)) {
+            m_roller.pushRollerOut();
         } else {
-            m_roller.stop();
+            m_roller.stopRoller();
         }
 
-        //SHOOTER : PWM 7
+        SmartDashboard.putBoolean("Is Cargo Present?", m_cargoState.isCargoPresent());
+
+        // ROLLER_SOLENOIDS : PCM 3, 4
+        // 11: solenoid toggle
+        if (stick.getRawButton(PlayerButton.ROLLER_TOGGLE) && enoughTimePassed(System.currentTimeMillis(), initTime)) {
+            if (m_rollerSolenoids.get() == Value.kReverse) {
+                m_rollerSolenoids.set(Value.kForward);
+            } else {
+                m_rollerSolenoids.set(Value.kReverse);
+            }
+            initTime = System.currentTimeMillis();
+        }
+
+        // SHOOTER : PWM 7
         // 3: Take cargo in
         // 4: Shoot ball out
-        if (stick.getRawButton(3)) {
-            //m_shooter.m_victor.set(-.5);
-            System.out.print(m_clawSwitch.get());
-            if (!m_clawSwitch.get()) {
-                m_shooter.m_victor.set(1);
-            } else {
-                m_shooter.m_victor.set(-1);
-            }
-        }else{
-            m_shooter.stop();
-        }
-
-
-
-        
-       /* if (stick.getRawButton(2)) {
-            motor.set(MOTOR_POWER);
-        } else if (stick.getTrigger()) {
-            talon.set(ControlMode.PercentOutput, MOTOR_POWER); //how to give power to motors using the Talon SRX
+        if (stick.getRawButton(PlayerButton.SHOOTER)) {
+            m_shooter.fireShooter();
+        } else if (stick.getRawButton(PlayerButton.INTAKE) && !m_cargoState.isCargoPresent()) {
+            m_shooter.intakeShooter();
         } else {
-            talon.set(ControlMode.PercentOutput, 0.0);
-            motor.set(0);
-        }
-      */  
-        //testMotor.getMotionProfileStatus(); 
-    }
-    class MechController {
-
-        public MechController(Arm intake) {
-            m_intakeArm = intake;
+            m_shooter.stopShooter();
         }
 
-        public void stop() {
-            m_intakeArm.stop();
-        }
-    }
-    
-    class Arm {
-        public Arm(Victor victor) {
-            m_victor = victor;
+        // HATCH_GRAB : PCM 5
+        // Trigger: Unlock
+        if (stick.getTrigger()) {
+            m_hatchGrab.set(true);
+        } else {
+            m_hatchGrab.set(false);
         }
 
-
-
-        public void stop() {
-            m_victor.set(0);
-        }
-        Victor m_victor;
     }
 
-    class Roller {
-        public Roller(Victor victor) {
-            m_victor = victor;
-        }
-
-        public void stop() {
-            m_victor.set(0);
-        }
-        Victor m_victor;
+    private boolean enoughTimePassed(long timeNow, long initTime) {
+        return timeNow > initTime + 1000;
     }
 
-    class Shooter {
-        public Shooter(Victor victor) {
-            m_victor = victor;
-        }
-
-        public void stop() {
-            m_victor.set(0);
-        }
-        Victor m_victor;
-    }
- 
-    //private TalonSRX talon;
-    private Arm  m_intakeArm;
-    private Roller m_roller;
-    private Shooter m_shooter;
-    private DigitalInput m_clawSwitch;
-        
-    }
-    
-
+    long initTime = System.currentTimeMillis();
+}

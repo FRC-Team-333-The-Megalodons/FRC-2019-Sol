@@ -2,6 +2,7 @@ package frc.robot;
 
 //import frc.robot.Map.EncoderPort;
 import frc.robot.RobotMap.SparkPort;
+import frc.robot.RobotMap.PlayerButton;
 import frc.robot.RobotMap.SolenoidPort;
 import edu.wpi.first.networktables.NetworkTable;
 import edu.wpi.first.networktables.NetworkTableEntry;
@@ -40,7 +41,7 @@ public class RobotChassis {
 
         // Instantiate Drive Train Motors, Transmission, and also the Wrapper Drives
         try {
-            m_transmission = new Solenoidal(SolenoidPort.DRIVE_TRANS_LOW, SolenoidPort.DRIVE_TRANS_HIGH);
+            m_transmission = new Solenoidal(SolenoidPort.DRIVE_TRANS_1, SolenoidPort.DRIVE_TRANS_2);
             SpeedController leftDrive = new MultiSpeedController(new Spark(SparkPort.LEFT_DRIVE1),
                     new Spark(SparkPort.LEFT_DRIVE2));
 
@@ -48,7 +49,7 @@ public class RobotChassis {
                     new Spark(SparkPort.RIGHT_DRIVE4));
 
             m_rawDifferentialDrive = new DifferentialDrive(leftDrive, rightDrive);
-            m_teleopTransDrive = new TeleopTransDrive(m_rawDifferentialDrive, m_transmission);
+            m_teleopTransDrive = new TeleopTransDrive(m_rawDifferentialDrive, m_transmission, PlayerButton.FORCE_LOW_TRANS);
             m_limelightDrive = new LimelightDrive(m_rawDifferentialDrive, m_transmission);
         } catch (Exception ex) {
             DriverStation.reportError("Could not instantiate Drive Train Motors\n", false);
@@ -74,13 +75,7 @@ public class RobotChassis {
             return;
         }
 
-        //if (stick.getRawButton(11)) {
-            // We're trying to do stuff automatically! Fetch what the limelight currently
-            // sees from NetworkTables, and drive to it.
-        //    m_limelightDrive.autoDrive(tx, ty, area, new Double(0.5));
-        //} else {
-            m_teleopTransDrive.arcadeDrive(stick, abs_limit); // m_drive with arcade style
-        //}
+        m_teleopTransDrive.arcadeDrive(stick, abs_limit); // m_drive with arcade style
 
         if (m_compressor != null) {
             m_compressor.setClosedLoopControl(true);
