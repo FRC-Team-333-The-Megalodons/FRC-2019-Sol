@@ -12,7 +12,6 @@ import edu.wpi.first.wpilibj.PIDOutput;
 import edu.wpi.first.wpilibj.PIDSource;
 import edu.wpi.first.wpilibj.PIDSourceType;
 import edu.wpi.first.wpilibj.drive.DifferentialDrive;
-import edu.wpi.first.wpilibj.SPI;
 import edu.wpi.first.wpilibj.SPI.Port;
 import edu.wpi.first.wpilibj.Solenoid;
 import edu.wpi.first.wpilibj.SpeedController;
@@ -125,7 +124,6 @@ class VictorPair implements PIDOutput {
         m_motor2.pidWrite(-output * m_sign);
     }
 }
-
 
 class UltrasonicMonitor implements Runnable {
     Ultrasonic m_ultrasonic;
@@ -491,9 +489,6 @@ class SimplePIDController {
     private History m_history;
 }
 
-
-
-
 // This is wrapper class around RobotDrive that acts as an automatic
 // transmission.
 // It sets thresholds beyond which it'll shift.
@@ -506,6 +501,10 @@ class TeleopTransDrive {
     public static final double HIGH_THRESHOLD = 0.99;
     public static final double LOW_THRESHOLD = 0.40;
     public static final double SLOW_MODE_CAP = 0.70;
+
+    private History m_history;
+    private DifferentialDrive m_drive;
+    private Solenoidal m_transmission;
 
     public TeleopTransDrive(DifferentialDrive drive, Solenoidal transmission) {
         m_transmission = transmission;
@@ -584,10 +583,57 @@ class TeleopTransDrive {
     public boolean highTransmission() {
         return setTransmission(true);
     }
+}
 
-    private History m_history;
+class LimelightDrive {
+    public static double KpAim = -0.1f;
+    public static double KpDistance = -0.1f;
+    public static double min_aim_command = 0.05f;
+
     private DifferentialDrive m_drive;
     private Solenoidal m_transmission;
+
+    public LimelightDrive(DifferentialDrive drive, Solenoidal transmission) {
+        m_transmission = transmission;
+        m_drive = drive;
+        m_drive.setExpiration(0.1);
+        m_drive.setSafetyEnabled(true);
+        m_drive.setMaxOutput(1.0);
+    }
+
+    public void autoDrive(double tx, double ty, double area, Double cap) {
+        double heading_error = -tx;
+        double distance_error = -ty;
+        double steering_adjust = 0.0f;
+
+        if (tx > 1.0) {
+            steering_adjust = KpAim * heading_error - min_aim_command;
+        } else if (tx < 1.0) {
+            steering_adjust = KpAim * heading_error + min_aim_command;
+        }
+
+        double distance_adjust = KpDistance * distance_error;
+
+        double left_command = 0.0f - (steering_adjust + distance_adjust);
+        double right_command = 0.0f + (steering_adjust + distance_adjust);
+
+        if (cap != null) {
+            left_command = RobotUtils.abs_min(left_command, cap.doubleValue());
+            right_command = RobotUtils.abs_min(right_command, cap.doubleValue());
+        }
+
+        SmartDashboard.putNumber("LeftCommand", left_command);
+        SmartDashboard.putNumber("RightCommand", right_command);
+
+        lowTransmission();
+        m_drive.tankDrive(left_command, right_command);
+    }
+
+    public void lowTransmission() {
+        if (m_transmission != null) {
+            m_transmission.set(false);
+        }
+    }
 }
 
 class History {
