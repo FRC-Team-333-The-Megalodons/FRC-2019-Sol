@@ -513,6 +513,7 @@ class TeleopTransDrive {
         m_drive.setExpiration(0.1);
         m_drive.setSafetyEnabled(true);
         m_drive.setMaxOutput(1.0);
+        m_button_forceLowTrans = button_forceLowTrans;
         m_history = new History(HISTORY_LENGTH_MS, true);
     }
 
@@ -587,33 +588,35 @@ class TeleopTransDrive {
 }
 
 class LimelightDrive {
-    public static double KpAim = -0.1f;
-    public static double KpDistance = -0.1f;
-    public static double min_aim_command = 0.05f;
-
     private DifferentialDrive m_drive;
     private Solenoidal m_transmission;
 
     public LimelightDrive(DifferentialDrive drive, Solenoidal transmission) {
         m_transmission = transmission;
         m_drive = drive;
-        m_drive.setExpiration(0.1);
-        m_drive.setSafetyEnabled(true);
-        m_drive.setMaxOutput(1.0);
+        //m_drive.setExpiration(0.1);
+        //m_drive.setSafetyEnabled(true);
+        //m_drive.setMaxOutput(0.5);
     }
 
     public void autoDrive(double tx, double ty, double area, Double cap) {
+        double KpAim = SmartDashboard.getNumber("AutoDrive_kAIM", 0.5f);
+        double KpDistance = SmartDashboard.getNumber("AutoDrive_kDistance", -0.1f);
+        double min_aim_command = SmartDashboard.getNumber("AutoDrive_minInc", -0.1f);
+
         double heading_error = -tx;
         double distance_error = -ty;
         double steering_adjust = 0.0f;
 
-        if (tx > 1.0) {
+        if (tx > -0.0) {
             steering_adjust = KpAim * heading_error - min_aim_command;
-        } else if (tx < 1.0) {
+        } else if (tx < -0.0) {
             steering_adjust = KpAim * heading_error + min_aim_command;
         }
 
         double distance_adjust = KpDistance * distance_error;
+        SmartDashboard.putNumber("Distance_Adjust", distance_adjust);
+        SmartDashboard.putNumber("Steering_Adjust", steering_adjust);
 
         double left_command = 0.0f - (steering_adjust + distance_adjust);
         double right_command = 0.0f + (steering_adjust + distance_adjust);

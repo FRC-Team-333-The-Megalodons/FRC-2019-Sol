@@ -48,6 +48,7 @@ public class RobotMap {
         public static final int SHOOTER         = 4;
         public static final int PUSH_ROLLER_OUT = 6;
         public static final int ARM_UP          = 7;
+        public static final int AUTO_ROTATE     = 8;
         public static final int ARM_DOWN        = 9;
         public static final int ROLLER_TOGGLE   = 11;
         public static final int FORCE_LOW_TRANS = 12;

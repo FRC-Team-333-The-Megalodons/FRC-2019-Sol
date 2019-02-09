@@ -75,7 +75,12 @@ public class RobotChassis {
             return;
         }
 
-        m_teleopTransDrive.arcadeDrive(stick, abs_limit); // m_drive with arcade style
+        if (stick.getRawButton(PlayerButton.AUTO_ROTATE)) {
+            double cap = SmartDashboard.getNumber("AutoDriveSpeedCap", 0.5f);
+            m_limelightDrive.autoDrive(tx, ty, area, cap);
+        } else {
+            m_teleopTransDrive.arcadeDrive(stick, abs_limit); // m_drive with arcade style
+        }
 
         if (m_compressor != null) {
             m_compressor.setClosedLoopControl(true);
@@ -83,7 +88,7 @@ public class RobotChassis {
     }
 
     public void updateLatestVisionTargets() {
-        tx = m_networkTable.getEntry("tx").getDouble(1.0);
+        tx = m_networkTable.getEntry("tx").getDouble(0.0);
         ty = m_networkTable.getEntry("ty").getDouble(0.0);
         area = m_networkTable.getEntry("ta").getDouble(0.0);
         SmartDashboard.putNumber("Limelight X", tx);

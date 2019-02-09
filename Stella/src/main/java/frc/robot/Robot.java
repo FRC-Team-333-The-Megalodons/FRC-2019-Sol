@@ -64,6 +64,8 @@ public class Robot extends TimedRobot {
         } catch (Exception ex) {
             DriverStation.reportError("Couldn't instantiate Mech", false);
         }
+
+        initDashboard();
     }
 
     /**
@@ -143,4 +145,12 @@ public class Robot extends TimedRobot {
         // Nothing here yet.
     }
 
+
+    public void initDashboard()
+    {
+        SmartDashboard.setDefaultNumber("AutoDriveSpeedCap", 0.5f);
+        SmartDashboard.setDefaultNumber("AutoDrive_kAIM", -0.1f);
+        SmartDashboard.setDefaultNumber("AutoDrive_kDistance", -0.1f);
+        SmartDashboard.setDefaultNumber("AutoDrive_minInc", 0.5f);
+    }
 }
