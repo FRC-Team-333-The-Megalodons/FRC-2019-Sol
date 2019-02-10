@@ -207,20 +207,20 @@ class DummyAHRS {
 
     private double averageHistory() {
         double sum = 0.0;
-        for (int i = 0; i < m_history.size(); i++) {
-            sum += m_history.get(i);
+        for (int i = 0; i < m_transHistory.size(); i++) {
+            sum += m_transHistory.get(i);
         }
-        return sum / m_history.size();
+        return sum / m_transHistory.size();
     }
 
     private void appendToHistory(double data) {
-        m_history.add(data);
-        if (m_history.size() > HISTORY_LIMIT) {
-            m_history.remove(0);
+        m_transHistory.add(data);
+        if (m_transHistory.size() > HISTORY_LIMIT) {
+            m_transHistory.remove(0);
         }
     }
 
-    private ArrayList<Double> m_history;
+    private ArrayList<Double> m_transHistory;
     private static double HISTORY_LIMIT = 20;
     public static double MAX_RANGE = 4800.0;
 }
@@ -401,7 +401,7 @@ class SimplePIDController {
             double abs_output_min, double abs_output_max, // Output Min/Max
             double threshold_delta, double tolerance, int history_len_ms) {
 
-        m_history = new History(history_len_ms, false);
+        m_transHistory = new History(history_len_ms, false);
         m_abs_output_min = abs_output_min;
         m_abs_output_max = abs_output_max;
         m_source = source;
@@ -417,12 +417,12 @@ class SimplePIDController {
     }
 
     public boolean hasArrived(double target) {
-        double current = m_history.getHistoryAverageWithSalt(m_source.pidGet());
+        double current = m_transHistory.getHistoryAverageWithSalt(m_source.pidGet());
         return Math.abs(current - target) <= m_tolerance;
     }
 
     public boolean isProposedSetpointAbove(double target) {
-        double current = m_history.getHistoryAverageWithSalt(m_source.pidGet());
+        double current = m_transHistory.getHistoryAverageWithSalt(m_source.pidGet());
         return current < target;
     }
 
@@ -453,8 +453,8 @@ class SimplePIDController {
             return;
         }
 
-        m_history.appendToHistory(m_source.pidGet());
-        double current = m_history.getHistoryAverage();
+        m_transHistory.appendToHistory(m_source.pidGet());
+        double current = m_transHistory.getHistoryAverage();
         double target = m_target.doubleValue();
         double delta = Math.abs(current - target);
         if (delta <= m_tolerance) {
@@ -486,7 +486,7 @@ class SimplePIDController {
     private PIDSource m_source;
     private PIDOutput m_output;
     private DigitalInput m_lowerLimitSwitch, m_upperLimitSwitch;
-    private History m_history;
+    private History m_transHistory;
 }
 
 // This is wrapper class around RobotDrive that acts as an automatic
@@ -497,13 +497,14 @@ class SimplePIDController {
 // 2) if we're powering above HIGH_THRESHOLD, and we have been for the last
 // half-second, switch into HIGH.
 class TeleopTransDrive {
-    public static final int HISTORY_LENGTH_MS = 250;
+    public static final int TRANS_HISTORY_LEN_MS = 250;
+    public static final int SPEED_HISTORY_LEN_MS = 1000;
     public static final double HIGH_THRESHOLD = 0.99;
     public static final double LOW_THRESHOLD = 0.40;
     public static final double SLOW_MODE_CAP = 0.70;
 
     private int m_button_forceLowTrans;
-    private History m_history;
+    private History m_transHistory, m_speedHistory;
     private DifferentialDrive m_drive;
     private Solenoidal m_transmission;
 
@@ -514,12 +515,14 @@ class TeleopTransDrive {
         m_drive.setSafetyEnabled(true);
         m_drive.setMaxOutput(1.0);
         m_button_forceLowTrans = button_forceLowTrans;
-        m_history = new History(HISTORY_LENGTH_MS, true);
+        m_transHistory = new History(TRANS_HISTORY_LEN_MS, true);
+        m_speedHistory = new History(SPEED_HISTORY_LEN_MS, false);
     }
 
     public void arcadeDrive(Joystick stick, Double abs_limit) {
 
-        double joystick_Y = stick.getY(), joystick_X = stick.getX();
+        double joystick_Y = stick.getY();
+        double joystick_X = stick.getX();
 
         // If the elevator is up, just limit our inputs.
         if (abs_limit != null) {
@@ -527,12 +530,26 @@ class TeleopTransDrive {
             joystick_X = RobotUtils.abs_min(joystick_X, abs_limit.doubleValue());
         }
 
-        m_drive.arcadeDrive(joystick_Y, -joystick_X);
-
         // Even if Auto isn't on, we should be keeping track of the history so we can
         // turn it on later.
-        m_history.appendToHistory(joystick_Y);
+        m_transHistory.appendToHistory(joystick_Y);
+        m_speedHistory.appendToHistory(joystick_Y);
 
+        // See whether the differential in Speed will be too much and the robot will flip.
+        final double speed_delta_limit = 0.5;
+        double speedHistoryAverage = m_speedHistory.getHistoryAverage();
+        if (Math.abs(joystick_Y - speedHistoryAverage) > speed_delta_limit) {
+            // The change is too much! Limit it down to only speed_delta_limit away.
+            double sign = Math.signum(joystick_Y);
+            double new_Y = speedHistoryAverage + (speed_delta_limit * sign);
+            System.out.println("History="+speedHistoryAverage+"; Y="+joystick_Y+"; Sign="+sign+"; new_Y="+new_Y);
+            joystick_Y = new_Y;
+        }
+
+        // Actually put the input into the drivetrain
+        m_drive.arcadeDrive(joystick_Y, -joystick_X);
+
+        // If the driver is holding the Low Transmission button, force it into low transmission.
         if (stick.getRawButton(m_button_forceLowTrans)) {
             if (lowTransmission()) {
                 System.out.println("Force-Switching to Low Transmission");
@@ -540,20 +557,25 @@ class TeleopTransDrive {
             return;
         }
 
-        double effectiveSpeed = m_history.getHistoryAverage();
+        double transHistoryAverage = m_transHistory.getHistoryAverage();
 
-        if (effectiveSpeed < LOW_THRESHOLD) {
+        // If the driver is holding the joystick below the Low Transmission
+        //   threshold for long enough, downshift into Low Gear.
+        if (transHistoryAverage < LOW_THRESHOLD) {
             if (lowTransmission()) {
                 System.out.println("Auto-Switching to Low Transmission");
             }
             return;
         }
-        if (effectiveSpeed >= HIGH_THRESHOLD) {
+        // If the driver is holding the joystick above the High Transmission 
+        //   threshold for long enough, upshift into High Gear.
+        if (transHistoryAverage >= HIGH_THRESHOLD) {
             if (highTransmission()) {
                 System.out.println("Auto-Switching to High Transmission");
             }
             return;
         }
+        
     }
 
     public void arcadeDrive(double speed, double angle) {
@@ -661,38 +683,38 @@ class LimelightDrive {
 class History {
     History(int historyLenMs, boolean useAbsValue) {
         m_historyLenMs = historyLenMs;
-        m_history = new ArrayDeque<TimeEntry>();
+        m_transHistory = new ArrayDeque<TimeEntry>();
         m_useAbsValue = useAbsValue;
     }
 
     public void appendToHistory(double magnitude) {
         long now = System.currentTimeMillis();
-        while (m_history.peekFirst() != null && (now - m_history.peekFirst().time) > m_historyLenMs) {
-            m_history.pollFirst();
+        while (m_transHistory.peekFirst() != null && (now - m_transHistory.peekFirst().time) > m_historyLenMs) {
+            m_transHistory.pollFirst();
         }
-        m_history.addLast(new TimeEntry(now, m_useAbsValue ? Math.abs(magnitude) : magnitude));
+        m_transHistory.addLast(new TimeEntry(now, m_useAbsValue ? Math.abs(magnitude) : magnitude));
     }
 
     public double getHistoryAverage() {
         double sum = 0.0;
-        if (m_history.size() < 1) {
+        if (m_transHistory.size() < 1) {
             return sum;
         }
-        for (TimeEntry e : m_history) {
+        for (TimeEntry e : m_transHistory) {
             sum += e.magnitude;
         }
 
-        return sum / m_history.size();
+        return sum / m_transHistory.size();
     }
 
     public double getHistoryAverageWithSalt(double salt) {
         int size = 0;
-        size = m_history.size();
+        size = m_transHistory.size();
         return (getHistoryAverage() * size + salt) / (size + 1);
     }
 
     public void clear() {
-        m_history.clear();
+        m_transHistory.clear();
     }
 
     private class TimeEntry {
@@ -705,7 +727,7 @@ class History {
         public double magnitude;
     }
 
-    private ArrayDeque<TimeEntry> m_history;
+    private ArrayDeque<TimeEntry> m_transHistory;
     private int m_historyLenMs;
     private boolean m_useAbsValue;
 }
