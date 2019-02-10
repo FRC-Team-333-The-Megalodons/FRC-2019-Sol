@@ -31,6 +31,7 @@ public class RobotMech {
     private SolenoidT m_hatchGrab;
     private DoubleSolenoid m_rollerSolenoids;
     private RobotCargoState m_cargoState;
+    private RobotArmState m_armState;
 
     public RobotMech() {
         /* Roller */
@@ -58,7 +59,13 @@ public class RobotMech {
         try {
             m_cargoState = new RobotCargoState(DigitalInputPort.CLAW_SWITCH);
         } catch (Exception e) {
-            DriverStation.reportError("Could not instantiate limit switch\n", false);
+            DriverStation.reportError("Could not instantiate claw limit switch\n", false);
+        }
+
+        try {
+            m_armState = new RobotArmState(DigitalInputPort.ARM_SWITCH);
+        } catch (Exception e) {
+            DriverStation.reportError("Could not intantiate arm limit switch\n", false);
         }
 
         /* Instantiate the Roller solenoids */
@@ -109,6 +116,8 @@ public class RobotMech {
         }
 
         SmartDashboard.putBoolean("Is Cargo Present?", m_cargoState.isCargoPresent());
+        SmartDashboard.putBoolean("Is Arm At Limit?", m_armState.isArmAtLimit());
+
 
         // ROLLER_SOLENOIDS : PCM 3, 4
         // 11: solenoid toggle
