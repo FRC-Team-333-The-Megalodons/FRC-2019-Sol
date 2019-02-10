@@ -600,17 +600,36 @@ class LimelightDrive {
     }
 
     public void autoDrive(double tx, double ty, double area, Double cap) {
-        double KpAim = SmartDashboard.getNumber("AutoDrive_kAIM", 0.5f);
-        double KpDistance = SmartDashboard.getNumber("AutoDrive_kDistance", -0.1f);
-        double min_aim_command = SmartDashboard.getNumber("AutoDrive_minInc", -0.1f);
+        double KpAim = SmartDashboard.getNumber("AutoDrive_kAIM", 0.7f);
+        double KpDistance = SmartDashboard.getNumber("AutoDrive_kDistance", 5.5f);
+        double min_aim_command = SmartDashboard.getNumber("AutoDrive_minInc", 0.05f);
+
+        double max_x = 23;
+        double min_x = -23;
+        double max_y = 5.5;
+        double min_y = 0.0;
+        double max_area = 5.6;
+        double min_area = 0.0;
+        // Flip the area; it's inverted (bigger is target originally);
+        area = max_area-area;
+
+        double max_range = (max_x + max_area);
+        double min_range = (min_x + min_area);
+
+        double range = (max_range - min_range) / 2; // 25.5
+        double offset = (max_range - range); // 2.5
 
         double heading_error = -tx;
-        double distance_error = -ty;
+
+
+        // flip the area
+
+        double distance_error = -area; //-ty;
         double steering_adjust = 0.0f;
 
-        if (tx > -0.0) {
+        if (tx > 0.0) {
             steering_adjust = KpAim * heading_error - min_aim_command;
-        } else if (tx < -0.0) {
+        } else if (tx < 0.0) {
             steering_adjust = KpAim * heading_error + min_aim_command;
         }
 
@@ -618,19 +637,18 @@ class LimelightDrive {
         SmartDashboard.putNumber("Distance_Adjust", distance_adjust);
         SmartDashboard.putNumber("Steering_Adjust", steering_adjust);
 
-        double left_command = 0.0f - (steering_adjust + distance_adjust);
-        double right_command = 0.0f + (steering_adjust + distance_adjust);
 
-        if (cap != null) {
-            left_command = RobotUtils.abs_min(left_command, cap.doubleValue());
-            right_command = RobotUtils.abs_min(right_command, cap.doubleValue());
-        }
+        double left_command  = distance_adjust + steering_adjust;
+        double right_command = distance_adjust - steering_adjust;
 
-        SmartDashboard.putNumber("LeftCommand", left_command);
-        SmartDashboard.putNumber("RightCommand", right_command);
+        double scaled_left_command = (left_command + offset) / range;
+        double scaled_right_command = (right_command + offset) / range;
+
+        SmartDashboard.putNumber("LeftCommand", scaled_left_command);
+        SmartDashboard.putNumber("RightCommand", scaled_right_command);
 
         lowTransmission();
-        m_drive.tankDrive(left_command, right_command);
+        m_drive.tankDrive(scaled_left_command, scaled_right_command);
     }
 
     public void lowTransmission() {

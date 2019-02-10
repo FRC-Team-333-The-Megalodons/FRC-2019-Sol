@@ -148,9 +148,9 @@ public class Robot extends TimedRobot {
 
     public void initDashboard()
     {
-        SmartDashboard.setDefaultNumber("AutoDriveSpeedCap", 0.5f);
-        SmartDashboard.setDefaultNumber("AutoDrive_kAIM", -0.1f);
-        SmartDashboard.setDefaultNumber("AutoDrive_kDistance", -0.1f);
-        SmartDashboard.setDefaultNumber("AutoDrive_minInc", 0.5f);
+        SmartDashboard.setDefaultNumber("AutoDriveSpeedCap", 0.6f);
+        SmartDashboard.setDefaultNumber("AutoDrive_kAIM", 0.7f);
+        SmartDashboard.setDefaultNumber("AutoDrive_kDistance", 1.0f);
+        SmartDashboard.setDefaultNumber("AutoDrive_minInc", 0.05f);
     }
 }
