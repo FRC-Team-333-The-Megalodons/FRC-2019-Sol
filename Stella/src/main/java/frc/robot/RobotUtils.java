@@ -536,6 +536,7 @@ class TeleopTransDrive {
         m_speedHistory.appendToHistory(joystick_Y);
 
         // See whether the differential in Speed will be too much and the robot will flip.
+        /*
         final double speed_delta_limit = 0.5;
         double speedHistoryAverage = m_speedHistory.getHistoryAverage();
         if (Math.abs(joystick_Y - speedHistoryAverage) > speed_delta_limit) {
@@ -545,6 +546,7 @@ class TeleopTransDrive {
             System.out.println("History="+speedHistoryAverage+"; Y="+joystick_Y+"; Sign="+sign+"; new_Y="+new_Y);
             joystick_Y = new_Y;
         }
+        */
 
         // Actually put the input into the drivetrain
         m_drive.arcadeDrive(joystick_Y, -joystick_X);
@@ -636,7 +638,7 @@ class LimelightDrive {
         if (area != 0.0f) {
             area = max_area-area;
         }
-        
+
         double max_range = (max_x + max_area);
         double min_range = (min_x + min_area);
 
