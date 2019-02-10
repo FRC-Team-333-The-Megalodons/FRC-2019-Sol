@@ -31,7 +31,7 @@ public class RobotMech {
     private SolenoidT m_hatchGrab;
     private DoubleSolenoid m_rollerSolenoids;
     private RobotCargoState m_cargoState;
-    private RobotArmState m_armState;
+    private RobotArmState m_upperArmLimit, m_lowerArmLimit;
 
     public RobotMech() {
         /* Roller */
@@ -63,9 +63,15 @@ public class RobotMech {
         }
 
         try {
-            m_armState = new RobotArmState(DigitalInputPort.ARM_SWITCH);
+            m_upperArmLimit = new RobotArmState(DigitalInputPort.UPPER_ARM_SWITCH);
         } catch (Exception e) {
-            DriverStation.reportError("Could not intantiate arm limit switch\n", false);
+            DriverStation.reportError("Could not instantiate upper arm limit switch\n", false);
+        }
+
+        try {
+            m_lowerArmLimit = new RobotArmState(DigitalInputPort.LOWER_ARM_SWITCH);
+        } catch (Exception e) {
+            DriverStation.reportError("Could not instantiate lower arm limit switch\n", false);
         }
 
         /* Instantiate the Roller solenoids */
@@ -92,9 +98,9 @@ public class RobotMech {
         // ARM : PWM 6
         // 7: Raise arm up
         // 9: Lower arm down
-        if (stick.getRawButton(PlayerButton.ARM_UP)) {
+        if (stick.getRawButton(PlayerButton.ARM_UP) && !m_upperArmLimit.isArmAtLimit()) {
             m_intakeArm.moveArmUp();
-        } else if (stick.getRawButton(PlayerButton.ARM_DOWN)) {
+        } else if (stick.getRawButton(PlayerButton.ARM_DOWN) && !m_lowerArmLimit.isArmAtLimit()) {
             m_intakeArm.moveArmDown();
         } else {
             m_intakeArm.stopArm();
@@ -116,8 +122,8 @@ public class RobotMech {
         }
 
         SmartDashboard.putBoolean("Is Cargo Present?", m_cargoState.isCargoPresent());
-        SmartDashboard.putBoolean("Is Arm At Limit?", m_armState.isArmAtLimit());
-
+        SmartDashboard.putBoolean("Is Arm At Upper Limit?", m_upperArmLimit.isArmAtLimit());
+        SmartDashboard.putBoolean("Is Arm At Lower Limit?", m_lowerArmLimit.isArmAtLimit());
 
         // ROLLER_SOLENOIDS : PCM 3, 4
         // 11: solenoid toggle

@@ -630,11 +630,13 @@ class LimelightDrive {
         double min_x = -23;
         double max_y = 5.5;
         double min_y = 0.0;
-        double max_area = 5.6;
+        double max_area = 6.0;
         double min_area = 0.0;
         // Flip the area; it's inverted (bigger is target originally);
-        area = max_area-area;
-
+        if (area != 0.0f) {
+            area = max_area-area;
+        }
+        
         double max_range = (max_x + max_area);
         double min_range = (min_x + min_area);
 

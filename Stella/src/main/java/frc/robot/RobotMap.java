@@ -3,8 +3,9 @@ package frc.robot;
 public class RobotMap {
 
     public static class DigitalInputPort {
-        public static final int CLAW_SWITCH = 0;
-        public static final int ARM_SWITCH  = 1;
+        public static final int CLAW_SWITCH      = 0;
+        public static final int UPPER_ARM_SWITCH = 1;
+        public static final int LOWER_ARM_SWITCH = 2;
     }
 
     public static class AnalogPort {
