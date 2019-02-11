@@ -8,12 +8,12 @@
 package frc.robot;
 
 import edu.wpi.first.wpilibj.TimedRobot;
-import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.Joystick;
-import frc.robot.RobotMap.JoystickPort;
 import edu.wpi.first.wpilibj.DriverStation;
+import frc.robot.subsystems.*;
+import frc.robot.subsystems.RobotMap.*;
 
 /**
  * The VM is configured to automatically run this class, and to call the
@@ -80,6 +80,7 @@ public class Robot extends TimedRobot {
     @Override
     public void robotPeriodic() {
         m_chassis.updateLatestVisionTargets();
+        m_mech.updateDashboard();
     }
 
     /**
@@ -153,5 +154,7 @@ public class Robot extends TimedRobot {
         SmartDashboard.setDefaultNumber("AutoDrive_kAIM", 0.7f);
         SmartDashboard.setDefaultNumber("AutoDrive_kDistance", 1.0f);
         SmartDashboard.setDefaultNumber("AutoDrive_minInc", 0.05f);
+        SmartDashboard.setDefaultNumber("ArmAtHighMotorStallPower", 0.01f);
+        SmartDashboard.setDefaultNumber("ArmAtMiddleMotorStallPower", 0.05f);
     }
 }
