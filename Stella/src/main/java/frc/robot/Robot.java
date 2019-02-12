@@ -14,6 +14,7 @@ import edu.wpi.first.wpilibj.Joystick;
 import edu.wpi.first.wpilibj.DriverStation;
 import frc.robot.subsystems.*;
 import frc.robot.subsystems.RobotMap.*;
+import edu.wpi.first.wpilibj.AnalogInput;
 
 /**
  * The VM is configured to automatically run this class, and to call the
@@ -31,6 +32,9 @@ public class Robot extends TimedRobot {
     private RobotChassis m_chassis;
     private RobotMech m_mech;
     private Joystick m_driverJoystick;
+
+
+    AnalogInput ultrasonic;
 
     /**
      * This function is run when the robot is first started up and should be used
@@ -63,6 +67,12 @@ public class Robot extends TimedRobot {
             m_mech = new RobotMech();
         } catch (Exception ex) {
             DriverStation.reportError("Couldn't instantiate Mech", false);
+        }
+
+        try {
+            ultrasonic = new AnalogInput(0);
+        } catch (Exception ex) {
+            DriverStation.reportError("Zach's Sensor no worky...", false);
         }
 
         initDashboard();
@@ -136,6 +146,9 @@ public class Robot extends TimedRobot {
         Timer.delay(0.005);
         m_chassis.periodic(m_driverJoystick, 1.0);
         m_mech.periodic(m_driverJoystick);
+
+        System.out.println("getValue: "+ultrasonic.getAverageValue());
+        System.out.println("getVoltage: "+ultrasonic.getAverageVoltage());
     }
 
     /**
