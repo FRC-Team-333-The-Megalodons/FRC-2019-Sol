@@ -40,16 +40,22 @@ public class RobotArm {
             DriverStation.reportError("Could not instantiate claw limit switch\n", false);
         }
 
-        try {
+        /*try {
             m_upperArmLimit = new RobotArmState(DigitalInputPort.UPPER_ARM_SWITCH);
         } catch (Exception e) {
             DriverStation.reportError("Could not instantiate upper arm limit switch\n", false);
-        }
+        }*/
 
-        try {
+        /*try {
             m_lowerArmLimit = new RobotArmState(DigitalInputPort.LOWER_ARM_SWITCH);
         } catch (Exception e) {
             DriverStation.reportError("Could not instantiate lower arm limit switch\n", false);
+        }*/
+
+        try {
+            
+        } catch (Exception e) {
+            //TODO: handle exception
         }
     }
 

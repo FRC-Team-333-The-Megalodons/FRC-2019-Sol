@@ -21,8 +21,8 @@ public class RobotMech {
     public static final double MOTOR_POWER = 0.4;
     public static final double SHOOTER_POWER = -1.0;
     public static final double INTAKE_POWER = .5;
-    public static final double ARM_MAX_LIMIT = 90;
-    public static final double ARM_MIN_LIMIT = 0.0;
+    public static final double ARM_MAX_LIMIT = 49.0;
+    public static final double ARM_MIN_LIMIT = 40;
 
     public static final boolean CARGO_IN = false;
     public static final boolean CARGO_OUT = true;
@@ -146,12 +146,12 @@ public class RobotMech {
         // 7: Raise arm up
         // 9: Lower arm down
 
-        if (stick.getRawButton(PlayerButton.MOVE_ARM_UP) && (!m_arm.isArmAtUpperLimit() || !(m_armPotentiometer.get() >= ARM_MIN_LIMIT))) {
-                m_arm.moveArmUp();
-            }
-         else if (stick.getRawButton(PlayerButton.MOVE_ARM_DOWN) && (!m_arm.isArmAtLowerLimit() || !(m_armPotentiometer.get() >= ARM_MAX_LIMIT))) {
-                m_arm.moveArmDown();
-        } else {
+        if (stick.getRawButton(PlayerButton.MOVE_ARM_UP) && !(m_arm.isArmAtUpperLimit() || (m_armPotentiometer.get() >= ARM_MAX_LIMIT))) {
+            m_arm.moveArmUp();
+        }
+        else if (stick.getRawButton(PlayerButton.MOVE_ARM_DOWN) && !(m_arm.isArmAtLowerLimit() || (m_armPotentiometer.get() <= ARM_MIN_LIMIT))) {
+            m_arm.moveArmDown();
+        }else{
             m_arm.stopArm();
         }
 
@@ -159,6 +159,7 @@ public class RobotMech {
         // ROLLER : PWM 6
         // 3: Take cargo in
         // 5: Give ball out
+
         if (stick.getRawButton(PlayerButton.INTAKE_CARGO)) {
             m_intakeCargoFromFloor.do_intake();
         } else if (stick.getRawButton(PlayerButton.SPIT_OUT_CARGO)) {
