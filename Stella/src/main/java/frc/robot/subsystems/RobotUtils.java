@@ -608,8 +608,8 @@ class LimelightDrive {
     }
 
     public void autoDrive(double tx, double ty, double area, Double cap) {
-        double KpAim = SmartDashboard.getNumber("AutoDrive_kAIM", 0.7f);
-        double KpDistance = SmartDashboard.getNumber("AutoDrive_kDistance", 5.5f);
+        double KpAim = SmartDashboard.getNumber("AutoDrive_kAIM", 0.45f);
+        double KpDistance = SmartDashboard.getNumber("AutoDrive_kDistance", 5.125f);
         double min_aim_command = SmartDashboard.getNumber("AutoDrive_minInc", 0.05f);
 
         double max_x = 23;
