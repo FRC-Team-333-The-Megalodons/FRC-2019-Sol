@@ -17,7 +17,7 @@ public class RobotArm {
 
     private RobotCargoState m_cargoState;
     private RobotArmState m_upperArmLimit, m_lowerArmLimit;
-    private Gyro m_gyro;
+   // private Gyro m_gyro;
     private Victor m_victor;
 
     public RobotArm(int port) {
@@ -28,12 +28,12 @@ public class RobotArm {
             DriverStation.reportError("Could not instantiate the Arm\n", false);
         }
 
-        try {
+    /*    try {
             m_gyro = new AnalogGyro(0);
         } catch (Exception ex) {
             DriverStation.reportError("Could not instantiate the Arm Gyro\n", false);
         }
-        
+      */  
         try {
             m_cargoState = new RobotCargoState(DigitalInputPort.CLAW_SWITCH);
         } catch (Exception e) {
@@ -67,7 +67,7 @@ public class RobotArm {
     {
         return m_lowerArmLimit.isArmAtLimit();
     }
-
+/*
     public void updateDashboard()
     {
         SmartDashboard.putNumber("Gyro Reading", m_gyro.getAngle());
@@ -82,7 +82,7 @@ public class RobotArm {
     {
         return m_gyro.getAngle() >= 50.0;
     }
-
+*/
     public boolean isArmAtLow()
     {
         return isArmAtLowerLimit();

@@ -86,7 +86,9 @@ public class RobotChassis {
         if (stick.getRawButton(PlayerButton.CHASE_REFLECTIVE_TAPE)) {
             double cap = SmartDashboard.getNumber("AutoDriveSpeedCap", 0.5f);
             m_limelightDrive.autoDrive(tx, ty, area, cap);
+          //  NetworkTableInstance.getDefault().getTable("limelight").getEntry("ledMode").setNumber(3);  //Turn on LED on limelight
         } else {
+          //  NetworkTableInstance.getDefault().getTable("limelight").getEntry("ledMode").setNumber(1);  //Turn off LED on limelight
             m_teleopTransDrive.arcadeDrive(stick, abs_limit); // m_drive with arcade style
         }
 

@@ -141,33 +141,17 @@ class UltrasonicMonitor implements Runnable {
     }
 }
 
-class ElevatorPotentiometerMonitor implements Runnable {
-    AnalogPotentiometer m_elevatorPotentiometer;
+class ArmPotentiometerMonitor implements Runnable {
+    AnalogPotentiometer m_armPotentiometer;
 
-    public ElevatorPotentiometerMonitor(AnalogPotentiometer potentiometer) {
-        m_elevatorPotentiometer = potentiometer;
+    public ArmPotentiometerMonitor(AnalogPotentiometer potentiometer) {
+        m_armPotentiometer = potentiometer;
     }
 
     @Override
     public void run() {
-        while (m_elevatorPotentiometer != null) {
-            SmartDashboard.putNumber("Elevator Potentiometer", m_elevatorPotentiometer.get());
-            Timer.delay(0.05);
-        }
-    }
-}
-
-class WristPotentiometerMonitor implements Runnable {
-    AnalogPotentiometer m_wristPotentiometer;
-
-    public WristPotentiometerMonitor(AnalogPotentiometer potentiometer) {
-        m_wristPotentiometer = potentiometer;
-    }
-
-    @Override
-    public void run() {
-        while (m_wristPotentiometer != null) {
-            SmartDashboard.putNumber("Wrist Potentiometer", m_wristPotentiometer.get());
+        while (m_armPotentiometer != null) {
+            SmartDashboard.putNumber("Arm Potentiometer", m_armPotentiometer.get());
             Timer.delay(0.05);
         }
     }

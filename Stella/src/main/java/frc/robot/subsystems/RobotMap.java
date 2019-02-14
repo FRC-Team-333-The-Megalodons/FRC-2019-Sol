@@ -16,13 +16,14 @@ public class RobotMap {
     }
 
     public static class DigitalInputPort {
-        public static final int CLAW_SWITCH      = 0;
-        public static final int UPPER_ARM_SWITCH = 1;
-        public static final int LOWER_ARM_SWITCH = 2;
+        public static final int CLAW_SWITCH        =  0;
+        public static final int UPPER_ARM_SWITCH   =  1;
+        public static final int LOWER_ARM_SWITCH   =  2;
     }
 
     public static class AnalogPort {
         public static final int ULTRASONIC_SENSOR = 0;
+        public static final int ARM_POTENTIOMETER = 3;
     }
     
     public static class SparkPort {

@@ -34,7 +34,7 @@ public class Robot extends TimedRobot {
     private Joystick m_driverJoystick;
 
 
-    AnalogInput ultrasonic;
+    //AnalogInput ultrasonic;
 
     /**
      * This function is run when the robot is first started up and should be used
@@ -68,13 +68,13 @@ public class Robot extends TimedRobot {
         } catch (Exception ex) {
             DriverStation.reportError("Couldn't instantiate Mech", false);
         }
-
+/*
         try {
             ultrasonic = new AnalogInput(0);
         } catch (Exception ex) {
             DriverStation.reportError("Zach's Sensor no worky...", false);
         }
-
+*/
         initDashboard();
     }
 
@@ -90,7 +90,8 @@ public class Robot extends TimedRobot {
     @Override
     public void robotPeriodic() {
         m_chassis.updateLatestVisionTargets();
-        m_mech.updateDashboard();
+      //  m_mech.updateDashboard();
+        m_mech.updatePotentiometer();
     }
 
     /**
@@ -147,8 +148,8 @@ public class Robot extends TimedRobot {
         m_chassis.periodic(m_driverJoystick, 1.0);
         m_mech.periodic(m_driverJoystick);
 
-        System.out.println("getValue: "+ultrasonic.getAverageValue());
-        System.out.println("getVoltage: "+ultrasonic.getAverageVoltage());
+   //     System.out.println("getValue: "+ultrasonic.getAverageValue());
+     //   System.out.println("getVoltage: "+ultrasonic.getAverageVoltage());
     }
 
     /**

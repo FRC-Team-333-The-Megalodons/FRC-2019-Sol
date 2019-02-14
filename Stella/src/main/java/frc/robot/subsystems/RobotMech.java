@@ -14,6 +14,8 @@ import frc.robot.subsystems.*;
 import frc.robot.subsystems.RobotMap.*;
 import frc.robot.controllers.*;
 
+import edu.wpi.first.wpilibj.AnalogPotentiometer;
+
 public class RobotMech {
 
     public static final double MOTOR_POWER = 0.4;
@@ -31,6 +33,10 @@ public class RobotMech {
     private boolean m_noseState;
     private long m_lastNoseStateChange;
     private IntakeCargoFromFloor m_intakeCargoFromFloor;
+    private AnalogPotentiometer m_armPotentiometer;
+
+    public double armPos = m_armPotentiometer.get();
+
 
     public RobotMech() {
         /* Roller */
@@ -69,16 +75,27 @@ public class RobotMech {
             DriverStation.reportError("Could not instantiate hatch grab mechanism\n", false);
         }
 
+        /* Instantiate the Wrist Potentiometer */
+        try {
+            m_armPotentiometer = new AnalogPotentiometer(AnalogPort.ARM_POTENTIOMETER, 360, 0);
+
+        } catch (Exception ex) {
+            DriverStation.reportError("Could not instantiate Wrist Potentiometer\n", false);
+        }
+
         /* Controllers */
         m_intakeCargoFromFloor = new IntakeCargoFromFloor(this, m_arm);
     }
 
-    public void updateDashboard()
-    {   
+    public void updateDashboard() {   
         SmartDashboard.putBoolean("Is Cargo Present?", m_arm.isCargoPresent());
         SmartDashboard.putBoolean("Is Arm At Upper Limit?", m_arm.isArmAtUpperLimit());
         SmartDashboard.putBoolean("Is Arm At Lower Limit?", m_arm.isArmAtLowerLimit());
-        m_arm.updateDashboard();
+      //  m_arm.updateDashboard();
+    }
+
+    public void updatePotentiometer() {   
+        SmartDashboard.putNumber("Arm_Pos", armPos);
     }
 
     public void pushNoseOut()
@@ -126,19 +143,12 @@ public class RobotMech {
         // ARM : PWM 6
         // 7: Raise arm up
         // 9: Lower arm down
-       
-        if (stick.getRawButton(PlayerButton.MOVE_ARM_UP) && !m_arm.isArmAtUpperLimit()) {
-            if (m_arm.isArmAtHigh()) {
-                m_arm.holdArmAtHigh();
-            } else {
+
+        if (stick.getRawButton(PlayerButton.MOVE_ARM_UP) && !m_arm.isArmAtUpperLimit() && armPos >= 35) {
                 m_arm.moveArmUp();
             }
-        } else if (stick.getRawButton(PlayerButton.MOVE_ARM_DOWN) && !m_arm.isArmAtLowerLimit()) {
-            if (m_arm.isArmAtMiddle()) {
-                m_arm.holdArmAtMiddle();
-            } else {
+         else if (stick.getRawButton(PlayerButton.MOVE_ARM_DOWN) && !m_arm.isArmAtLowerLimit() && armPos <= 55) {
                 m_arm.moveArmDown();
-            }
         } else {
             m_arm.stopArm();
         }
