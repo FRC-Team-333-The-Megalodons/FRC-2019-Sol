@@ -52,12 +52,6 @@ public class RobotArm {
         } catch (Exception e) {
             DriverStation.reportError("Could not instantiate lower arm limit switch\n", false);
         }
-
-        try {
-            
-        } catch (Exception e) {
-            //TODO: handle exception
-        }
     }
 
     public boolean isCargoPresent()
