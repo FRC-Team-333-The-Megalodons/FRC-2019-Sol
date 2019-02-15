@@ -33,10 +33,10 @@ public class RobotMap {
         public static final int RIGHT_DRIVE4    = 4;
     }
     public static class CANSparkID {
-        public static final int LEFT_LEADER     = -1;
-        public static final int LEFT_FOLLOWER   = -1;
-        public static final int RIGHT_LEADER    = -1;
-        public static final int RIGHT_FOLLOWER  = -1;
+        public static final int LEFT_LEADER     = 3;
+        public static final int LEFT_FOLLOWER   = 2;
+        public static final int RIGHT_LEADER    = 0;
+        public static final int RIGHT_FOLLOWER  = 1;
     }
 
     public static class VictorPort {

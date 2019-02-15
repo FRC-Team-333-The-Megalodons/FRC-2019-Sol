@@ -564,6 +564,68 @@ class TeleopTransDrive {
         
     }
 
+
+    public void curvatureDrive(Joystick stick, Double abs_limit, boolean curvatureDriveEnabled) {
+
+        double joystick_Y = stick.getY();
+        double joystick_X = stick.getX();
+
+        // If the elevator is up, just limit our inputs.
+        if (abs_limit != null) {
+            joystick_Y = RobotUtils.abs_min(joystick_Y, abs_limit.doubleValue());
+            joystick_X = RobotUtils.abs_min(joystick_X, abs_limit.doubleValue());
+        }
+
+        // Even if Auto isn't on, we should be keeping track of the history so we can
+        // turn it on later.
+        m_transHistory.appendToHistory(joystick_Y);
+        m_speedHistory.appendToHistory(joystick_Y);
+
+        // See whether the differential in Speed will be too much and the robot will flip.
+        /*
+        final double speed_delta_limit = 0.5;
+        double speedHistoryAverage = m_speedHistory.getHistoryAverage();
+        if (Math.abs(joystick_Y - speedHistoryAverage) > speed_delta_limit) {
+            // The change is too much! Limit it down to only speed_delta_limit away.
+            double sign = Math.signum(joystick_Y);
+            double new_Y = speedHistoryAverage + (speed_delta_limit * sign);
+            System.out.println("History="+speedHistoryAverage+"; Y="+joystick_Y+"; Sign="+sign+"; new_Y="+new_Y);
+            joystick_Y = new_Y;
+        }
+        */
+
+        // Actually put the input into the drivetrain
+        m_drive.curvatureDrive(Math.pow(joystick_Y, 3), -.5*joystick_X, curvatureDriveEnabled || (Math.abs(joystick_X) > .5 && Math.abs(joystick_Y) < .25));
+
+        // If the driver is holding the Low Transmission button, force it into low transmission.
+        if (stick.getRawButton(m_button_forceLowTrans)) {
+            if (lowTransmission()) {
+                System.out.println("Force-Switching to Low Transmission");
+            }
+            return;
+        }
+
+        double transHistoryAverage = m_transHistory.getHistoryAverage();
+
+        // If the driver is holding the joystick below the Low Transmission
+        //   threshold for long enough, downshift into Low Gear.
+        if (transHistoryAverage < LOW_THRESHOLD) {
+            if (lowTransmission()) {
+                System.out.println("Auto-Switching to Low Transmission");
+            }
+            return;
+        }
+        // If the driver is holding the joystick above the High Transmission 
+        //   threshold for long enough, upshift into High Gear.
+        if (transHistoryAverage >= HIGH_THRESHOLD) {
+            if (highTransmission()) {
+                System.out.println("Auto-Switching to High Transmission");
+            }
+            return;
+        }
+        
+    }
+
     public void arcadeDrive(double speed, double angle) {
         lowTransmission();
         if (m_drive != null) {

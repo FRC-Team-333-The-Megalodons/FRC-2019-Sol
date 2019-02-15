@@ -40,22 +40,27 @@ public class RobotChassis {
         // Instantiate Drive Train Motors, Transmission, and also the Wrapper Drives
         try {
             m_transmission = new Solenoidal(SolenoidPort.DRIVE_TRANS_1, SolenoidPort.DRIVE_TRANS_2);
-            /*
+            
             CANSparkMax CANLeftLeader = new CANSparkMax(CANSparkID.LEFT_LEADER, MotorType.kBrushless);    
                 CANSparkMax CANLeftFollower = new CANSparkMax(CANSparkID.LEFT_FOLLOWER, MotorType.kBrushless);
                     CANLeftFollower.follow(CANLeftLeader);
 
+                    double rampRate =SmartDashboard.getNumber("ramp rate", .25);
+                    CANLeftLeader.setRampRate(rampRate);
+
             CANSparkMax CANRightLeader = new CANSparkMax(CANSparkID.RIGHT_LEADER, MotorType.kBrushless);
                 CANSparkMax CANRightFollower = new CANSparkMax(CANSparkID.RIGHT_FOLLOWER, MotorType.kBrushless);
                     CANRightFollower.follow(CANRightLeader);
-            */ 
-            SpeedController leftDrive = new MultiSpeedController(new Spark(SparkPort.LEFT_DRIVE1),
+
+                    CANRightLeader.setRampRate(rampRate);
+            
+            /*SpeedController leftDrive = new MultiSpeedController(new Spark(SparkPort.LEFT_DRIVE1),
                     new Spark(SparkPort.LEFT_DRIVE2));
 
             SpeedController rightDrive = new MultiSpeedController(new Spark(SparkPort.RIGHT_DRIVE3),
-                    new Spark(SparkPort.RIGHT_DRIVE4));
+                    new Spark(SparkPort.RIGHT_DRIVE4));*/
 
-            m_rawDifferentialDrive = new DifferentialDrive(leftDrive, rightDrive);
+            m_rawDifferentialDrive = new DifferentialDrive(CANLeftLeader, CANRightLeader);
             //m_rawDifferentialDrive = new DifferentialDrive(CANLeftLeader, CANRightLeader);      //MEANT FOR CAN!
             m_teleopTransDrive = new TeleopTransDrive(m_rawDifferentialDrive, m_transmission, PlayerButton.FORCE_LOW_TRANSMISSION);
             m_limelightDrive = new LimelightDrive(m_rawDifferentialDrive, m_transmission);
@@ -89,7 +94,7 @@ public class RobotChassis {
           //  NetworkTableInstance.getDefault().getTable("limelight").getEntry("ledMode").setNumber(3);  //Turn on LED on limelight
         } else {
           //  NetworkTableInstance.getDefault().getTable("limelight").getEntry("ledMode").setNumber(1);  //Turn off LED on limelight
-            m_teleopTransDrive.arcadeDrive(stick, abs_limit); // m_drive with arcade style
+            m_teleopTransDrive.curvatureDrive(stick, abs_limit, stick.getRawButton(10)); // m_drive with arcade style
         }
 
         if (m_compressor != null) {
