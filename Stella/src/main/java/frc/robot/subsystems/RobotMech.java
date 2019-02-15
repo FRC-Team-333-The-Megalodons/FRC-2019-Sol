@@ -23,6 +23,8 @@ public class RobotMech {
     public static final double INTAKE_POWER = .5;
     public static final double ARM_MAX_LIMIT = 49.0;
     public static final double ARM_MIN_LIMIT = 40;
+    public static final double defaultUpSpeed  = .75;
+    public static final double slowUpSpeed = defaultUpSpeed*0.7;
 
     public static final boolean CARGO_IN = false;
     public static final boolean CARGO_OUT = true;
@@ -35,7 +37,7 @@ public class RobotMech {
     private boolean m_noseState;
     private long m_lastNoseStateChange;
     private IntakeCargoFromFloor m_intakeCargoFromFloor;
-    private AnalogPotentiometer m_armPotentiometer;
+    private RobotArmPos m_armPotentiometer;
 
   //  public double armPos = m_armPotentiometer.get();
 
@@ -77,10 +79,9 @@ public class RobotMech {
             DriverStation.reportError("Could not instantiate hatch grab mechanism\n", false);
         }
 
-        /* Instantiate the Wrist Potentiometer */
+        /* Instantiate the Arm Potentiometer */
         try {
-            m_armPotentiometer = new AnalogPotentiometer(AnalogPort.ARM_POTENTIOMETER, 360, 0);
-
+            m_armPotentiometer = new RobotArmPos(AnalogPort.ARM_POTENTIOMETER);
         } catch (Exception ex) {
             DriverStation.reportError("Could not instantiate Wrist Potentiometer\n", false);
         }
@@ -147,11 +148,13 @@ public class RobotMech {
         // 9: Lower arm down
 
         if (stick.getRawButton(PlayerButton.MOVE_ARM_UP) && !(m_arm.isArmAtUpperLimit() || (m_armPotentiometer.get() >= ARM_MAX_LIMIT))) {
-            m_arm.moveArmUp();
+            m_arm.set(calculatedUpspeed());
         }
         else if (stick.getRawButton(PlayerButton.MOVE_ARM_DOWN) && !(m_arm.isArmAtLowerLimit() || (m_armPotentiometer.get() <= ARM_MIN_LIMIT))) {
             m_arm.moveArmDown();
-        }else{
+        } else if (m_armPotentiometer.isCloseToMaxPotValue()){
+            m_arm.holdArmAtHigh();     //0.05 seems fine
+        } else {
             m_arm.stopArm();
         }
 
@@ -175,7 +178,8 @@ public class RobotMech {
 
 
         // ROLLER_SOLENOIDS : PCM 3, 4
-        // 11: solenoid toggle
+        // 11: solenoid in
+        // 12: solenoid out
         if (stick.getRawButton(PlayerButton.NOSE_IN)) {
             pullNoseIn();
         } else if (stick.getRawButton(PlayerButton.NOSE_OUT)) {
@@ -200,6 +204,15 @@ public class RobotMech {
     public void stopIntakeRollers()
     {
         m_roller.stopRoller();
+    }
+
+    public double calculatedUpspeed()
+    {
+        if (m_armPotentiometer.isCloseToMaxPotValue()) {
+            return slowUpSpeed;
+        } else {
+            return defaultUpSpeed;
+        }
     }
 
     public void pullInShooterRollers()

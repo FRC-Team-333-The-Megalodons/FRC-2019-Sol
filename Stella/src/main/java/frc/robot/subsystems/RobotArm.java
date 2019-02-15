@@ -1,6 +1,7 @@
 package frc.robot.subsystems;
 
 import edu.wpi.first.wpilibj.AnalogGyro;
+import edu.wpi.first.wpilibj.AnalogPotentiometer;
 import edu.wpi.first.wpilibj.Victor;
 import edu.wpi.first.wpilibj.interfaces.Gyro;
 import edu.wpi.first.wpilibj.DriverStation;
@@ -40,17 +41,17 @@ public class RobotArm {
             DriverStation.reportError("Could not instantiate claw limit switch\n", false);
         }
 
-        /*try {
+        try {
             m_upperArmLimit = new RobotArmState(DigitalInputPort.UPPER_ARM_SWITCH);
         } catch (Exception e) {
             DriverStation.reportError("Could not instantiate upper arm limit switch\n", false);
-        }*/
+        }
 
-        /*try {
+        try {
             m_lowerArmLimit = new RobotArmState(DigitalInputPort.LOWER_ARM_SWITCH);
         } catch (Exception e) {
             DriverStation.reportError("Could not instantiate lower arm limit switch\n", false);
-        }*/
+        }
 
         try {
             
@@ -94,6 +95,11 @@ public class RobotArm {
         return isArmAtLowerLimit();
     }
 
+    public void set(double speed)
+    {
+        m_victor.set(speed);
+    }
+
     public void moveArmUp()
     {
         m_victor.set(.75);
@@ -101,7 +107,7 @@ public class RobotArm {
 
     public void moveArmDown()
     {
-        m_victor.set(-.10);
+        m_victor.set(-.30);
     }
 
     public void holdArmAtHigh()
@@ -123,19 +129,66 @@ public class RobotArm {
         
 }
 
+class RobotArmPos {
+
+    public static final double ARM_MAX      = 49.0;
+    public static final double ARM_MIN      = 40.0;
+    public static final double CLOSE_TO_MAX = 47.0;
+    public static final double CLOSE_TO_MIN = 42.0;
+
+    public RobotArmPos(int port) {
+
+        try {
+            m_potentiometer = new AnalogPotentiometer(port);
+        } catch (Exception e) {
+         DriverStation.reportError("Could not instantiate Potentiometer\n", false);
+        }
+    }
+
+    public double get()
+    {
+        return m_potentiometer.get();
+    }
+
+    public boolean isCloseToMaxPotValue()
+    {
+        return (m_potentiometer.get() == CLOSE_TO_MAX);
+    }
+
+    public boolean isCloseToMinPotValue()
+    {
+        return (m_potentiometer.get() == CLOSE_TO_MIN);
+    }
+
+    public boolean isArmAtMaxPotValue()
+    {
+        return (m_potentiometer.get() == ARM_MAX);
+    }
+
+    public boolean isArmAtMinPotValue()
+    {
+        return (m_potentiometer.get() == ARM_MIN);
+    }
+
+    private AnalogPotentiometer m_potentiometer;
+}
+
 
 class RobotArmState {
 
     public static final boolean ARM_UP      = true;
     public static final boolean ARM_DOWN    = false;
 
-    public RobotArmState(int port) {
+
+    public RobotArmState(int limit_port) {
 
         try {
-            m_limitSwitch = new DigitalInput(port);
+            m_limitSwitch = new DigitalInput(limit_port);
        } catch (Exception e) {
            DriverStation.reportError("Could not instantiate limit switch\n", false);
        }
+
+
 
        SmartDashboard.putBoolean("Arm Limit", m_limitSwitch.get());
 
