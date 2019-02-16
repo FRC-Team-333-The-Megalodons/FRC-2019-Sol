@@ -52,6 +52,8 @@ public class RobotChassis {
                 CANSparkMax CANRightFollower = new CANSparkMax(CANSparkID.RIGHT_FOLLOWER, MotorType.kBrushless);
                     CANRightFollower.follow(CANRightLeader);
 
+                    //CANLeftLeader.setInverted(true);
+
                     CANRightLeader.setRampRate(rampRate);
             
             /*SpeedController leftDrive = new MultiSpeedController(new Spark(SparkPort.LEFT_DRIVE1),
@@ -65,7 +67,7 @@ public class RobotChassis {
             m_teleopTransDrive = new TeleopTransDrive(m_rawDifferentialDrive, m_transmission, PlayerButton.FORCE_LOW_TRANSMISSION);
             m_limelightDrive = new LimelightDrive(m_rawDifferentialDrive, m_transmission);
         } catch (Exception ex) {
-            DriverStation.reportError("Could not instantiate Drive Train Motors\n", false);
+              DriverStation.reportError("Could not instantiate Drive Train Motors\n", false);
         }
 
         // Instantiate the Limelight's Network Tables
@@ -94,7 +96,8 @@ public class RobotChassis {
           //  NetworkTableInstance.getDefault().getTable("limelight").getEntry("ledMode").setNumber(3);  //Turn on LED on limelight
         } else {
           //  NetworkTableInstance.getDefault().getTable("limelight").getEntry("ledMode").setNumber(1);  //Turn off LED on limelight
-            m_teleopTransDrive.curvatureDrive(stick, abs_limit, stick.getRawButton(10)); // m_drive with arcade style
+            m_teleopTransDrive.curvatureDrive(stick, abs_limit, stick.getRawButton(PlayerButton.FORCE_NO_CURVATURE)); // m_drive with arcade style
+           //m_teleopTransDrive.arcadeDrive(stick, abs_limit);
         }
 
         if (m_compressor != null) {

@@ -148,8 +148,8 @@ public class Robot extends TimedRobot {
         m_chassis.periodic(m_driverJoystick, 1.0);
         m_mech.periodic(m_driverJoystick);
 
-   //     System.out.println("getValue: "+ultrasonic.getAverageValue());
-     //   System.out.println("getVoltage: "+ultrasonic.getAverageVoltage());
+    //  System.out.println("getValue: "+ultrasonic.getAverageValue());
+    //  System.out.println("getVoltage: "+ultrasonic.getAverageVoltage());
     }
 
     /**

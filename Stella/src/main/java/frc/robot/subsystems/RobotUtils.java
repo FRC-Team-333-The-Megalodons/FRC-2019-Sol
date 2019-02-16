@@ -564,7 +564,11 @@ class TeleopTransDrive {
         
     }
 
-
+    /*ADDED BY ZAC FOR CURVATURE*/
+    public static final double CURVATURE_TURN_SCALE = .5;   //scales turns in curvature drive
+    public static final double CURVATURE_TURN_OVERRIDE_THRESHOLD = .5; //if the joystick x (sideways) value is above this pivot turns are possible as long as the driver isn't going forward
+    public static final double CURVATURE_FORWARD_OVERRIDE_THRESHOLD = .25;//controlls how much the driver needs to go forward before curvature kicks in
+    
     public void curvatureDrive(Joystick stick, Double abs_limit, boolean curvatureDriveEnabled) {
 
         double joystick_Y = stick.getY();
@@ -594,8 +598,10 @@ class TeleopTransDrive {
         }
         */
 
-        // Actually put the input into the drivetrain
-        m_drive.curvatureDrive(Math.pow(joystick_Y, 3), -.5*joystick_X, curvatureDriveEnabled || (Math.abs(joystick_X) > .5 && Math.abs(joystick_Y) < .25));
+        // Actually put the input into the drivetrain 
+        m_drive.curvatureDrive(Math.pow(joystick_Y, 3),//scale the speed of the joystick going forward by raising it to the 3rd power
+        joystick_X >= .9? -joystick_X: -CURVATURE_TURN_SCALE*joystick_X,//scale the joystick under a threashold
+        curvatureDriveEnabled || (Math.abs(joystick_X) > CURVATURE_TURN_OVERRIDE_THRESHOLD && Math.abs(joystick_Y) < CURVATURE_FORWARD_OVERRIDE_THRESHOLD)); // use curvature drive as long as the buttons arent being pressed and the driver isn't just going to the side
 
         // If the driver is holding the Low Transmission button, force it into low transmission.
         if (stick.getRawButton(m_button_forceLowTrans)) {
