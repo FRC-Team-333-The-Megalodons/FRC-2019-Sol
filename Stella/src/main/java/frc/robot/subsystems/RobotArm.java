@@ -125,9 +125,9 @@ public class RobotArm {
 
 class RobotArmPos {
 
-    public static final double ARM_MAX      = 49.0;
+    public static final double ARM_MAX      = 47.0;
     public static final double ARM_MIN      = 40.0;
-    public static final double CLOSE_TO_MAX = 47.0;
+    public static final double CLOSE_TO_MAX = 45.0;
     public static final double CLOSE_TO_MIN = 42.0;
 
     public RobotArmPos(int port) {

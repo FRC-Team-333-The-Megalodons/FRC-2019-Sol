@@ -14,6 +14,7 @@ public class RobotMap {
         public static final int NOSE_OUT               = 11;
         public static final int NOSE_IN                = 12;
         public static final int FORCE_NO_CURVATURE     = 10;
+        public static final int INTAKE_WHILE_UP        = 5;
     }
 
     public static class DigitalInputPort {

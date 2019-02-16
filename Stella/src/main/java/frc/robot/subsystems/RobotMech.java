@@ -172,10 +172,13 @@ public class RobotMech {
         } else if (stick.getRawButton(PlayerButton.FIRE_CARGO)) {
             m_shooter.fireShooter();
             m_roller.stopRoller();
-        } else {
-            m_shooter.stopShooter();
+        } else if(stick.getRawButton(PlayerButton.INTAKE_WHILE_UP)){
+            m_shooter.intakeShooter();
+        } else{
             m_roller.stopRoller();
-        }
+            m_shooter.stopShooter();
+            }
+        
 
 
         // ROLLER_SOLENOIDS : PCM 3, 4
@@ -194,6 +197,8 @@ public class RobotMech {
         } else {
             m_hatchGrab.set(false);
         }
+
+    
 
     }
 

@@ -19,6 +19,7 @@ import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.Ultrasonic;
 import edu.wpi.first.wpilibj.Victor;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+import frc.robot.subsystems.RobotMap.PlayerButton;
 
 public class RobotUtils {
 
@@ -600,7 +601,7 @@ class TeleopTransDrive {
 
         // Actually put the input into the drivetrain 
         m_drive.curvatureDrive(Math.pow(joystick_Y, 3),//scale the speed of the joystick going forward by raising it to the 3rd power
-        joystick_X >= .9? -joystick_X: -CURVATURE_TURN_SCALE*joystick_X,//scale the joystick under a threashold
+        joystick_X >= .9? -joystick_X: stick.getRawButton(PlayerButton.FORCE_NO_CURVATURE)?-CURVATURE_TURN_SCALE*joystick_X:-CURVATURE_TURN_SCALE*.5*joystick_X,//scale the joystick under a threashold
         curvatureDriveEnabled || (Math.abs(joystick_X) > CURVATURE_TURN_OVERRIDE_THRESHOLD && Math.abs(joystick_Y) < CURVATURE_FORWARD_OVERRIDE_THRESHOLD)); // use curvature drive as long as the buttons arent being pressed and the driver isn't just going to the side
 
         // If the driver is holding the Low Transmission button, force it into low transmission.
