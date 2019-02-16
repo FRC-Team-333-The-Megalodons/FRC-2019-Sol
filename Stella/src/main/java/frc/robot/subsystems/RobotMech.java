@@ -148,7 +148,8 @@ public class RobotMech {
         // 9: Lower arm down
 
         if (stick.getRawButton(PlayerButton.MOVE_ARM_UP) && !(m_arm.isArmAtUpperLimit() || (m_armPotentiometer.get() >= ARM_MAX_LIMIT))) {
-            m_arm.set(calculatedUpspeed());
+            //m_arm.set(calculatedUpspeed());
+            m_arm.moveArmUp();
         }
         else if (stick.getRawButton(PlayerButton.MOVE_ARM_DOWN) && !(m_arm.isArmAtLowerLimit() || (m_armPotentiometer.get() <= ARM_MIN_LIMIT))) {
             m_arm.moveArmDown();
