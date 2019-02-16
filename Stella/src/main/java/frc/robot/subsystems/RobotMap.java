@@ -33,10 +33,10 @@ public class RobotMap {
         public static final int RIGHT_DRIVE4    = 4;
     }
     public static class CANSparkID {
-        public static final int LEFT_LEADER     = -1;
-        public static final int LEFT_FOLLOWER   = -1;
-        public static final int RIGHT_LEADER    = -1;
-        public static final int RIGHT_FOLLOWER  = -1;
+        public static final int LEFT_LEADER     = 1;
+        public static final int LEFT_FOLLOWER   = 0;
+        public static final int RIGHT_LEADER    = 3;
+        public static final int RIGHT_FOLLOWER  = 2;
     }
 
     public static class VictorPort {
@@ -44,6 +44,7 @@ public class RobotMap {
         public static final int Roller      = 6;
         public static final int Shooter     = 7; 
     }
+    
 
     public static class SolenoidPort {
         public static final int DRIVE_TRANS_1     = 1;
@@ -60,7 +61,7 @@ public class RobotMap {
     public static class JoystickPort {
         public static final int Joystick_Port  = 0;
     }
-    
+
    public static enum AutoMode {
         TEST, MOVE_FORWARD, MOVE_BACKWARD
     };

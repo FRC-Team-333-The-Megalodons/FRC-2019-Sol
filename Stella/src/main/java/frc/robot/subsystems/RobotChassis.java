@@ -40,7 +40,7 @@ public class RobotChassis {
         // Instantiate Drive Train Motors, Transmission, and also the Wrapper Drives
         try {
             m_transmission = new Solenoidal(SolenoidPort.DRIVE_TRANS_1, SolenoidPort.DRIVE_TRANS_2);
-            /*
+            
             CANSparkMax CANLeftLeader = new CANSparkMax(CANSparkID.LEFT_LEADER, MotorType.kBrushless);    
                 CANSparkMax CANLeftFollower = new CANSparkMax(CANSparkID.LEFT_FOLLOWER, MotorType.kBrushless);
                     CANLeftFollower.follow(CANLeftLeader);
@@ -48,15 +48,15 @@ public class RobotChassis {
             CANSparkMax CANRightLeader = new CANSparkMax(CANSparkID.RIGHT_LEADER, MotorType.kBrushless);
                 CANSparkMax CANRightFollower = new CANSparkMax(CANSparkID.RIGHT_FOLLOWER, MotorType.kBrushless);
                     CANRightFollower.follow(CANRightLeader);
-            */ 
+  /*           
             SpeedController leftDrive = new MultiSpeedController(new Spark(SparkPort.LEFT_DRIVE1),
                     new Spark(SparkPort.LEFT_DRIVE2));
 
             SpeedController rightDrive = new MultiSpeedController(new Spark(SparkPort.RIGHT_DRIVE3),
                     new Spark(SparkPort.RIGHT_DRIVE4));
-
-            m_rawDifferentialDrive = new DifferentialDrive(leftDrive, rightDrive);
-            //m_rawDifferentialDrive = new DifferentialDrive(CANLeftLeader, CANRightLeader);      //MEANT FOR CAN!
+*/
+            //m_rawDifferentialDrive = new DifferentialDrive(leftDrive, rightDrive);
+            m_rawDifferentialDrive = new DifferentialDrive(CANLeftLeader, CANRightLeader);      //MEANT FOR CAN!
             m_teleopTransDrive = new TeleopTransDrive(m_rawDifferentialDrive, m_transmission, PlayerButton.FORCE_LOW_TRANSMISSION);
             m_limelightDrive = new LimelightDrive(m_rawDifferentialDrive, m_transmission);
         } catch (Exception ex) {
