@@ -148,6 +148,7 @@ public class RobotMech {
         // 9: Lower arm down
 
         if (stick.getRawButton(PlayerButton.MOVE_ARM_UP) && !(m_arm.isArmAtUpperLimit() || (m_armPotentiometer.get() >= ARM_MAX_LIMIT))) {
+            //m_arm.set(calculatedUpspeed());
             m_arm.moveArmUp();
         }
         else if (stick.getRawButton(PlayerButton.MOVE_ARM_DOWN) && !(m_arm.isArmAtLowerLimit() || (m_armPotentiometer.get() <= ARM_MIN_LIMIT))) {
@@ -171,10 +172,13 @@ public class RobotMech {
         } else if (stick.getRawButton(PlayerButton.FIRE_CARGO)) {
             m_shooter.fireShooter();
             m_roller.stopRoller();
-        } else {
-            m_shooter.stopShooter();
+        } else if(stick.getRawButton(PlayerButton.INTAKE_WHILE_UP)){
+            m_shooter.intakeShooter();
+        } else{
             m_roller.stopRoller();
-        }
+            m_shooter.stopShooter();
+            }
+        
 
 
         // ROLLER_SOLENOIDS : PCM 3, 4
@@ -193,6 +197,8 @@ public class RobotMech {
         } else {
             m_hatchGrab.set(false);
         }
+
+    
 
     }
 
