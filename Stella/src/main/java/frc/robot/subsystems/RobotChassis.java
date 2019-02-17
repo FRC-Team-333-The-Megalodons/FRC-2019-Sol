@@ -16,6 +16,7 @@ import edu.wpi.first.wpilibj.drive.DifferentialDrive;
 import edu.wpi.first.wpilibj.SpeedController;
 import edu.wpi.first.wpilibj.SerialPort;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+import edu.wpi.first.wpilibj.AnalogInput;
 
 public class RobotChassis {
 
@@ -24,6 +25,7 @@ public class RobotChassis {
     private Compressor m_compressor;
     private TeleopTransDrive m_teleopTransDrive;
     private LimelightDrive m_limelightDrive;
+    private AnalogInput m_ultrasonic;
     // private SerialPort m_arduino;
     private NetworkTable m_networkTable;
     private double tx, ty, area;
@@ -69,6 +71,13 @@ public class RobotChassis {
               DriverStation.reportError("Could not instantiate Drive Train Motors\n", false);
         }
 
+        try {
+            m_ultrasonic = new AnalogInput(AnalogPort.ULTRASONIC_SENSOR);
+        } catch (Exception e) {
+            DriverStation.reportError("Could not instantiate Ultrasonic sensor\n", false);
+
+        }
+
         // Instantiate the Limelight's Network Tables
         try {
             m_networkTable = NetworkTableInstance.getDefault().getTable("limelight");
@@ -99,6 +108,9 @@ public class RobotChassis {
            //m_teleopTransDrive.arcadeDrive(stick, abs_limit);
         }
 
+        
+
+
         if (m_compressor != null) {
             m_compressor.setClosedLoopControl(true);
         }
@@ -111,6 +123,15 @@ public class RobotChassis {
         SmartDashboard.putNumber("Limelight X", tx);
         SmartDashboard.putNumber("Limelight Y", ty);
         SmartDashboard.putNumber("Limelight Area", area);
+    }
+
+    public void updateUltrasonic() {
+
+        double Ultrasonic_mult = SmartDashboard.getNumber("Ultrasonic_mult", 1.0f);
+
+        SmartDashboard.putNumber("ultrasonic_avg:", m_ultrasonic.getAverageVoltage()*39);
+        SmartDashboard.putNumber("ultrasonic:", m_ultrasonic.getVoltage()*39);
+        SmartDashboard.putNumber("raw analog 0:", m_ultrasonic.getValue());
     }
 
     public void stop() {

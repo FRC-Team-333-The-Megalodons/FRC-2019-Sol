@@ -92,6 +92,7 @@ public class Robot extends TimedRobot {
         m_chassis.updateLatestVisionTargets();
        // m_mech.updateDashboard();
         m_mech.updatePotentiometer();
+        m_chassis.updateUltrasonic();
     }
 
     /**
