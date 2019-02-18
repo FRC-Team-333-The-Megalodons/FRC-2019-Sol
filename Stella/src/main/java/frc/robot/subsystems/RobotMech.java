@@ -32,7 +32,7 @@ public class RobotMech {
     private RobotArm m_arm;
     private RobotRoller m_roller;
     private RobotShooter m_shooter;
-    private SolenoidT m_hatchGrab;
+    private RobotHatchGrab m_hatchGrab;
     private DoubleSolenoid m_rollerSolenoids;
     private boolean m_noseState;
     private long m_lastNoseStateChange;
@@ -74,7 +74,7 @@ public class RobotMech {
 
         /* Instantiate the Hatch grab */
         try {
-            m_hatchGrab = new SolenoidT(SolenoidPort.HATCH_GRAB);
+            m_hatchGrab = new RobotHatchGrab(SolenoidPort.HATCH_GRAB, AnalogPort.LEFT_PANEL_SENSOR, AnalogPort.RIGHT_PANEL_SENSOR);
         } catch (Exception ex) {
             DriverStation.reportError("Could not instantiate hatch grab mechanism\n", false);
         }
@@ -193,9 +193,9 @@ public class RobotMech {
         // HATCH_GRAB : PCM 5
         // Trigger: Unlock
         if (stick.getTrigger()) {
-            m_hatchGrab.set(true);
+            m_hatchGrab.close();
         } else {
-            m_hatchGrab.set(false);
+            m_hatchGrab.open();
         }
 
     

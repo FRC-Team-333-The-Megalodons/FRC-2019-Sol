@@ -1,19 +1,14 @@
-/*----------------------------------------------------------------------------*/
-/* Copyright (c) 2018 FIRST. All Rights Reserved.                             */
-/* Open Source Software - may be modified and shared by FRC teams. The code   */                                                                                          
-/* must be accompanied by the FIRST BSD license file in the root directory of */                                                                                                
-/* the project.                                                               */
-/*----------------------------------------------------------------------------*/
-
-package frc.robot.subsystems;                            
+package frc.robot.subsystems;
 
 import edu.wpi.first.wpilibj.AnalogInput;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import frc.robot.subsystems.RobotMap.AnalogPort;
 
-public class RobotHatchPanelSensor {
-
+public class RobotHatchGrab
+{
+    private SolenoidT m_hatchGrab;
+    
     private HatchPanelSensor m_rightPanelSensor;
     private HatchPanelSensor m_leftPanelSensor;
 
@@ -21,19 +16,26 @@ public class RobotHatchPanelSensor {
     public static String whichSide;
 
 
-    public RobotHatchPanelSensor() {
+    public RobotHatchGrab(int hatchSolenoidPort, int leftAnalogSensorPort, int rightAnalogSensorPort)
+    {
+
         try {
-            m_rightPanelSensor = new HatchPanelSensor(new AnalogInput(AnalogPort.RIGHT_PANEL_SENSOR));   
+            m_hatchGrab = new SolenoidT(hatchSolenoidPort);
+        } catch (Exception ex) {
+            DriverStation.reportError("Could not instantiate hatch panel solenoid\n", false);
+        }
+        
+        try {
+            m_rightPanelSensor = new HatchPanelSensor(new AnalogInput(rightAnalogSensorPort));   
         } catch (Exception e) {
             DriverStation.reportError("Could not instantiate Left panel sensor\n", false);
         }
 
         try {
-            m_leftPanelSensor = new HatchPanelSensor(new AnalogInput(AnalogPort.LEFT_PANEL_SENSOR));
+            m_leftPanelSensor = new HatchPanelSensor(new AnalogInput(leftAnalogSensorPort));
         } catch (Exception e) {
             DriverStation.reportError("Could not instantiate Left panel sensor\n", false);
         }
-    
     }
 
     public boolean IsPanelOnLeft() {
@@ -63,6 +65,18 @@ public class RobotHatchPanelSensor {
         SmartDashboard.putString("Which Side Is Off:", whichSide);
     }
 
+    public void open()
+    {
+        m_hatchGrab.set(false);
+    }
+
+    public void close()
+    {
+        m_hatchGrab.set(true);
+    }
+
+}
+
 class HatchPanelSensor{
 
     AnalogInput PanelSensorPort;
@@ -76,5 +90,4 @@ class HatchPanelSensor{
          return PanelSensorPort.getValue() >= HAS_HATCH_PANEL_VALUE;
      }
 
-}
 }
