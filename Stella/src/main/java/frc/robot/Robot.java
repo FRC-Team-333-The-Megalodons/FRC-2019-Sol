@@ -55,19 +55,20 @@ public class Robot extends TimedRobot {
             DriverStation.reportError("Couldn't instantiate Joystick", false);
         }
 
-        /* Chassis */
-        try {
-            m_chassis = new RobotChassis();
-        } catch (Exception ex) {
-            DriverStation.reportError("Couldnt instantiate Chassis", false);
-        }
-
         /* Mech */
         try {
             m_mech = new RobotMech();
         } catch (Exception ex) {
             DriverStation.reportError("Couldn't instantiate Mech", false);
         }
+
+        /* Chassis */
+        try {
+            m_chassis = new RobotChassis(m_mech.getHatchGrab());
+        } catch (Exception ex) {
+            DriverStation.reportError("Couldnt instantiate Chassis", false);
+        }
+
 /*
         try {
             ultrasonic = new AnalogInput(0);
@@ -92,7 +93,7 @@ public class Robot extends TimedRobot {
         m_chassis.updateLatestVisionTargets();
        // m_mech.updateDashboard();
         m_mech.updatePotentiometer();
-        m_chassis.updateUltrasonic();
+        m_chassis.updateDashboard();
     }
 
     /**

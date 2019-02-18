@@ -6,6 +6,8 @@ import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.wpilibj.Compressor;
 import frc.robot.subsystems.*;
 import frc.robot.subsystems.RobotMap.*;
+
+import com.revrobotics.CANEncoder;
 import com.revrobotics.CANSparkMax;
 import com.revrobotics.CANSparkMaxLowLevel.MotorType;
 
@@ -24,13 +26,15 @@ public class RobotChassis {
     private Solenoidal m_transmission;
     private Compressor m_compressor;
     private TeleopTransDrive m_teleopTransDrive;
+    private CANSparkMax m_leftLeader, m_leftFollower, m_rightLeader, m_rightFollower;
+    private CANEncoder m_leftLeaderEnc, m_leftFollowerEnc, m_rightLeaderEnc, m_rightFollowerEnc;
     private LimelightDrive m_limelightDrive;
     private AnalogInput m_ultrasonic;
     // private SerialPort m_arduino;
     private NetworkTable m_networkTable;
     private double tx, ty, area;
 
-    public RobotChassis() {
+    public RobotChassis(RobotHatchGrab m_hatchGrab) {
 
         // Instantiate the compressor
         try {
@@ -43,30 +47,28 @@ public class RobotChassis {
         try {
             m_transmission = new Solenoidal(SolenoidPort.DRIVE_TRANS_1, SolenoidPort.DRIVE_TRANS_2);
             
-            CANSparkMax CANLeftLeader = new CANSparkMax(CANSparkID.LEFT_LEADER, MotorType.kBrushless);    
-                CANSparkMax CANLeftFollower = new CANSparkMax(CANSparkID.LEFT_FOLLOWER, MotorType.kBrushless);
-                    CANLeftFollower.follow(CANLeftLeader);
+            double rampRate =SmartDashboard.getNumber("ramp rate", .25);
 
-                    double rampRate =SmartDashboard.getNumber("ramp rate", .25);
-                    CANLeftLeader.setRampRate(rampRate);
+            m_leftLeader = new CANSparkMax(CANSparkID.LEFT_LEADER, MotorType.kBrushless);    
+            m_leftLeaderEnc = m_leftLeader.getEncoder();
+            m_leftFollower = new CANSparkMax(CANSparkID.LEFT_FOLLOWER, MotorType.kBrushless);
+            m_leftFollowerEnc = m_leftFollower.getEncoder();
+            m_leftFollower.follow(m_leftLeader);
+            m_leftLeader.setRampRate(rampRate);
+            //m_leftLeader.setInverted(true);
 
-            CANSparkMax CANRightLeader = new CANSparkMax(CANSparkID.RIGHT_LEADER, MotorType.kBrushless);
-                CANSparkMax CANRightFollower = new CANSparkMax(CANSparkID.RIGHT_FOLLOWER, MotorType.kBrushless);
-                    CANRightFollower.follow(CANRightLeader);
 
-                    //CANLeftLeader.setInverted(true);
+            m_rightLeader = new CANSparkMax(CANSparkID.RIGHT_LEADER, MotorType.kBrushless);
+            m_rightLeaderEnc = m_rightLeader.getEncoder();
+            m_rightFollower = new CANSparkMax(CANSparkID.RIGHT_FOLLOWER, MotorType.kBrushless);
+            m_rightFollowerEnc = m_rightFollower.getEncoder();
+            m_rightFollower.follow(m_rightLeader);
+            m_rightLeader.setRampRate(rampRate);
 
-                    CANRightLeader.setRampRate(rampRate);
-            
-            /*SpeedController leftDrive = new MultiSpeedController(new Spark(SparkPort.LEFT_DRIVE1),
-                    new Spark(SparkPort.LEFT_DRIVE2));
-            SpeedController rightDrive = new MultiSpeedController(new Spark(SparkPort.RIGHT_DRIVE3),
-                    new Spark(SparkPort.RIGHT_DRIVE4));*/
-
-            m_rawDifferentialDrive = new DifferentialDrive(CANLeftLeader, CANRightLeader);
+            m_rawDifferentialDrive = new DifferentialDrive(m_leftLeader, m_rightLeader);
             //m_rawDifferentialDrive = new DifferentialDrive(CANLeftLeader, CANRightLeader);      //MEANT FOR CAN!
             m_teleopTransDrive = new TeleopTransDrive(m_rawDifferentialDrive, m_transmission, PlayerButton.FORCE_LOW_TRANSMISSION);
-            m_limelightDrive = new LimelightDrive(m_rawDifferentialDrive, m_transmission);
+            m_limelightDrive = new LimelightDrive(m_rawDifferentialDrive, m_transmission, m_hatchGrab);
         } catch (Exception ex) {
               DriverStation.reportError("Could not instantiate Drive Train Motors\n", false);
         }
@@ -120,18 +122,21 @@ public class RobotChassis {
         tx = m_networkTable.getEntry("tx").getDouble(0.0);
         ty = m_networkTable.getEntry("ty").getDouble(0.0);
         area = m_networkTable.getEntry("ta").getDouble(0.0);
-        SmartDashboard.putNumber("Limelight X", tx);
-        SmartDashboard.putNumber("Limelight Y", ty);
-        SmartDashboard.putNumber("Limelight Area", area);
     }
 
-    public void updateUltrasonic() {
 
-        double Ultrasonic_mult = SmartDashboard.getNumber("Ultrasonic_mult", 1.0f);
-
+    public void updateDashboard()
+    {
+        SmartDashboard.putNumber("LeftLeader:", m_leftLeaderEnc.getPosition());
+        SmartDashboard.putNumber("LeftFollower:", m_leftFollowerEnc.getPosition());
+        SmartDashboard.putNumber("RightLeader:", m_rightLeaderEnc.getPosition());
+        SmartDashboard.putNumber("RightFollower:", m_rightFollowerEnc.getPosition());
         SmartDashboard.putNumber("ultrasonic_avg:", m_ultrasonic.getAverageVoltage()*39);
         SmartDashboard.putNumber("ultrasonic:", m_ultrasonic.getVoltage()*39);
         SmartDashboard.putNumber("raw analog 0:", m_ultrasonic.getValue());
+        SmartDashboard.putNumber("Limelight X", tx);
+        SmartDashboard.putNumber("Limelight Y", ty);
+        SmartDashboard.putNumber("Limelight Area", area);
     }
 
     public void stop() {

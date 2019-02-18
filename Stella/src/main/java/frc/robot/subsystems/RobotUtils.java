@@ -601,8 +601,13 @@ class TeleopTransDrive {
 
         // Actually put the input into the drivetrain 
         m_drive.curvatureDrive(Math.pow(joystick_Y, 3),//scale the speed of the joystick going forward by raising it to the 3rd power
-        joystick_X >= .9? -joystick_X: stick.getRawButton(PlayerButton.FORCE_NO_CURVATURE)?-CURVATURE_TURN_SCALE*joystick_X:-CURVATURE_TURN_SCALE*.5*joystick_X,//scale the joystick under a threashold
-        curvatureDriveEnabled || (Math.abs(joystick_X) > CURVATURE_TURN_OVERRIDE_THRESHOLD && Math.abs(joystick_Y) < CURVATURE_FORWARD_OVERRIDE_THRESHOLD)); // use curvature drive as long as the buttons arent being pressed and the driver isn't just going to the side
+                               (joystick_X >= .9 ? 
+                                    -joystick_X : 
+                                    (stick.getRawButton(PlayerButton.FORCE_NO_CURVATURE) ? 
+                                        -CURVATURE_TURN_SCALE*joystick_X : 
+                                        -CURVATURE_TURN_SCALE*.5*joystick_X)), //scale the joystick under a threashold
+                               (curvatureDriveEnabled || 
+                                    (Math.abs(joystick_X) > CURVATURE_TURN_OVERRIDE_THRESHOLD && Math.abs(joystick_Y) < CURVATURE_FORWARD_OVERRIDE_THRESHOLD))); // use curvature drive as long as the buttons arent being pressed and the driver isn't just going to the side
 
         // If the driver is holding the Low Transmission button, force it into low transmission.
         if (stick.getRawButton(m_button_forceLowTrans)) {
@@ -667,10 +672,12 @@ class TeleopTransDrive {
 class LimelightDrive {
     private DifferentialDrive m_drive;
     private Solenoidal m_transmission;
+    private RobotHatchGrab m_hatchGrab;
 
-    public LimelightDrive(DifferentialDrive drive, Solenoidal transmission) {
+    public LimelightDrive(DifferentialDrive drive, Solenoidal transmission, RobotHatchGrab hatchGrab) {
         m_transmission = transmission;
         m_drive = drive;
+        m_hatchGrab = hatchGrab;
         //m_drive.setExpiration(0.1);
         //m_drive.setSafetyEnabled(true);
         //m_drive.setMaxOutput(0.5);
@@ -683,8 +690,6 @@ class LimelightDrive {
 
         double max_x = 23;
         double min_x = -23;
-        double max_y = 5.5;
-        double min_y = 0.0;
         double max_area = 6.0;
         double min_area = 0.0;
         // Flip the area; it's inverted (bigger is target originally);
@@ -722,6 +727,29 @@ class LimelightDrive {
 
         double scaled_left_command = (left_command + offset) / range;
         double scaled_right_command = (right_command + offset) / range;
+
+        /*
+        final double CLOSE_TO_TARGET_THRESHOLD = 0.2;
+        final double CLOSE_TO_TARGET_POWER = 0.3;
+
+        if (scaled_left_command <= CLOSE_TO_TARGET_THRESHOLD && scaled_right_command <= CLOSE_TO_TARGET_THRESHOLD) {
+            // Turns out we're close, it's time for Zac's sensors to take over.
+            if (m_hatchGrab.IsPanelOnBothSides()) {
+                // We made it! Stop. 
+            } else if (m_hatchGrab.IsPanelOnLeft()) {
+                // we're almost there. Give some juice to the right hand side.
+                scaled_right_command = CLOSE_TO_TARGET_POWER;
+                scaled_left_command = 0.0;
+            } else if (m_hatchGrab.IsPanelOnRight()) {
+                scaled_right_command = 0.0;
+                scaled_left_command = CLOSE_TO_TARGET_POWER;
+            } else {
+                scaled_right_command = CLOSE_TO_TARGET_POWER;
+                scaled_left_command = CLOSE_TO_TARGET_POWER;
+            }
+        }
+        */
+        
 
         SmartDashboard.putNumber("LeftCommand", scaled_left_command);
         SmartDashboard.putNumber("RightCommand", scaled_right_command);

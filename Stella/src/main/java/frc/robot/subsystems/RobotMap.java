@@ -30,18 +30,24 @@ public class RobotMap {
         public static final int ARM_POTENTIOMETER = 3;
     }
     
+    /*
     public static class SparkPort {
         public static final int LEFT_DRIVE1     = 1;
         public static final int LEFT_DRIVE2     = 2;
         public static final int RIGHT_DRIVE3    = 3;
         public static final int RIGHT_DRIVE4    = 4;
     }
+    */
     
     public static class CANSparkID {
-        public static final int LEFT_LEADER     = 0;
-        public static final int LEFT_FOLLOWER   = 1;
-        public static final int RIGHT_LEADER    = 2;
-        public static final int RIGHT_FOLLOWER  = 3;
+        public static final int LEFT_LEADER     = 1;
+        public static final int LEFT_FOLLOWER   = 2;
+        public static final int RIGHT_LEADER    = 3;
+        public static final int RIGHT_FOLLOWER  = 4;
+        public static final int INTAKE_NEO      = 5;
+        public static final int SHOOTER_BOTTOM  = 6;
+        public static final int SHOOTER_TOP     = 7;
+        public static final int ARM_NEO         = 8;
     }
 
     public static class VictorPort {

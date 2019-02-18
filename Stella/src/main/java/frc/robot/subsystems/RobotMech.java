@@ -197,9 +197,11 @@ public class RobotMech {
         } else {
             m_hatchGrab.open();
         }
+    }
 
-    
-
+    public RobotHatchGrab getHatchGrab()
+    {
+        return m_hatchGrab;
     }
 
     public void stopShooterRollers()
