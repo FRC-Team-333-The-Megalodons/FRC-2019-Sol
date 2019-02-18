@@ -34,7 +34,7 @@ public class RobotArm {
         } catch (Exception ex) {
             DriverStation.reportError("Could not instantiate the Arm Gyro\n", false);
         } 
-      */  
+      */   
         try {
             m_cargoState = new RobotCargoState(DigitalInputPort.CLAW_SWITCH);
         } catch (Exception e) {
