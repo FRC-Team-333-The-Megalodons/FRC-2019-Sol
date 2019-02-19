@@ -11,36 +11,41 @@ import edu.wpi.first.wpilibj.interfaces.Gyro;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+import edu.wpi.first.wpilibj.PIDSource;
+import edu.wpi.first.wpilibj.PIDSourceType;
+import edu.wpi.first.wpilibj.PIDOutput;
 
 import frc.robot.subsystems.*;
 import frc.robot.subsystems.RobotMap.*;
 
 public class RobotArm {
 
-    public static final int ARM_UP_BUTTON    = 7;
-    public static final int ARM_DOWN_BUTTON  = 9;
-
     private RobotCargoState m_cargoState;
-    private RobotArmState m_upperArmLimit, m_lowerArmLimit;
+    private DigitalInput m_upperArmLimit, m_lowerArmLimit;
    // private Gyro m_gyro;
     private CANSparkMax m_armNeo;
-    private CANEncoder m_armNeoEnc;
+
+    private RobotArmPos m_position;
+    public static final double TOP_POSITION     = 130.0;
+    public static final double CARGO_TRAVEL_POSITION = 50.0;
+    public static final double BOTTOM_POSITION  = 0.0;
+    private final double UPWARD_MOTOR_POWER     = 1.0;
+    private final double DOWNWARD_MOTOR_POWER   = -1.0;
+    private final double UPPER_LIMIT_SWITCH_POS = 150.0;
+    private final double LOWER_LIMIT_SWITCH_POS = 0.0;
+    private final double ARM_POS_TOLERANCE      = 0.5;
+    private final double ARM_CLOSE_THRESHOLD    = 15.0;
+    private final double ARM_MOTOR_MINIMUM_FACTOR = 0.2;
 
     public RobotArm(int port) {
         /* Instantiate the Arm */
         try {
             m_armNeo = new CANSparkMax(port, MotorType.kBrushless);
-            m_armNeoEnc = m_armNeo.getEncoder();
+            m_position = new RobotArmPos(m_armNeo.getEncoder());
         } catch (Exception ex) {
             DriverStation.reportError("Could not instantiate the Arm\n", false);
         }
 
-    /*    try {
-            m_gyro = new AnalogGyro(0);
-        } catch (Exception ex) {
-            DriverStation.reportError("Could not instantiate the Arm Gyro\n", false);
-        } 
-      */   
         try {
             m_cargoState = new RobotCargoState(DigitalInputPort.CLAW_SWITCH);
         } catch (Exception e) {
@@ -48,13 +53,13 @@ public class RobotArm {
         }
 
         try {
-            m_upperArmLimit = new RobotArmState(DigitalInputPort.UPPER_ARM_SWITCH);
+            m_upperArmLimit = new DigitalInput(DigitalInputPort.UPPER_ARM_SWITCH);
         } catch (Exception e) {
             DriverStation.reportError("Could not instantiate upper arm limit switch\n", false);
         }
 
         try {
-            m_lowerArmLimit = new RobotArmState(DigitalInputPort.LOWER_ARM_SWITCH);
+            m_lowerArmLimit = new DigitalInput(DigitalInputPort.LOWER_ARM_SWITCH);
         } catch (Exception e) {
             DriverStation.reportError("Could not instantiate lower arm limit switch\n", false);
         }
@@ -67,12 +72,12 @@ public class RobotArm {
 
     public boolean isArmAtUpperLimit()
     {
-        return m_upperArmLimit.isArmAtLimit();
+        return m_upperArmLimit.get();
     }
 
     public boolean isArmAtLowerLimit()
     {
-        return m_lowerArmLimit.isArmAtLimit();
+        return m_lowerArmLimit.get();
     }
 
     public void updateDashboard()
@@ -80,118 +85,150 @@ public class RobotArm {
         SmartDashboard.putBoolean("Is Cargo Present?", isCargoPresent());
         SmartDashboard.putBoolean("Is Arm At Lower Limit?", isArmAtLowerLimit());
         SmartDashboard.putBoolean("Is Arm At Upper Limit?", isArmAtUpperLimit());
-        SmartDashboard.putNumber("Arm Neo Encoder:", m_armNeoEnc.getPosition());
-    }
-/*
-    public boolean isArmAtHigh()
-    {
-        Read the m_armNeoEncoder to decide if we're at "High" position
-    }
-    public boolean isArmAtMiddle()
-    {
-        ""
+        SmartDashboard.putNumber("Arm Hall Encoder (raw):", m_position.getRawPosition());
+        SmartDashboard.putNumber("Arm Hall Encoder (scaled):", m_position.get());
+        SmartDashboard.putNumber("Arm Hall Encoder (offset):", m_position.getOffset());
     }
 
-    public boolean isArmAtLow()
+    public void moveArmUp(double factor)
     {
-        ""
-    }
-*/
+        if (isArmAtUpperLimit()) {
+            stopArm();
+            return;
+        }
 
-    public void set(double speed)
-    {
-        m_armNeo.set(speed);
-    }
+        factor = Math.max(factor, ARM_MOTOR_MINIMUM_FACTOR);
 
-    public void moveArmUp()
-    {
-        m_armNeo.set(.75);
+        m_armNeo.set(UPWARD_MOTOR_POWER * factor);
     }
 
-    public void moveArmDown()
+    public void moveArmDown(double factor)
     {
-        m_armNeo.set(-.30);
+        if (isArmAtLowerLimit()) {
+            stopArm();
+            return;
+        }
+
+        factor = Math.max(factor, ARM_MOTOR_MINIMUM_FACTOR);
+        
+        m_armNeo.set(DOWNWARD_MOTOR_POWER*factor);
+    }
+
+    public void tareArmEncoderIfNeeded()
+    {
+        if (isArmAtUpperLimit()) {
+            m_position.tare(UPPER_LIMIT_SWITCH_POS);
+        } else if (isArmAtLowerLimit()) {
+            m_position.tare(LOWER_LIMIT_SWITCH_POS);
+        }
     }
 
     public void stopArm()
     {
-        m_armNeo.set(0);
+        m_armNeo.set(0.0);
     }
-        
+
+    public boolean isArmAtTarget(double target)
+    {        
+        double current = m_position.pidGet();
+
+        double gap = Math.abs(current - target);
+
+        return (gap <= ARM_POS_TOLERANCE);
+    }
+
+    public boolean periodic(Double target_obj)
+    {
+        tareArmEncoderIfNeeded();
+
+        if (target_obj == null) {
+            stopArm();
+            return true;
+        }
+
+        double target = target_obj.doubleValue();
+
+        double current = m_position.pidGet();
+
+        double gap = Math.abs(current - target);
+
+        if (isArmAtTarget(target)) {
+            stopArm();
+            return true;
+        }
+
+        double factor = 1.0;
+        if (gap <= ARM_CLOSE_THRESHOLD) {
+            factor = (gap / ARM_CLOSE_THRESHOLD);
+        } 
+
+        if (current < target) {
+            moveArmUp(factor);   
+        } else {
+            moveArmDown(factor);
+        }
+        return false;
+    }
+
+    public RobotCargoState getCargoState()
+    {
+        return m_cargoState;
+    }
 }
 
-class RobotArmPos {
+class RobotArmPos implements PIDSource {
+    private CANEncoder m_encoder;
+    private double m_offset = 0.0;
+    private PIDSourceType m_pidSourceType = PIDSourceType.kDisplacement;
 
-    public static final double ARM_MAX      = 47.0;
-    public static final double ARM_MIN      = 40.0;
-    public static final double CLOSE_TO_MAX = 45.0;
-    public static final double CLOSE_TO_MIN = 42.0;
+    public RobotArmPos(CANEncoder encoder) {
+        m_encoder = encoder;
+    }
 
-    public RobotArmPos(int port) {
+    public void tare(double expected)
+    {
+        m_offset = expected - m_encoder.getPosition();
+    }
 
-        try {
-            m_potentiometer = new AnalogPotentiometer(port);
-        } catch (Exception e) {
-         DriverStation.reportError("Could not instantiate Potentiometer\n", false);
+    public PIDSourceType getPIDSourceType()
+    {
+        return m_pidSourceType;
+    }
+
+    public void setPIDSourceType(PIDSourceType type)
+    {
+        m_pidSourceType = type;
+    }
+
+    public double pidGet()
+    {
+        if (m_pidSourceType == PIDSourceType.kDisplacement) {
+            return m_encoder.getPosition() + m_offset;
+        } else {
+            return m_encoder.getVelocity();
         }
     }
 
     public double get()
     {
-        return m_potentiometer.get();
+        return pidGet();
     }
 
-    public boolean isCloseToMaxPotValue()
+    public double getRawPosition()
     {
-        return (m_potentiometer.get() == CLOSE_TO_MAX);
+        return m_encoder.getPosition();
     }
 
-    public boolean isCloseToMinPotValue()
+    public double getOffset()
     {
-        return (m_potentiometer.get() == CLOSE_TO_MIN);
+        return m_offset;
     }
-
-    public boolean isArmAtMaxPotValue()
-    {
-        return (m_potentiometer.get() == ARM_MAX);
-    }
-
-    public boolean isArmAtMinPotValue()
-    {
-        return (m_potentiometer.get() == ARM_MIN);
-    }
-
-    private AnalogPotentiometer m_potentiometer;
-}
-
-
-class RobotArmState {
-
-    public static final boolean ARM_UP      = true;
-    public static final boolean ARM_DOWN    = false;
-
-
-    public RobotArmState(int limit_port) {
-
-        try {
-            m_limitSwitch = new DigitalInput(limit_port);
-       } catch (Exception e) {
-           DriverStation.reportError("Could not instantiate limit switch\n", false);
-       }
-    }
-
-    public boolean isArmAtLimit()
-    {
-        return (m_limitSwitch.get() == ARM_UP);
-    }
-
-    private DigitalInput m_limitSwitch;
 }
 
 class RobotCargoState {
 
-    public static final boolean CARGO_IN     = false;
-    public static final boolean CARGO_OUT    = true;
+    public static final boolean CARGO_IN     = true;
+    public static final boolean CARGO_OUT    = false;
 
     public RobotCargoState(int port) {
 
@@ -200,9 +237,6 @@ class RobotCargoState {
        } catch (Exception e) {
            DriverStation.reportError("Could not instantiate limit switch\n", false);
        }
-
-       SmartDashboard.putBoolean("Limit", m_limitSwitch.get());
-
     }
 
     public boolean isCargoPresent()

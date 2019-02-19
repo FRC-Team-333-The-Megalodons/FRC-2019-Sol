@@ -6,7 +6,7 @@ import edu.wpi.first.wpilibj.DoubleSolenoid;
 
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.Joystick;
-
+import edu.wpi.first.wpilibj.Solenoid;
 import edu.wpi.first.wpilibj.DoubleSolenoid.Value;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
@@ -17,6 +17,7 @@ import frc.robot.controllers.*;
 import com.revrobotics.CANSparkMaxLowLevel.MotorType;
 
 import edu.wpi.first.wpilibj.AnalogPotentiometer;
+import edu.wpi.first.wpilibj.DigitalInput;
 
 public class RobotMech {
 
@@ -38,8 +39,14 @@ public class RobotMech {
     private DoubleSolenoid m_rollerSolenoids;
     private boolean m_noseState;
     private long m_lastNoseStateChange;
+    private Long m_lastShootOutChange;
     private IntakeCargoFromFloor m_intakeCargoFromFloor;
-    private RobotArmPos m_armPotentiometer;
+    private IntakeCargoFromHuman m_intakeCargoFromHuman;
+    private ShootCargoIntoShip m_shootCargoIntoShip;
+    private ActivateDefenseMode m_activateDefenseMode;
+    private Solenoid m_panelIndicatorLight;
+    private DigitalInput m_intakeOutLimitSwitch;
+
 
   //  public double armPos = m_armPotentiometer.get();
 
@@ -47,7 +54,7 @@ public class RobotMech {
     public RobotMech() {
         /* Roller */
         try {
-            m_roller = new RobotRoller(VictorPort.Roller);
+            m_roller = new RobotRoller(CANSparkID.INTAKE_NEO);
         } catch (Exception e) {
 
             DriverStation.reportError("Couldn't instantiate Roller\n", false);
@@ -55,21 +62,21 @@ public class RobotMech {
 
         /* Arm */
         try {
-            m_arm = new RobotArm(VictorPort.IntakeArm);
+            m_arm = new RobotArm(CANSparkID.ARM_NEO);
         } catch (Exception e) {
             DriverStation.reportError("Couldn't instantiate Arm\n", false);
         }
 
         /* Shooter */
         try {
-            m_shooter = new RobotShooter(CANSparkID.SHOOTER_TOP, MotorType.kBrushed, CANSparkID.SHOOTER_BOTTOM, MotorType.kBrushless);
+            m_shooter = new RobotShooter(CANSparkID.SHOOTER_TOP, MotorType.kBrushed, CANSparkID.SHOOTER_BOTTOM, MotorType.kBrushed);
         } catch (Exception e) {
             DriverStation.reportError("Couldn't instantiate Shooter\n", false);
         }
 
         /* Instantiate the Roller solenoids */
         try {
-            m_rollerSolenoids = new DoubleSolenoid(SolenoidPort.ROLLER_UP, SolenoidPort.ROLLER_DOWN);
+            m_rollerSolenoids = new DoubleSolenoid(SolenoidPort.INTAKE_ROLLER_IN, SolenoidPort.INTAKE_ROLLER_OUT);
         } catch (Exception ex) {
             DriverStation.reportError("Could not instantiate the roller solenoids\n", false);
         }
@@ -81,32 +88,40 @@ public class RobotMech {
             DriverStation.reportError("Could not instantiate hatch grab mechanism\n", false);
         }
 
-        /* Instantiate the Arm Potentiometer */
         try {
-            m_armPotentiometer = new RobotArmPos(AnalogPort.ARM_POTENTIOMETER);
+            m_panelIndicatorLight = new Solenoid(SolenoidPort.PANEL_INDICATOR_LIGHT);
         } catch (Exception ex) {
-            DriverStation.reportError("Could not instantiate Wrist Potentiometer\n", false);
+            DriverStation.reportError("Could not instantiate Panel Indicator Light\n", false);
+        }
+
+        try {
+            m_intakeOutLimitSwitch = new DigitalInput(DigitalInputPort.INTAKE_OUT_SWITCH);
+        } catch (Exception ex) {
+            DriverStation.reportError("Could not instant limit switch for intake in outward position\n", false);
         }
 
         /* Controllers */
         m_intakeCargoFromFloor = new IntakeCargoFromFloor(this, m_arm);
+        m_intakeCargoFromHuman = new IntakeCargoFromHuman(this, m_arm);
+        m_shootCargoIntoShip   = new ShootCargoIntoShip(this, m_arm);
+        m_activateDefenseMode  = new ActivateDefenseMode(this, m_arm);
+    }
+
+    public RobotArm getRobotArm()
+    {
+        return m_arm;
     }
 
     public void updateDashboard() {   
-        SmartDashboard.putBoolean("Is Cargo Present?", m_arm.isCargoPresent());
-        SmartDashboard.putBoolean("Is Arm At Upper Limit?", m_arm.isArmAtUpperLimit());
-        SmartDashboard.putBoolean("Is Arm At Lower Limit?", m_arm.isArmAtLowerLimit());
-      //  m_arm.updateDashboard();
-    }
-
-    public void updatePotentiometer() {   
-        SmartDashboard.putNumber("Arm_Pos", m_armPotentiometer.get());
+        m_arm.updateDashboard();
+        SmartDashboard.putBoolean("Intake Out Limit Switch:", m_intakeOutLimitSwitch.get());
     }
 
     public void pushNoseOut()
     {
+        m_rollerSolenoids.set(Value.kReverse);
+
         if (!isNoseOut()) {
-            m_rollerSolenoids.set(Value.kForward);
             m_lastNoseStateChange = System.currentTimeMillis();
             m_noseState = true;
         }
@@ -114,11 +129,24 @@ public class RobotMech {
 
     public void pullNoseIn()
     {
+        m_rollerSolenoids.set(Value.kForward);
+
         if (isNoseOut()) {
-            m_rollerSolenoids.set(Value.kReverse);
             m_lastNoseStateChange = System.currentTimeMillis();
             m_noseState = false;
         }
+    }
+
+    public boolean hasPanel()
+    {
+        return m_hatchGrab.IsPanelOnLeft() ||
+               m_hatchGrab.IsPanelOnRight() ||
+               m_hatchGrab.IsPanelOnBothSides();
+    }
+
+    public void setPanelIndicator(boolean present)
+    {
+        m_panelIndicatorLight.set(present);
     }
 
     public boolean isNoseOut()
@@ -131,12 +159,26 @@ public class RobotMech {
         return System.currentTimeMillis() - m_lastNoseStateChange;
     }
 
+    public boolean isCargoActuallyShot()
+    {
+        // No choice but to do this based on time.
+        final double SHOOT_TIME = 500;
+
+        if (m_lastShootOutChange != null) {
+            return (System.currentTimeMillis() - m_lastShootOutChange >= SHOOT_TIME);
+        }
+        return false;
+    }
+
     public boolean isNoseActuallyOut()
     {
+        return !m_intakeOutLimitSwitch.get();
+        /*
         // At some point, this will be replaced by a Limit Switch that will actually tell us the position of the Nose.
         // For now, though, we'll just see whether the last command was to push out, and whether sufficient time (1 second?) has passed.
         long minimum_time_since_nose_out = 1000;
         return (isNoseOut() && timeSinceLastNoseStateChange() >= minimum_time_since_nose_out);
+        */
     }
 
     public void periodic(Joystick stick) {
@@ -145,57 +187,45 @@ public class RobotMech {
             return;
         }
 
-        // ARM : PWM 5
-        // 7: Raise arm up
-        // 9: Lower arm down
-
-        if (stick.getRawButton(PlayerButton.MOVE_ARM_UP) && !(m_arm.isArmAtUpperLimit())) {
-            //m_arm.set(calculatedUpspeed());
-            m_arm.moveArmUp();
-        }
-        else if (stick.getRawButton(PlayerButton.MOVE_ARM_DOWN) && !(m_arm.isArmAtLowerLimit())) {
-            m_arm.moveArmDown();
-        } else {
-            m_arm.stopArm();
-        }
-
-
-        // ROLLER : PWM 6
-        // 3: Take cargo in
-        // 5: Give ball out
-
-        if (stick.getRawButton(PlayerButton.INTAKE_CARGO)) {
-            m_intakeCargoFromFloor.do_intake();
-        } else if (stick.getRawButton(PlayerButton.SPIT_OUT_CARGO)) {
-            m_roller.pushRollerOut();
-            m_shooter.stopShooter();
-        } else if (stick.getRawButton(PlayerButton.FIRE_CARGO)) {
-            m_shooter.fireShooter();
-            m_roller.stopRoller();
-        } else if(stick.getRawButton(PlayerButton.INTAKE_WHILE_UP)){
-            m_shooter.intakeShooter();
-        } else{
-            m_roller.stopRoller();
-            m_shooter.stopShooter();
+        if (stick.getThrottle() < 0) { // Defense mode! Activate defense mode.
+            if (m_activateDefenseMode.do_defense()) {
+                if (stick.getTrigger() && !m_arm.getCargoState().isCargoPresent()) {
+                    pullInShooterRollers();
+                } else {
+                    stopShooterRollers();
+                }
             }
-        
-
-
-        // ROLLER_SOLENOIDS : PCM 3, 4
-        // 11: solenoid in
-        // 12: solenoid out
-        if (stick.getRawButton(PlayerButton.NOSE_IN)) {
-            pullNoseIn();
-        } else if (stick.getRawButton(PlayerButton.NOSE_OUT)) {
-            pushNoseOut();
+            return;
         }
 
-        // HATCH_GRAB : PCM 5
-        // Trigger: Unlock
-        if (stick.getTrigger()) {
-            m_hatchGrab.close();
+        boolean is_controller_invoked = false;
+        if (stick.getRawButton(PlayerButton.INTAKE_CARGO_FLOOR_1) ||
+            stick.getRawButton(PlayerButton.INTAKE_CARGO_FLOOR_2)) {
+            m_intakeCargoFromFloor.do_intake();
+            is_controller_invoked = true;
+        } else if (stick.getRawButton(PlayerButton.INTAKE_CARGO_HUMAN_1) ||
+                   stick.getRawButton(PlayerButton.INTAKE_CARGO_HUMAN_2)) {
+            m_intakeCargoFromHuman.do_intake();
+            is_controller_invoked = true;
         } else {
-            m_hatchGrab.open();
+            if (m_arm.getCargoState().isCargoPresent()) {
+                if (stick.getTrigger()) {
+                    m_shootCargoIntoShip.do_shoot();
+                    is_controller_invoked = true;
+                }
+            } else {
+                if (stick.getTrigger()) {
+                    m_hatchGrab.close();
+                } else {
+                    m_hatchGrab.open();
+                }
+            }
+        }
+
+        if (!is_controller_invoked) {
+            m_arm.stopArm();
+            stopIntakeRollers();
+            stopShooterRollers();
         }
     }
 
@@ -206,6 +236,7 @@ public class RobotMech {
 
     public void stopShooterRollers()
     {
+        m_lastShootOutChange = null;
         m_shooter.stopShooter();
     }
 
@@ -214,18 +245,18 @@ public class RobotMech {
         m_roller.stopRoller();
     }
 
-    public double calculatedUpspeed()
-    {
-        if (m_armPotentiometer.isCloseToMaxPotValue()) {
-            return slowUpSpeed;
-        } else {
-            return defaultUpSpeed;
-        }
-    }
-
     public void pullInShooterRollers()
     {
+        m_lastShootOutChange = null;
         m_shooter.intakeShooter();
+    }
+
+    public void pushOutShooterRollers()
+    {
+        if (m_lastShootOutChange == null) {
+            m_lastShootOutChange = System.currentTimeMillis();
+        }
+        m_shooter.fireShooter();
     }
 
     public void pullInIntakeRollers()

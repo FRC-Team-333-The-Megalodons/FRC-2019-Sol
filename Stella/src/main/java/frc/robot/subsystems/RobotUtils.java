@@ -566,14 +566,25 @@ class TeleopTransDrive {
     }
 
     /*ADDED BY ZAC FOR CURVATURE*/
-    public static final double CURVATURE_TURN_SCALE = .5;   //scales turns in curvature drive
-    public static final double CURVATURE_TURN_OVERRIDE_THRESHOLD = .5; //if the joystick x (sideways) value is above this pivot turns are possible as long as the driver isn't going forward
-    public static final double CURVATURE_FORWARD_OVERRIDE_THRESHOLD = .25;//controlls how much the driver needs to go forward before curvature kicks in
-    
-    public void curvatureDrive(Joystick stick, Double abs_limit, boolean curvatureDriveEnabled) {
+    public static final double CURVATURE_TURN_SCALE = .25;   //scales turns in curvature drive
+    public static final double CURVATURE_DOWNSCALE_THRESHOLD = 0.9;
+
+    public void curvatureDrive(Joystick stick, Double abs_limit) {
+
+        // When the low transmission button is held, fall back to arcadeDrive
+        if (stick.getRawButton(PlayerButton.FORCE_LOW_TRANSMISSION)) {
+            arcadeDrive(stick, abs_limit);
+            return;
+        }
 
         double joystick_Y = stick.getY();
         double joystick_X = stick.getX();
+
+        final double CURVATURE_TURN_OVERRIDE_THRESHOLD = 0.9; //if the joystick x (sideways) value is above this pivot turns are possible as long as the driver isn't going forward
+        final double CURVATURE_FORWARD_OVERRIDE_THRESHOLD = 0.2;//controlls how much the driver needs to go forward before curvature kicks in
+    
+        boolean isQuickTurn = Math.abs(stick.getX()) > CURVATURE_TURN_OVERRIDE_THRESHOLD // Should we do an in-place turn?
+                                && Math.abs(stick.getY()) < CURVATURE_FORWARD_OVERRIDE_THRESHOLD;
 
         // If the elevator is up, just limit our inputs.
         if (abs_limit != null) {
@@ -586,18 +597,20 @@ class TeleopTransDrive {
         m_transHistory.appendToHistory(joystick_Y);
         m_speedHistory.appendToHistory(joystick_Y);
 
-        // See whether the differential in Speed will be too much and the robot will flip.
+        double power = Math.pow(joystick_Y, 3);
+        //if (isQuickTurn) { power = Math.abs(joystick_X); }
+
+        double rotation = -joystick_X;
+
         /*
-        final double speed_delta_limit = 0.5;
-        double speedHistoryAverage = m_speedHistory.getHistoryAverage();
-        if (Math.abs(joystick_Y - speedHistoryAverage) > speed_delta_limit) {
-            // The change is too much! Limit it down to only speed_delta_limit away.
-            double sign = Math.signum(joystick_Y);
-            double new_Y = speedHistoryAverage + (speed_delta_limit * sign);
-            System.out.println("History="+speedHistoryAverage+"; Y="+joystick_Y+"; Sign="+sign+"; new_Y="+new_Y);
-            joystick_Y = new_Y;
+        if (Math.abs(rotation) < CURVATURE_DOWNSCALE_THRESHOLD) {
+            rotation *= Math.pow(CURVATURE_TURN_SCALE, 2);
         }
         */
+
+        m_drive.curvatureDrive(power, rotation, isQuickTurn);
+
+        /*
 
         // Actually put the input into the drivetrain 
         m_drive.curvatureDrive(Math.pow(joystick_Y, 3),//scale the speed of the joystick going forward by raising it to the 3rd power
@@ -608,6 +621,7 @@ class TeleopTransDrive {
                                         -CURVATURE_TURN_SCALE*.5*joystick_X)), //scale the joystick under a threashold
                                (curvatureDriveEnabled || 
                                     (Math.abs(joystick_X) > CURVATURE_TURN_OVERRIDE_THRESHOLD && Math.abs(joystick_Y) < CURVATURE_FORWARD_OVERRIDE_THRESHOLD))); // use curvature drive as long as the buttons arent being pressed and the driver isn't just going to the side
+        */
 
         // If the driver is holding the Low Transmission button, force it into low transmission.
         if (stick.getRawButton(m_button_forceLowTrans)) {
@@ -670,27 +684,37 @@ class TeleopTransDrive {
 }
 
 class LimelightDrive {
+    public static final double kAIM = 0.45;
+    public static final double kDistance = 5.125;
+    public static final double kMinInc = 0.05;
+    
     private DifferentialDrive m_drive;
     private Solenoidal m_transmission;
     private RobotHatchGrab m_hatchGrab;
+    private RobotCargoState m_cargoState;
 
-    public LimelightDrive(DifferentialDrive drive, Solenoidal transmission, RobotHatchGrab hatchGrab) {
+    public LimelightDrive(DifferentialDrive drive, Solenoidal transmission, RobotHatchGrab hatchGrab, RobotCargoState cargoState) {
         m_transmission = transmission;
         m_drive = drive;
         m_hatchGrab = hatchGrab;
+        m_cargoState = cargoState;
+
         //m_drive.setExpiration(0.1);
         //m_drive.setSafetyEnabled(true);
         //m_drive.setMaxOutput(0.5);
     }
 
     public void autoDrive(double tx, double ty, double area, Double cap) {
-        double KpAim = SmartDashboard.getNumber("AutoDrive_kAIM", 0.45f);
-        double KpDistance = SmartDashboard.getNumber("AutoDrive_kDistance", 5.125f);
-        double min_aim_command = SmartDashboard.getNumber("AutoDrive_minInc", 0.05f);
+        double KpAim = kAIM; //SmartDashboard.getNumber("AutoDrive_kAIM", kAIM);
+        double KpDistance = kDistance; //SmartDashboard.getNumber("AutoDrive_kDistance", kDistance);
+        double min_aim_command = kMinInc; //SmartDashboard.getNumber("AutoDrive_minInc", 0.05f);
 
         double max_x = 23;
         double min_x = -23;
         double max_area = 6.0;
+        if (m_cargoState.isCargoPresent()) {
+            max_area = 5.0;
+        }
         double min_area = 0.0;
         // Flip the area; it's inverted (bigger is target originally);
         if (area != 0.0f) {
@@ -750,7 +774,6 @@ class LimelightDrive {
         }
         */
         
-
         SmartDashboard.putNumber("LeftCommand", scaled_left_command);
         SmartDashboard.putNumber("RightCommand", scaled_right_command);
 

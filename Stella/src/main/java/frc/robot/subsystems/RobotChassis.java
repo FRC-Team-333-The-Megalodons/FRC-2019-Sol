@@ -32,9 +32,9 @@ public class RobotChassis {
     private AnalogInput m_ultrasonic;
     // private SerialPort m_arduino;
     private NetworkTable m_networkTable;
-    private double tx, ty, area;
+    private double m_tx, m_ty, m_area; 
 
-    public RobotChassis(RobotHatchGrab m_hatchGrab) {
+    public RobotChassis(RobotHatchGrab hatchGrab, RobotArm arm) {
 
         // Instantiate the compressor
         try {
@@ -68,7 +68,7 @@ public class RobotChassis {
             m_rawDifferentialDrive = new DifferentialDrive(m_leftLeader, m_rightLeader);
             //m_rawDifferentialDrive = new DifferentialDrive(CANLeftLeader, CANRightLeader);      //MEANT FOR CAN!
             m_teleopTransDrive = new TeleopTransDrive(m_rawDifferentialDrive, m_transmission, PlayerButton.FORCE_LOW_TRANSMISSION);
-            m_limelightDrive = new LimelightDrive(m_rawDifferentialDrive, m_transmission, m_hatchGrab);
+            m_limelightDrive = new LimelightDrive(m_rawDifferentialDrive, m_transmission, hatchGrab, arm.getCargoState());
         } catch (Exception ex) {
               DriverStation.reportError("Could not instantiate Drive Train Motors\n", false);
         }
@@ -100,18 +100,13 @@ public class RobotChassis {
             return;
         }
 
-        if (stick.getRawButton(PlayerButton.CHASE_REFLECTIVE_TAPE)) {
-            double cap = SmartDashboard.getNumber("AutoDriveSpeedCap", 0.5f);
-            m_limelightDrive.autoDrive(tx, ty, area, cap);
-          //  NetworkTableInstance.getDefault().getTable("limelight").getEntry("ledMode").setNumber(3);  //Turn on LED on limelight
+        if (stick.getRawButton(PlayerButton.CHASE_REFLECTIVE_TAPE_1) ||
+            stick.getRawButton(PlayerButton.CHASE_REFLECTIVE_TAPE_2)) {
+            double cap = 0.6; //SmartDashboard.getNumber("AutoDriveSpeedCap", 0.5f);
+            m_limelightDrive.autoDrive(m_tx, m_ty, m_area, cap);
         } else {
-          //  NetworkTableInstance.getDefault().getTable("limelight").getEntry("ledMode").setNumber(1);  //Turn off LED on limelight
-            m_teleopTransDrive.curvatureDrive(stick, abs_limit, stick.getRawButton(PlayerButton.FORCE_NO_CURVATURE)); // m_drive with arcade style
-           //m_teleopTransDrive.arcadeDrive(stick, abs_limit);
+            m_teleopTransDrive.curvatureDrive(stick, abs_limit); // m_drive with arcade style
         }
-
-        
-
 
         if (m_compressor != null) {
             m_compressor.setClosedLoopControl(true);
@@ -119,9 +114,9 @@ public class RobotChassis {
     }
 
     public void updateLatestVisionTargets() {
-        tx = m_networkTable.getEntry("tx").getDouble(0.0);
-        ty = m_networkTable.getEntry("ty").getDouble(0.0);
-        area = m_networkTable.getEntry("ta").getDouble(0.0);
+        m_tx = m_networkTable.getEntry("tx").getDouble(0.0);
+        m_ty = m_networkTable.getEntry("ty").getDouble(0.0);
+        m_area = m_networkTable.getEntry("ta").getDouble(0.0);
     }
 
 
@@ -134,9 +129,9 @@ public class RobotChassis {
         SmartDashboard.putNumber("ultrasonic_avg:", m_ultrasonic.getAverageVoltage()*39);
         SmartDashboard.putNumber("ultrasonic:", m_ultrasonic.getVoltage()*39);
         SmartDashboard.putNumber("raw analog 0:", m_ultrasonic.getValue());
-        SmartDashboard.putNumber("Limelight X", tx);
-        SmartDashboard.putNumber("Limelight Y", ty);
-        SmartDashboard.putNumber("Limelight Area", area);
+        SmartDashboard.putNumber("Limelight X", m_tx);
+        SmartDashboard.putNumber("Limelight Y", m_ty);
+        SmartDashboard.putNumber("Limelight Area", m_area);
     }
 
     public void stop() {

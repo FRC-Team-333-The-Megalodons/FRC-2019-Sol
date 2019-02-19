@@ -64,7 +64,7 @@ public class Robot extends TimedRobot {
 
         /* Chassis */
         try {
-            m_chassis = new RobotChassis(m_mech.getHatchGrab());
+            m_chassis = new RobotChassis(m_mech.getHatchGrab(), m_mech.getRobotArm());
         } catch (Exception ex) {
             DriverStation.reportError("Couldnt instantiate Chassis", false);
         }
@@ -91,9 +91,13 @@ public class Robot extends TimedRobot {
     @Override
     public void robotPeriodic() {
         m_chassis.updateLatestVisionTargets();
-       // m_mech.updateDashboard();
-        m_mech.updatePotentiometer();
+        m_mech.updateDashboard();
         m_chassis.updateDashboard();
+        m_mech.setPanelIndicator(m_mech.hasPanel());
+        SmartDashboard.putNumber("Joystick X", m_driverJoystick.getX());
+        SmartDashboard.putNumber("Joystick Y", m_driverJoystick.getY());
+        SmartDashboard.putNumber("Joystick Z", m_driverJoystick.getZ());
+        SmartDashboard.putNumber("Joystick Throttle", m_driverJoystick.getThrottle());
     }
 
     /**
@@ -166,11 +170,9 @@ public class Robot extends TimedRobot {
 
     public void initDashboard()
     {
-        SmartDashboard.setDefaultNumber("AutoDriveSpeedCap", 0.6f);
-        SmartDashboard.setDefaultNumber("AutoDrive_kAIM", 0.7f);
-        SmartDashboard.setDefaultNumber("AutoDrive_kDistance", 1.0f);
-        SmartDashboard.setDefaultNumber("AutoDrive_minInc", 0.05f);
-        SmartDashboard.setDefaultNumber("ArmAtHighMotorStallPower", 0.01f);
-        SmartDashboard.setDefaultNumber("ArmAtMiddleMotorStallPower", 0.05f);
+        //SmartDashboard.setDefaultNumber("AutoDriveSpeedCap", 0.6f);
+        //SmartDashboard.setDefaultNumber("AutoDrive_kAIM", 0.7f);
+        //SmartDashboard.setDefaultNumber("AutoDrive_kDistance", 1.0f);
+        //SmartDashboard.setDefaultNumber("AutoDrive_minInc", 0.05f);
     }
 }

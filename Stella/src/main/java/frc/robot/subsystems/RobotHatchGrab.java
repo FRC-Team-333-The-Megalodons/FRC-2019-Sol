@@ -48,7 +48,7 @@ public class RobotHatchGrab
     }
 
     public boolean IsPanelOnBothSides() {
-        return ((m_leftPanelSensor.getState() == true) && (m_rightPanelSensor.getState() == true));
+        return (IsPanelOnLeft() && IsPanelOnRight());
     }
 
     public void UpdatewhichSideIsOff() {
@@ -79,15 +79,15 @@ public class RobotHatchGrab
 
 class HatchPanelSensor{
 
-    AnalogInput PanelSensorPort;
-    public static final int HAS_HATCH_PANEL_VALUE  = 100;
+    private AnalogInput m_panelSensorPort;
+    public static final int HAS_HATCH_PANEL_VALUE  = 40;
 
-     public HatchPanelSensor(AnalogInput PanelSensorPort){
-             this.PanelSensorPort = PanelSensorPort;
-     }
+    public HatchPanelSensor(AnalogInput PanelSensorPort){
+        m_panelSensorPort = PanelSensorPort;
+    }
 
-     public boolean getState(){
-         return PanelSensorPort.getValue() >= HAS_HATCH_PANEL_VALUE;
-     }
+    public boolean getState(){
+        return m_panelSensorPort.getValue() > HAS_HATCH_PANEL_VALUE;
+    }
 
 }

@@ -1,16 +1,18 @@
 package frc.robot.subsystems;
 
+import com.revrobotics.CANSparkMax;
+import com.revrobotics.CANSparkMaxLowLevel.MotorType;
+
 import edu.wpi.first.wpilibj.DriverStation;
-import edu.wpi.first.wpilibj.Victor;
 
 public class RobotRoller{
 
-    private Victor m_victor;
+    private CANSparkMax m_motor;
 
     public RobotRoller(int port) {
         /* Instantiate the Roller */
         try {
-            m_victor = new Victor(port);
+            m_motor = new CANSparkMax(port, MotorType.kBrushed);
         } catch (Exception ex) {
             DriverStation.reportError("Could not instantiate the Roller\n", false);
         }
@@ -18,16 +20,16 @@ public class RobotRoller{
 
     public void pushRollerOut()
     {
-        m_victor.set(-1);
+        m_motor.set(-1);
     }
 
     public void pullRollerIn()
     {
-        m_victor.set(1);
+        m_motor.set(1);
     }
 
     public void stopRoller()
     {
-        m_victor.set(0);
+        m_motor.set(0);
     }
 }
