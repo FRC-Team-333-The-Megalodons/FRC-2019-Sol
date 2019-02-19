@@ -1,5 +1,8 @@
 package frc.robot.subsystems;
 
+import com.revrobotics.CANSparkMax;
+import com.revrobotics.CANSparkMaxLowLevel.MotorType;
+
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.Joystick;
 import edu.wpi.first.wpilibj.Victor;
@@ -12,13 +15,13 @@ public class RobotShooter {
     public static final double INTAKE_POWER = .5;
     public static final boolean CARGO_OUT = true;
 
-    private Victor m_victor;
-    private RobotCargoState m_cargoState;
+    private CANSparkMax m_topSpark, m_bottomSpark;
 
-    public RobotShooter(int port) {
+    public RobotShooter(int topDeviceID, MotorType topType, int bottomDeviceID, MotorType bottomType) {
         /* Instantiate the Shooter */
         try {
-            m_victor = new Victor(port);
+            m_topSpark = new CANSparkMax(topDeviceID, topType);
+            m_bottomSpark = new CANSparkMax(bottomDeviceID, bottomType);
         } catch (Exception ex) {
             DriverStation.reportError("Could not instantiate the Shooter\n", false);
         }
@@ -26,16 +29,19 @@ public class RobotShooter {
 
     public void fireShooter()
     {
-        m_victor.set(SHOOTER_POWER);
+        m_topSpark.set(SHOOTER_POWER);
+        m_bottomSpark.set(SHOOTER_POWER);
     }
 
     public void intakeShooter()
     {
-        m_victor.set(INTAKE_POWER);
+        m_topSpark.set(INTAKE_POWER);
+        m_bottomSpark.set(INTAKE_POWER);
     }
 
     public void stopShooter()
     {
-        m_victor.set(0.0);
+        m_topSpark.set(0.0);
+        m_bottomSpark.set(0.0);
     }
 }

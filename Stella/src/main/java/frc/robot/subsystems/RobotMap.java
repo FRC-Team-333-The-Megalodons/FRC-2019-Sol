@@ -7,6 +7,7 @@ public class RobotMap {
         public static final int FORCE_LOW_TRANSMISSION = 2;
         public static final int INTAKE_CARGO           = 3;
         public static final int FIRE_CARGO             = 4;
+        public static final int INTAKE_WHILE_UP        = 5;
         public static final int SPIT_OUT_CARGO         = 6;
         public static final int MOVE_ARM_UP            = 7;
         public static final int CHASE_REFLECTIVE_TAPE  = 8;
@@ -14,7 +15,6 @@ public class RobotMap {
         public static final int NOSE_OUT               = 11;
         public static final int NOSE_IN                = 12;
         public static final int FORCE_NO_CURVATURE     = 10;
-        public static final int INTAKE_WHILE_UP        = 5;
     }
 
     public static class DigitalInputPort {

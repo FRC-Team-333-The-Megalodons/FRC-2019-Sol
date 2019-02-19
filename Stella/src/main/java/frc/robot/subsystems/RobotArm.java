@@ -1,5 +1,9 @@
 package frc.robot.subsystems;
 
+import com.revrobotics.CANEncoder;
+import com.revrobotics.CANSparkMax;
+import com.revrobotics.CANSparkMaxLowLevel.MotorType;
+
 import edu.wpi.first.wpilibj.AnalogGyro;
 import edu.wpi.first.wpilibj.AnalogPotentiometer;
 import edu.wpi.first.wpilibj.Victor;
@@ -19,12 +23,14 @@ public class RobotArm {
     private RobotCargoState m_cargoState;
     private RobotArmState m_upperArmLimit, m_lowerArmLimit;
    // private Gyro m_gyro;
-    private Victor m_victor;
+    private CANSparkMax m_armNeo;
+    private CANEncoder m_armNeoEnc;
 
     public RobotArm(int port) {
         /* Instantiate the Arm */
         try {
-            m_victor = new Victor(port);
+            m_armNeo = new CANSparkMax(port, MotorType.kBrushless);
+            m_armNeoEnc = m_armNeo.getEncoder();
         } catch (Exception ex) {
             DriverStation.reportError("Could not instantiate the Arm\n", false);
         }
@@ -68,55 +74,48 @@ public class RobotArm {
     {
         return m_lowerArmLimit.isArmAtLimit();
     }
-/*
+
     public void updateDashboard()
     {
-        SmartDashboard.putNumber("Gyro Reading", m_gyro.getAngle());
+        SmartDashboard.putBoolean("Is Cargo Present?", isCargoPresent());
+        SmartDashboard.putBoolean("Is Arm At Lower Limit?", isArmAtLowerLimit());
+        SmartDashboard.putBoolean("Is Arm At Upper Limit?", isArmAtUpperLimit());
+        SmartDashboard.putNumber("Arm Neo Encoder:", m_armNeoEnc.getPosition());
     }
+/*
     public boolean isArmAtHigh()
     {
-        return m_gyro.getAngle() >= 90.0;
+        Read the m_armNeoEncoder to decide if we're at "High" position
     }
     public boolean isArmAtMiddle()
     {
-        return m_gyro.getAngle() >= 50.0;
+        ""
     }
-*/
+
     public boolean isArmAtLow()
     {
-        return isArmAtLowerLimit();
+        ""
     }
+*/
 
     public void set(double speed)
     {
-        m_victor.set(speed);
+        m_armNeo.set(speed);
     }
 
     public void moveArmUp()
     {
-        m_victor.set(.75);
+        m_armNeo.set(.75);
     }
 
     public void moveArmDown()
     {
-        m_victor.set(-.30);
-    }
-
-    public void holdArmAtHigh()
-    {
-        double power = SmartDashboard.getNumber("ArmAtHighMotorStallPower",0.0f);
-        m_victor.set(power);
-    }
-
-    public void holdArmAtMiddle()
-    {
-        double power = SmartDashboard.getNumber("ArmAtMiddleMotorStallPower", 0.0f);
-        m_victor.set(power);
+        m_armNeo.set(-.30);
     }
 
     public void stopArm()
     {
-        m_victor.set(0);
+        m_armNeo.set(0);
     }
         
 }
@@ -179,11 +178,6 @@ class RobotArmState {
        } catch (Exception e) {
            DriverStation.reportError("Could not instantiate limit switch\n", false);
        }
-
-
-
-       SmartDashboard.putBoolean("Arm Limit", m_limitSwitch.get());
-
     }
 
     public boolean isArmAtLimit()
@@ -193,7 +187,6 @@ class RobotArmState {
 
     private DigitalInput m_limitSwitch;
 }
-
 
 class RobotCargoState {
 

@@ -24,7 +24,7 @@ public class IntakeCargoFromFloor
         if (m_mech.isCargoPresent()) {
             return INTAKE_STATE_BALL_IN_POSSESSION;
         }
-        if (m_arm.isArmAtLow()) {
+        if (m_arm.isArmAtLowerLimit()) {
             if (m_mech.isNoseActuallyOut()) {
                 return INTAKE_STATE_CLAW_IS_DOWN_AND_NOSE_IS_OUT;
             } else {

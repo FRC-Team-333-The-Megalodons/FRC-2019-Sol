@@ -14,6 +14,8 @@ import frc.robot.subsystems.*;
 import frc.robot.subsystems.RobotMap.*;
 import frc.robot.controllers.*;
 
+import com.revrobotics.CANSparkMaxLowLevel.MotorType;
+
 import edu.wpi.first.wpilibj.AnalogPotentiometer;
 
 public class RobotMech {
@@ -60,7 +62,7 @@ public class RobotMech {
 
         /* Shooter */
         try {
-            m_shooter = new RobotShooter(VictorPort.Shooter);
+            m_shooter = new RobotShooter(CANSparkID.SHOOTER_TOP, MotorType.kBrushed, CANSparkID.SHOOTER_BOTTOM, MotorType.kBrushless);
         } catch (Exception e) {
             DriverStation.reportError("Couldn't instantiate Shooter\n", false);
         }
@@ -147,14 +149,12 @@ public class RobotMech {
         // 7: Raise arm up
         // 9: Lower arm down
 
-        if (stick.getRawButton(PlayerButton.MOVE_ARM_UP) && !(m_arm.isArmAtUpperLimit() || (m_armPotentiometer.get() >= ARM_MAX_LIMIT))) {
+        if (stick.getRawButton(PlayerButton.MOVE_ARM_UP) && !(m_arm.isArmAtUpperLimit())) {
             //m_arm.set(calculatedUpspeed());
             m_arm.moveArmUp();
         }
-        else if (stick.getRawButton(PlayerButton.MOVE_ARM_DOWN) && !(m_arm.isArmAtLowerLimit() || (m_armPotentiometer.get() <= ARM_MIN_LIMIT))) {
+        else if (stick.getRawButton(PlayerButton.MOVE_ARM_DOWN) && !(m_arm.isArmAtLowerLimit())) {
             m_arm.moveArmDown();
-        } else if (m_armPotentiometer.isCloseToMaxPotValue()){
-            m_arm.holdArmAtHigh();     //0.05 seems fine
         } else {
             m_arm.stopArm();
         }
