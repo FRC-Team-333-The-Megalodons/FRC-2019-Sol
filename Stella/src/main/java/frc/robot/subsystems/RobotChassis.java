@@ -19,6 +19,7 @@ import edu.wpi.first.wpilibj.SpeedController;
 import edu.wpi.first.wpilibj.SerialPort;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj.AnalogInput;
+import edu.wpi.first.cameraserver.CameraServer;
 
 public class RobotChassis {
 
@@ -77,7 +78,12 @@ public class RobotChassis {
             m_ultrasonic = new AnalogInput(AnalogPort.ULTRASONIC_SENSOR);
         } catch (Exception e) {
             DriverStation.reportError("Could not instantiate Ultrasonic sensor\n", false);
+        }
 
+        try {
+            
+        } catch (Exception e) {
+            //TODO: handle exception
         }
 
         // Instantiate the Limelight's Network Tables

@@ -712,9 +712,11 @@ class LimelightDrive {
         double max_x = 23;
         double min_x = -23;
         double max_area = 6.0;
-        if (m_cargoState.isCargoPresent()) {
+
+        //TODO
+        /*if (m_cargoState.isCargoPresent()) {
             max_area = 5.0;
-        }
+        }*/
         double min_area = 0.0;
         // Flip the area; it's inverted (bigger is target originally);
         if (area != 0.0f) {
