@@ -68,5 +68,9 @@ public class RobotMap {
         TEST, MOVE_FORWARD, MOVE_BACKWARD
     };
 
+    public static class RobotType{
+        public static final boolean isFinal = false;
+    }
+
 
 }

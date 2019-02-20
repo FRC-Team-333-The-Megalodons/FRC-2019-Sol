@@ -41,6 +41,7 @@ public class RobotArm {
         /* Instantiate the Arm */
         try {
             m_armNeo = new CANSparkMax(port, MotorType.kBrushless);
+            m_armNeo.setInverted(!RobotMap.RobotType.isFinal);
             m_position = new RobotArmPos(m_armNeo.getEncoder());
         } catch (Exception ex) {
             DriverStation.reportError("Could not instantiate the Arm\n", false);

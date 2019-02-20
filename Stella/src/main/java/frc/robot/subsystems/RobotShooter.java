@@ -22,6 +22,7 @@ public class RobotShooter {
         try {
             m_topSpark = new CANSparkMax(topDeviceID, topType);
             m_bottomSpark = new CANSparkMax(bottomDeviceID, bottomType);
+            m_bottomSpark.setInverted(!RobotMap.RobotType.isFinal);
         } catch (Exception ex) {
             DriverStation.reportError("Could not instantiate the Shooter\n", false);
         }
