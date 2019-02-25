@@ -19,6 +19,7 @@ import edu.wpi.first.wpilibj.SpeedController;
 import edu.wpi.first.wpilibj.SerialPort;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj.AnalogInput;
+import edu.wpi.cscore.UsbCamera;
 import edu.wpi.first.cameraserver.CameraServer;
 
 public class RobotChassis {
@@ -81,9 +82,11 @@ public class RobotChassis {
         }
 
         try {
-            
+            UsbCamera camera = CameraServer.getInstance().startAutomaticCapture();
+            camera.setResolution(640, 480);
         } catch (Exception e) {
-            //TODO: handle exception
+            DriverStation.reportError("Could not instantiate driver camera\n", false);
+
         }
 
         // Instantiate the Limelight's Network Tables
