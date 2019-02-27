@@ -83,7 +83,7 @@ public class RobotMech {
 
         /* Instantiate the Hatch grab */
         try {
-            m_hatchGrab = new RobotHatchGrab(SolenoidPort.HATCH_GRAB, AnalogPort.LEFT_PANEL_SENSOR, AnalogPort.RIGHT_PANEL_SENSOR);
+            m_hatchGrab = new RobotHatchGrab(SolenoidPort.HATCH_GRAB);
         } catch (Exception ex) {
             DriverStation.reportError("Could not instantiate hatch grab mechanism\n", false);
         }
@@ -115,6 +115,7 @@ public class RobotMech {
     public void updateDashboard() {   
         m_arm.updateDashboard();
         SmartDashboard.putBoolean("Intake Out Limit Switch:", m_intakeOutLimitSwitch.get());
+        //SmartDashboard.putBoolean("hatchSensor", m_hatchGrab.IsPanelOnLeft());
     }
 
     public void pushNoseOut()
@@ -137,12 +138,12 @@ public class RobotMech {
         }
     }
 
-    public boolean hasPanel()
+    /*public boolean hasPanel()
     {
         return m_hatchGrab.IsPanelOnLeft() ||
                m_hatchGrab.IsPanelOnRight() ||
                m_hatchGrab.IsPanelOnBothSides();
-    }
+    }*/
 
     public void setPanelIndicator(boolean present)
     {

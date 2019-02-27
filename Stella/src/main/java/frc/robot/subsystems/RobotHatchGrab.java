@@ -3,20 +3,20 @@ package frc.robot.subsystems;
 import edu.wpi.first.wpilibj.AnalogInput;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
-import frc.robot.subsystems.RobotMap.AnalogPort;
+//import frc.robot.subsystems.RobotMap.AnalogPort;
 
 public class RobotHatchGrab
 {
     private SolenoidT m_hatchGrab;
     
-    private HatchPanelSensor m_rightPanelSensor;
-    private HatchPanelSensor m_leftPanelSensor;
+    //rivate HatchPanelSensor m_rightPanelSensor;
+    //private HatchPanelSensor m_leftPanelSensor;
 
     public static final double FULLYON = -1;
     public static String whichSide;
 
 
-    public RobotHatchGrab(int hatchSolenoidPort, int leftAnalogSensorPort, int rightAnalogSensorPort)
+    public RobotHatchGrab(int hatchSolenoidPort)
     {
 
         try {
@@ -25,20 +25,9 @@ public class RobotHatchGrab
             DriverStation.reportError("Could not instantiate hatch panel solenoid\n", false);
         }
         
-        try {
-            m_rightPanelSensor = new HatchPanelSensor(new AnalogInput(rightAnalogSensorPort));   
-        } catch (Exception e) {
-            DriverStation.reportError("Could not instantiate Left panel sensor\n", false);
-        }
-
-        try {
-            m_leftPanelSensor = new HatchPanelSensor(new AnalogInput(leftAnalogSensorPort));
-        } catch (Exception e) {
-            DriverStation.reportError("Could not instantiate Left panel sensor\n", false);
-        }
     }
 
-    public boolean IsPanelOnLeft() {
+   /* public boolean IsPanelOnLeft() {
         return m_leftPanelSensor.getState();
     }
 
@@ -63,7 +52,7 @@ public class RobotHatchGrab
         }
 
         SmartDashboard.putString("Which Side Is Off:", whichSide);
-    }
+    }*/
 
     public void open()
     {

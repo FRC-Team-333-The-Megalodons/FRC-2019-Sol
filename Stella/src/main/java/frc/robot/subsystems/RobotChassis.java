@@ -75,12 +75,12 @@ public class RobotChassis {
               DriverStation.reportError("Could not instantiate Drive Train Motors\n", false);
         }
 
-        try {
+       /* try {
             m_ultrasonic = new AnalogInput(AnalogPort.ULTRASONIC_SENSOR);
         } catch (Exception e) {
             DriverStation.reportError("Could not instantiate Ultrasonic sensor\n", false);
-        }
-
+         }
+*/
         try {
             UsbCamera camera = CameraServer.getInstance().startAutomaticCapture();
             camera.setResolution(640, 480);
@@ -135,9 +135,9 @@ public class RobotChassis {
         SmartDashboard.putNumber("LeftFollower:", m_leftFollowerEnc.getPosition());
         SmartDashboard.putNumber("RightLeader:", m_rightLeaderEnc.getPosition());
         SmartDashboard.putNumber("RightFollower:", m_rightFollowerEnc.getPosition());
-        SmartDashboard.putNumber("ultrasonic_avg:", m_ultrasonic.getAverageVoltage()*39);
-        SmartDashboard.putNumber("ultrasonic:", m_ultrasonic.getVoltage()*39);
-        SmartDashboard.putNumber("raw analog 0:", m_ultrasonic.getValue());
+        //SmartDashboard.putNumber("ultrasonic_avg:", m_ultrasonic.getAverageVoltage()*39);
+        //SmartDashboard.putNumber("ultrasonic:", m_ultrasonic.getVoltage()*39);
+       // SmartDashboard.putNumber("raw analog 0:", m_ultrasonic.getValue());
         SmartDashboard.putNumber("Limelight X", m_tx);
         SmartDashboard.putNumber("Limelight Y", m_ty);
         SmartDashboard.putNumber("Limelight Area", m_area);

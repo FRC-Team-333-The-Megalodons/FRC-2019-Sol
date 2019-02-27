@@ -21,10 +21,10 @@ public class RobotMap {
     }
 
     public static class AnalogPort {
-        public static final int ULTRASONIC_SENSOR = 0;
-        public static final int RIGHT_PANEL_SENSOR = 1;
-        public static final int LEFT_PANEL_SENSOR = 2;
-        public static final int ARM_POTENTIOMETER = 3;
+        //public static final int ULTRASONIC_SENSOR = -1;
+        public static final int RIGHT_PANEL_SENSOR = -1;
+        public static final int LEFT_PANEL_SENSOR = -1;
+        //public static final int ARM_POTENTIOMETER = -3;
     }
     
     /*
