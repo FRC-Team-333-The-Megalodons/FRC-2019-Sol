@@ -83,7 +83,7 @@ public class RobotMech {
 
         /* Instantiate the Hatch grab */
         try {
-            m_hatchGrab = new RobotHatchGrab(SolenoidPort.HATCH_GRAB);
+            m_hatchGrab = new RobotHatchGrab(SolenoidPort.HATCH_GRAB, AnalogPort.LEFT_PANEL_SENSOR, AnalogPort.RIGHT_PANEL_SENSOR);
         } catch (Exception ex) {
             DriverStation.reportError("Could not instantiate hatch grab mechanism\n", false);
         }
@@ -115,7 +115,8 @@ public class RobotMech {
     public void updateDashboard() {   
         m_arm.updateDashboard();
         SmartDashboard.putBoolean("Intake Out Limit Switch:", m_intakeOutLimitSwitch.get());
-        //SmartDashboard.putBoolean("hatchSensor", m_hatchGrab.IsPanelOnLeft());
+        SmartDashboard.putBoolean("hatchSensor", m_hatchGrab.IsPanelOnLeft());
+        SmartDashboard.putNumber("hatch sensor raw voltage", m_hatchGrab.RawValue());
     }
 
     public void pushNoseOut()
@@ -138,12 +139,6 @@ public class RobotMech {
         }
     }
 
-    /*public boolean hasPanel()
-    {
-        return m_hatchGrab.IsPanelOnLeft() ||
-               m_hatchGrab.IsPanelOnRight() ||
-               m_hatchGrab.IsPanelOnBothSides();
-    }*/
 
     public void setPanelIndicator(boolean present)
     {
@@ -263,10 +258,6 @@ public class RobotMech {
     public void pullInIntakeRollers()
     {
         m_roller.pullRollerIn();
-    }
-
-    private boolean enoughTimePassed(long timeNow, long initTime) {
-        return timeNow > initTime + 1000;
     }
 
     public boolean isCargoPresent()

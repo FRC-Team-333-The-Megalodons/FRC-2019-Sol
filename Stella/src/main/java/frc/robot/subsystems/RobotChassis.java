@@ -19,8 +19,7 @@ import edu.wpi.first.wpilibj.SpeedController;
 import edu.wpi.first.wpilibj.SerialPort;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj.AnalogInput;
-import edu.wpi.cscore.UsbCamera;
-import edu.wpi.first.cameraserver.CameraServer;
+
 
 public class RobotChassis {
 
@@ -81,13 +80,6 @@ public class RobotChassis {
             DriverStation.reportError("Could not instantiate Ultrasonic sensor\n", false);
          }
 */
-        try {
-            UsbCamera camera = CameraServer.getInstance().startAutomaticCapture();
-            camera.setResolution(640, 480);
-        } catch (Exception e) {
-            DriverStation.reportError("Could not instantiate driver camera\n", false);
-
-        }
 
         // Instantiate the Limelight's Network Tables
         try {

@@ -26,13 +26,14 @@ public class RobotArm {
     private CANSparkMax m_armNeo;
 
     private RobotArmPos m_position;
-    public static final double TOP_POSITION     = 130.0;
-    public static final double CARGO_TRAVEL_POSITION = 50.0;
-    public static final double BOTTOM_POSITION  = 0.0;
+    private static final double invertPosition = (RobotMap.RobotType.isFinal? 1:-1);
+    public static final double TOP_POSITION     = invertPosition* 130.0;
+    public static final double CARGO_TRAVEL_POSITION = invertPosition*50.0;
+    public static final double BOTTOM_POSITION  = invertPosition*0.0;
     private final double UPWARD_MOTOR_POWER     = 1.0;
     private final double DOWNWARD_MOTOR_POWER   = -1.0;
-    private final double UPPER_LIMIT_SWITCH_POS = 150.0;
-    private final double LOWER_LIMIT_SWITCH_POS = 0.0;
+    private final double UPPER_LIMIT_SWITCH_POS = invertPosition*150.0;
+    private final double LOWER_LIMIT_SWITCH_POS = invertPosition*0.0;
     private final double ARM_POS_TOLERANCE      = 0.5;
     private final double ARM_CLOSE_THRESHOLD    = 15.0;
     private final double ARM_MOTOR_MINIMUM_FACTOR = 0.2;
@@ -86,9 +87,9 @@ public class RobotArm {
         SmartDashboard.putBoolean("Is Cargo Present?", isCargoPresent());
         SmartDashboard.putBoolean("Is Arm At Lower Limit?", isArmAtLowerLimit());
         SmartDashboard.putBoolean("Is Arm At Upper Limit?", isArmAtUpperLimit());
-        SmartDashboard.putNumber("Arm Hall Encoder (raw):", m_position.getRawPosition());
+        /*SmartDashboard.putNumber("Arm Hall Encoder (raw):", m_position.getRawPosition());
         SmartDashboard.putNumber("Arm Hall Encoder (scaled):", m_position.get());
-        SmartDashboard.putNumber("Arm Hall Encoder (offset):", m_position.getOffset());
+        SmartDashboard.putNumber("Arm Hall Encoder (offset):", m_position.getOffset());*/
     }
 
     public void moveArmUp(double factor)

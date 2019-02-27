@@ -9,14 +9,14 @@ public class RobotHatchGrab
 {
     private SolenoidT m_hatchGrab;
     
-    //rivate HatchPanelSensor m_rightPanelSensor;
-    //private HatchPanelSensor m_leftPanelSensor;
+    private HatchPanelSensor m_rightPanelSensor;
+    private HatchPanelSensor m_leftPanelSensor;
 
     public static final double FULLYON = -1;
     public static String whichSide;
 
 
-    public RobotHatchGrab(int hatchSolenoidPort)
+    public RobotHatchGrab(int hatchSolenoidPort, int leftPanelSensor, int rightPanelSensor)
     {
 
         try {
@@ -24,10 +24,25 @@ public class RobotHatchGrab
         } catch (Exception ex) {
             DriverStation.reportError("Could not instantiate hatch panel solenoid\n", false);
         }
+
+        try {
+            m_rightPanelSensor = new HatchPanelSensor(new AnalogInput(rightPanelSensor));
+        } catch (Exception ex) {
+            DriverStation.reportError("Could not instantiate right panel sensor\n"+ex.toString(), false);
+        }
+
+        try {
+            m_leftPanelSensor = new HatchPanelSensor(new AnalogInput(leftPanelSensor));
+        } catch (Exception ex) {
+            DriverStation.reportError("Could not instantiate left panel sensor\n", false);
+        }
         
     }
 
-   /* public boolean IsPanelOnLeft() {
+    public boolean IsPanelOnLeft() {
+        if(m_leftPanelSensor == null){
+            return false;
+        }
         return m_leftPanelSensor.getState();
     }
 
@@ -38,6 +53,10 @@ public class RobotHatchGrab
 
     public boolean IsPanelOnBothSides() {
         return (IsPanelOnLeft() && IsPanelOnRight());
+    }
+
+    public double RawValue(){
+        return m_leftPanelSensor.getVoltage();
     }
 
     public void UpdatewhichSideIsOff() {
@@ -52,7 +71,7 @@ public class RobotHatchGrab
         }
 
         SmartDashboard.putString("Which Side Is Off:", whichSide);
-    }*/
+    }
 
     public void open()
     {
@@ -77,6 +96,10 @@ class HatchPanelSensor{
 
     public boolean getState(){
         return m_panelSensorPort.getValue() > HAS_HATCH_PANEL_VALUE;
+    }
+
+    public double getVoltage(){
+        return m_panelSensorPort.getVoltage();
     }
 
 }

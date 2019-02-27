@@ -15,6 +15,8 @@ import edu.wpi.first.wpilibj.DriverStation;
 import frc.robot.subsystems.*;
 import frc.robot.subsystems.RobotMap.*;
 import edu.wpi.first.wpilibj.AnalogInput;
+import edu.wpi.cscore.UsbCamera;
+import edu.wpi.first.cameraserver.CameraServer;
 
 /**
  * The VM is configured to automatically run this class, and to call the
@@ -67,6 +69,14 @@ public class Robot extends TimedRobot {
             m_chassis = new RobotChassis(m_mech.getHatchGrab(), m_mech.getRobotArm());
         } catch (Exception ex) {
             DriverStation.reportError("Couldnt instantiate Chassis", false);
+        }
+
+        try {
+            UsbCamera camera = CameraServer.getInstance().startAutomaticCapture();
+            camera.setResolution(640, 480);
+        } catch (Exception e) {
+            DriverStation.reportError("Could not instantiate driver camera\n", false);
+
         }
 
 /*
