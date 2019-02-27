@@ -1,10 +1,8 @@
 package frc.robot.subsystems;
 
-//import frc.robot.Map.EncoderPort;
 import edu.wpi.first.networktables.NetworkTable;
 import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.wpilibj.Compressor;
-import frc.robot.subsystems.*;
 import frc.robot.subsystems.RobotMap.*;
 
 import com.revrobotics.CANEncoder;
@@ -13,12 +11,8 @@ import com.revrobotics.CANSparkMaxLowLevel.MotorType;
 
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.Joystick;
-import edu.wpi.first.wpilibj.Spark;
 import edu.wpi.first.wpilibj.drive.DifferentialDrive;
-import edu.wpi.first.wpilibj.SpeedController;
-import edu.wpi.first.wpilibj.SerialPort;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
-import edu.wpi.first.wpilibj.AnalogInput;
 
 
 public class RobotChassis {
@@ -30,7 +24,6 @@ public class RobotChassis {
     private CANSparkMax m_leftLeader, m_leftFollower, m_rightLeader, m_rightFollower;
     private CANEncoder m_leftLeaderEnc, m_leftFollowerEnc, m_rightLeaderEnc, m_rightFollowerEnc;
     private LimelightDrive m_limelightDrive;
-    private AnalogInput m_ultrasonic;
     // private SerialPort m_arduino;
     private NetworkTable m_networkTable;
     private double m_tx, m_ty, m_area; 

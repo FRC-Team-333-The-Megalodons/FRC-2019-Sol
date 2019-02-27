@@ -10,13 +10,11 @@ import edu.wpi.first.wpilibj.Solenoid;
 import edu.wpi.first.wpilibj.DoubleSolenoid.Value;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
-import frc.robot.subsystems.*;
 import frc.robot.subsystems.RobotMap.*;
 import frc.robot.controllers.*;
 
 import com.revrobotics.CANSparkMaxLowLevel.MotorType;
 
-import edu.wpi.first.wpilibj.AnalogPotentiometer;
 import edu.wpi.first.wpilibj.DigitalInput;
 
 public class RobotMech {
@@ -115,8 +113,8 @@ public class RobotMech {
     public void updateDashboard() {   
         m_arm.updateDashboard();
         SmartDashboard.putBoolean("Intake Out Limit Switch:", m_intakeOutLimitSwitch.get());
-        SmartDashboard.putBoolean("hatchSensor", m_hatchGrab.IsPanelOnLeft());
-        SmartDashboard.putNumber("hatch sensor raw voltage", m_hatchGrab.RawValue());
+       // SmartDashboard.putBoolean("hatchSensor", m_hatchGrab.IsPanelOnLeft());
+        //SmartDashboard.putNumber("hatch sensor raw voltage", m_hatchGrab.RawValue());
     }
 
     public void pushNoseOut()

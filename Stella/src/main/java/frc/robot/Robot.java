@@ -14,7 +14,6 @@ import edu.wpi.first.wpilibj.Joystick;
 import edu.wpi.first.wpilibj.DriverStation;
 import frc.robot.subsystems.*;
 import frc.robot.subsystems.RobotMap.*;
-import edu.wpi.first.wpilibj.AnalogInput;
 import edu.wpi.cscore.UsbCamera;
 import edu.wpi.first.cameraserver.CameraServer;
 
