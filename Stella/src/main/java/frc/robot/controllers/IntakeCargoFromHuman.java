@@ -1,6 +1,7 @@
 package frc.robot.controllers;
 
 import edu.wpi.first.wpilibj.DriverStation;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import frc.robot.subsystems.*;
 
 public class IntakeCargoFromHuman
@@ -55,6 +56,8 @@ public class IntakeCargoFromHuman
     public boolean do_intake()
     {
         int state = evaluateCurrentState();
+        SmartDashboard.putNumber("Current Intake-from-human State", state);
+
         switch (state) {
             case INTAKE_STATE_HAVE_CARGO_NOSE_OUT_CLAW_MIDDLE: {
                 // We're finally done!

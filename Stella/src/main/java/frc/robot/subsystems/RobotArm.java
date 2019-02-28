@@ -20,14 +20,13 @@ public class RobotArm {
     private CANSparkMax m_armNeo;
 
     private RobotArmPos m_position;
-    private static final double invertPosition = (RobotMap.RobotType.isFinal? 1:-1);
-    public static final double TOP_POSITION     = invertPosition* 130.0;
-    public static final double CARGO_TRAVEL_POSITION = invertPosition*50.0;
-    public static final double BOTTOM_POSITION  = invertPosition*0.0;
-    private final double UPWARD_MOTOR_POWER     = 1.0;
-    private final double DOWNWARD_MOTOR_POWER   = -1.0;
-    private final double UPPER_LIMIT_SWITCH_POS = invertPosition*150.0;
-    private final double LOWER_LIMIT_SWITCH_POS = invertPosition*0.0;
+    public static final double TOP_POSITION          = RobotMap.RobotType.isFinal ? 130.0 : -122.0;
+    public static final double CARGO_TRAVEL_POSITION = RobotMap.RobotType.isFinal ? 50.0 : -40.0;
+    public static final double BOTTOM_POSITION       = RobotMap.RobotType.isFinal ? 0.0 : 0.0;
+    private final double UPWARD_MOTOR_POWER          = RobotMap.RobotType.isFinal ? 1.0 : -1.0;
+    private final double DOWNWARD_MOTOR_POWER        = RobotMap.RobotType.isFinal ? -1.0 : 1.0;
+    private final double UPPER_LIMIT_SWITCH_POS      = RobotMap.RobotType.isFinal ? 150.0 : -137.0;
+    private final double LOWER_LIMIT_SWITCH_POS      = RobotMap.RobotType.isFinal ? 0.0 : 0.0;
     private final double ARM_POS_TOLERANCE      = 0.5;
     private final double ARM_CLOSE_THRESHOLD    = 15.0;
     private final double ARM_MOTOR_MINIMUM_FACTOR = 0.2;
@@ -36,7 +35,6 @@ public class RobotArm {
         /* Instantiate the Arm */
         try {
             m_armNeo = new CANSparkMax(port, MotorType.kBrushless);
-            m_armNeo.setInverted(!RobotMap.RobotType.isFinal);
             m_position = new RobotArmPos(m_armNeo.getEncoder());
         } catch (Exception ex) {
             DriverStation.reportError("Could not instantiate the Arm\n", false);
@@ -81,9 +79,9 @@ public class RobotArm {
         SmartDashboard.putBoolean("Is Cargo Present?", isCargoPresent());
         SmartDashboard.putBoolean("Is Arm At Lower Limit?", isArmAtLowerLimit());
         SmartDashboard.putBoolean("Is Arm At Upper Limit?", isArmAtUpperLimit());
-        /*SmartDashboard.putNumber("Arm Hall Encoder (raw):", m_position.getRawPosition());
+        SmartDashboard.putNumber("Arm Hall Encoder (raw):", m_position.getRawPosition());
         SmartDashboard.putNumber("Arm Hall Encoder (scaled):", m_position.get());
-        SmartDashboard.putNumber("Arm Hall Encoder (offset):", m_position.getOffset());*/
+        SmartDashboard.putNumber("Arm Hall Encoder (offset):", m_position.getOffset());
     }
 
     public void moveArmUp(double factor)
@@ -158,7 +156,7 @@ public class RobotArm {
             factor = (gap / ARM_CLOSE_THRESHOLD);
         } 
 
-        if (current < target) {
+        if (RobotMap.RobotType.isFinal ? current < target : target < current) {
             moveArmUp(factor);   
         } else {
             moveArmDown(factor);
@@ -223,8 +221,8 @@ class RobotArmPos implements PIDSource {
 
 class RobotCargoState {
 
-    public static final boolean CARGO_IN     = true;
-    public static final boolean CARGO_OUT    = false;
+    public static final boolean CARGO_IN     = RobotMap.RobotType.isFinal ? true : false;
+    public static final boolean CARGO_OUT    = RobotMap.RobotType.isFinal ? false : true;
 
     public RobotCargoState(int port) {
 
