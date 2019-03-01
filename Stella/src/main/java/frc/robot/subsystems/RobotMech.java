@@ -215,6 +215,10 @@ public class RobotMech {
                 }
             }
         }
+        if (stick.getRawButton(PlayerButton.ROTATE_ROLLERS_OUT_1) || (stick.getRawButton(PlayerButton.ROTATE_ROLLERS_OUT_2) ||
+        (stick.getRawButton(PlayerButton.ROTATE_ROLLERS_OUT_3) || (stick.getRawButton(PlayerButton.ROTATE_ROLLERS_OUT_4))))) {
+            m_roller.pushRollerOut();
+        }
 
         if (!is_controller_invoked) {
             m_arm.stopArm();

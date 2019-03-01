@@ -9,7 +9,7 @@ public class RobotShooter {
 
     public static final int INTAKE_BUTTON = 3;
     public static final int SHOOTER_BUTTON = 4;
-    public static final double SHOOTER_POWER = 0.9;
+    public static final double SHOOTER_POWER = 1.0;
     public static final double INTAKE_POWER = -0.5;
     public static final boolean CARGO_OUT = true;
 
