@@ -113,8 +113,8 @@ public class RobotMech {
     public void updateDashboard() {   
         m_arm.updateDashboard();
         SmartDashboard.putBoolean("Is nose out:", isNoseActuallyOut());
-       // SmartDashboard.putBoolean("hatchSensor", m_hatchGrab.IsPanelOnLeft());
-        //SmartDashboard.putNumber("hatch sensor raw voltage", m_hatchGrab.RawValue());
+        SmartDashboard.putBoolean("hatchSensor", m_hatchGrab.IsPanelOnLeft());
+        SmartDashboard.putNumber("hatch sensor raw voltage", m_hatchGrab.RawValue());
     }
 
     public void pushNoseOut()

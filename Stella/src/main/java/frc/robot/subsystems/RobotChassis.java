@@ -21,6 +21,7 @@ public class RobotChassis {
     private Solenoidal m_transmission;
     private Compressor m_compressor;
     private TeleopTransDrive m_teleopTransDrive;
+    private CANSparkMax m_leftClimber, m_rightClimber;
     private CANSparkMax m_leftLeader, m_leftFollower, m_rightLeader, m_rightFollower;
     private CANEncoder m_leftLeaderEnc, m_leftFollowerEnc, m_rightLeaderEnc, m_rightFollowerEnc;
     private LimelightDrive m_limelightDrive;
@@ -66,7 +67,14 @@ public class RobotChassis {
         } catch (Exception ex) {
               DriverStation.reportError("Could not instantiate Drive Train Motors\n", false);
         }
-
+/*
+        try {
+            m_rightClimber = new CANSparkMax(CANSparkID.RIGHT_CLIMBER, MotorType.kBrushed);
+            m_leftClimber = new CANSparkMax(CANSparkID.LEFT_CLIMBER, MotorType.kBrushed);
+        } catch (Exception ex) {
+            DriverStation.reportError("Could not instantiate Climber\n", false);
+        }
+*/
        /* try {
             m_ultrasonic = new AnalogInput(AnalogPort.ULTRASONIC_SENSOR);
         } catch (Exception e) {
@@ -101,6 +109,8 @@ public class RobotChassis {
         } else {
             m_teleopTransDrive.curvatureDrive(stick, abs_limit); // m_drive with arcade style
         }
+
+
 
         if (m_compressor != null) {
             m_compressor.setClosedLoopControl(true);

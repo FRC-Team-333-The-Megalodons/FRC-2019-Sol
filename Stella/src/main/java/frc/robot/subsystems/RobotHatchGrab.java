@@ -26,13 +26,13 @@ public class RobotHatchGrab
         }
 
         try {
-            m_rightPanelSensor = new HatchPanelSensor(new AnalogInput(rightPanelSensor));
+            m_rightPanelSensor = new HatchPanelSensor(new AnalogInput(rightPanelSensor), 3500);
         } catch (Exception ex) {
             DriverStation.reportError("Could not instantiate right panel sensor\n"+ex.toString(), false);
         }
 
         try {
-            m_leftPanelSensor = new HatchPanelSensor(new AnalogInput(leftPanelSensor));
+            m_leftPanelSensor = new HatchPanelSensor(new AnalogInput(leftPanelSensor), 3700);
         } catch (Exception ex) {
             DriverStation.reportError("Could not instantiate left panel sensor\n", false);
         }
@@ -88,10 +88,11 @@ public class RobotHatchGrab
 class HatchPanelSensor{
 
     private AnalogInput m_panelSensorPort;
-    public static final int HAS_HATCH_PANEL_VALUE  = 40;
+    public int HAS_HATCH_PANEL_VALUE;
 
-    public HatchPanelSensor(AnalogInput PanelSensorPort){
+    public HatchPanelSensor(AnalogInput PanelSensorPort, int HAS_HATCH_PANEL_VALUE){
         m_panelSensorPort = PanelSensorPort;
+        this.HAS_HATCH_PANEL_VALUE = HAS_HATCH_PANEL_VALUE;
     }
 
     public boolean getState(){
@@ -99,7 +100,7 @@ class HatchPanelSensor{
     }
 
     public double getVoltage(){
-        return m_panelSensorPort.getVoltage();
+        return m_panelSensorPort.getValue();
     }
 
 }

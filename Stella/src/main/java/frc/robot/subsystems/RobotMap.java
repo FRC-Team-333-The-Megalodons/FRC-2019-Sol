@@ -45,6 +45,8 @@ public class RobotMap {
         public static final int SHOOTER_BOTTOM  = 6;
         public static final int SHOOTER_TOP     = 7;
         public static final int ARM_NEO         = 8;
+        public static final int RIGHT_CLIMBER   = 9;
+        public static final int LEFT_CLIMBER    = 10; 
     }
 
     public static class SolenoidPort {
