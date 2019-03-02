@@ -1,6 +1,7 @@
 package frc.robot.subsystems;
 
 import edu.wpi.first.networktables.NetworkTable;
+import edu.wpi.first.networktables.NetworkTableEntry;
 import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.wpilibj.Compressor;
 import frc.robot.subsystems.RobotMap.*;
@@ -27,9 +28,10 @@ public class RobotChassis {
     private LimelightDrive m_limelightDrive;
     // private SerialPort m_arduino;
     private NetworkTable m_networkTable;
-    private double m_tx, m_ty, m_area; 
+    private double m_tx, m_ty, m_area;
+    private NetworkTableEntry m_pipeline;
 
-    public RobotChassis(RobotHatchGrab hatchGrab, RobotArm arm) {
+    public RobotChassis(NetworkTable networkTable, NetworkTableEntry pipeline, RobotHatchGrab hatchGrab, RobotArm arm) {
 
         // Instantiate the compressor
         try {
@@ -37,6 +39,10 @@ public class RobotChassis {
         } catch (Exception ex) {
             DriverStation.reportError("Could not start Compressor\n", false);
         }
+
+        
+        m_networkTable = networkTable;
+        m_pipeline = pipeline;
 
         // Instantiate Drive Train Motors, Transmission, and also the Wrapper Drives
         try {
@@ -82,12 +88,6 @@ public class RobotChassis {
          }
 */
 
-        // Instantiate the Limelight's Network Tables
-        try {
-            m_networkTable = NetworkTableInstance.getDefault().getTable("limelight");
-        } catch (Exception ex) {
-            DriverStation.reportError("Could not set up limelight network tables\n", false);
-        }
 
         /*
          * try { encoder = new Encoder(EncoderPort.One_A, EncoderPort.One_B, true); }
@@ -102,10 +102,16 @@ public class RobotChassis {
             return;
         }
 
-        if (stick.getRawButton(PlayerButton.CHASE_REFLECTIVE_TAPE_1) ||
-            stick.getRawButton(PlayerButton.CHASE_REFLECTIVE_TAPE_2)) {
+        boolean chase_hatch = stick.getRawButton(PlayerButton.CHASE_HATCH_1) ||
+                              stick.getRawButton(PlayerButton.CHASE_HATCH_2);
+        boolean chase_cargo = stick.getRawButton(PlayerButton.CHASE_CARGO_1) ||
+                              stick.getRawButton(PlayerButton.CHASE_CARGO_2);
+        
+        if (chase_hatch || chase_cargo) {
             double cap = 0.6; //SmartDashboard.getNumber("AutoDriveSpeedCap", 0.5f);
-            m_limelightDrive.autoDrive(m_tx, m_ty, m_area, cap);
+            int pipeline_index = chase_cargo ? RobotMap.LimelightPipeline.CARGO : RobotMap.LimelightPipeline.HATCH;
+            RobotUtils.updateLimelightPipeline(m_pipeline, pipeline_index);
+            m_limelightDrive.autoDrive(pipeline_index, m_tx, m_ty, m_area, cap);
         } else {
             m_teleopTransDrive.curvatureDrive(stick, abs_limit); // m_drive with arcade style
         }

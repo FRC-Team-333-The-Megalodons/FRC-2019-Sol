@@ -5,12 +5,12 @@ public class RobotMap {
     
     public static class PlayerButton {
         public static final int FORCE_LOW_TRANSMISSION  = 2;
-        public static final int ROTATE_ROLLERS_OUT_1    = 3;
-        public static final int ROTATE_ROLLERS_OUT_2    = 4;
-        public static final int ROTATE_ROLLERS_OUT_3    = 5;
-        public static final int ROTATE_ROLLERS_OUT_4    = 6;
-        public static final int CHASE_REFLECTIVE_TAPE_1 = 7;
-        public static final int CHASE_REFLECTIVE_TAPE_2 = 8;
+        public static final int CHASE_HATCH_1           = 3;
+        public static final int CHASE_CARGO_1           = 4;
+        public static final int CHASE_HATCH_2           = 5;
+        public static final int CHASE_CARGO_2           = 6;
+        public static final int ROTATE_ROLLERS_OUT_1    = 7;
+        public static final int ROTATE_ROLLERS_OUT_2    = 8;
         public static final int INTAKE_CARGO_HUMAN_1    = 9;
         public static final int INTAKE_CARGO_HUMAN_2    = 10;
         public static final int INTAKE_CARGO_FLOOR_1    = 11;
@@ -25,20 +25,9 @@ public class RobotMap {
     }
 
     public static class AnalogPort {
-        //public static final int ULTRASONIC_SENSOR = -1;
+        public static final int LEFT_PANEL_SENSOR  = 0;
         public static final int RIGHT_PANEL_SENSOR = 1;
-        public static final int LEFT_PANEL_SENSOR = 0;
-        //public static final int ARM_POTENTIOMETER = -3;
     }
-    
-    /*
-    public static class SparkPort {
-        public static final int LEFT_DRIVE1     = 1;
-        public static final int LEFT_DRIVE2     = 2;
-        public static final int RIGHT_DRIVE3    = 3;
-        public static final int RIGHT_DRIVE4    = 4;
-    }
-    */
     
     public static class CANSparkID {
         public static final int LEFT_LEADER     = 1;
@@ -78,5 +67,9 @@ public class RobotMap {
         public static final boolean isFinal = false;
     }
 
+    public static class LimelightPipeline {
+        public static final int HATCH = 0;
+        public static final int CARGO = 1;
+    }
 
 }

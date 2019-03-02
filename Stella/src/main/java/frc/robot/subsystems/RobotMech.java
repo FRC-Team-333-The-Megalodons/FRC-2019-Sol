@@ -15,6 +15,7 @@ import frc.robot.controllers.*;
 
 import com.revrobotics.CANSparkMaxLowLevel.MotorType;
 
+import edu.wpi.first.networktables.NetworkTableEntry;
 import edu.wpi.first.wpilibj.DigitalInput;
 
 public class RobotMech {
@@ -44,12 +45,14 @@ public class RobotMech {
     private ActivateDefenseMode m_activateDefenseMode;
     private Solenoid m_panelIndicatorLight;
     private DigitalInput m_intakeOutLimitSwitch;
+    private NetworkTableEntry m_pipeline;
 
 
   //  public double armPos = m_armPotentiometer.get();
 
 
-    public RobotMech() {
+    public RobotMech(NetworkTableEntry pipeline) {
+        m_pipeline = pipeline;
         /* Roller */
         try {
             m_roller = new RobotRoller(CANSparkID.INTAKE_NEO);
@@ -182,6 +185,7 @@ public class RobotMech {
         }
 
         if (stick.getThrottle() < 0) { // Defense mode! Activate defense mode.
+            //RobotUtils.updateLimelightPipeline(m_pipeline, RobotMap.LimelightPipeline.CARGO);
             if (m_activateDefenseMode.do_defense()) {
                 if (stick.getTrigger() && !m_arm.getCargoState().isCargoPresent()) {
                     pullInShooterRollers();
@@ -192,9 +196,12 @@ public class RobotMech {
             return;
         }
 
+        //int limelight_pipeline = RobotMap.LimelightPipeline.HATCH;
+
         boolean is_controller_invoked = false;
         if (stick.getRawButton(PlayerButton.INTAKE_CARGO_FLOOR_1) ||
             stick.getRawButton(PlayerButton.INTAKE_CARGO_FLOOR_2)) {
+            //limelight_pipeline = RobotMap.LimelightPipeline.CARGO;
             m_intakeCargoFromFloor.do_intake();
             is_controller_invoked = true;
         } else if (stick.getRawButton(PlayerButton.INTAKE_CARGO_HUMAN_1) ||
@@ -216,10 +223,10 @@ public class RobotMech {
             }
         }
 
+        //RobotUtils.updateLimelightPipeline(m_pipeline, limelight_pipeline);
+
         boolean isPressingRollerButton = (stick.getRawButton(PlayerButton.ROTATE_ROLLERS_OUT_1) || 
-                                          stick.getRawButton(PlayerButton.ROTATE_ROLLERS_OUT_2) || 
-                                          stick.getRawButton(PlayerButton.ROTATE_ROLLERS_OUT_3) || 
-                                          stick.getRawButton(PlayerButton.ROTATE_ROLLERS_OUT_4));
+                                          stick.getRawButton(PlayerButton.ROTATE_ROLLERS_OUT_2));
 
         if (!is_controller_invoked) {
             m_arm.stopArm();

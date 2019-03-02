@@ -3,6 +3,7 @@ package frc.robot.subsystems;
 import java.util.ArrayDeque;
 import java.util.ArrayList;
 
+import edu.wpi.first.networktables.NetworkTableEntry;
 import edu.wpi.first.wpilibj.AnalogPotentiometer;
 import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj.DriverStation;
@@ -34,6 +35,16 @@ public class RobotUtils {
     public static double abs_min(double a, double abs_b) {
         double sign = (a < 0 ? -1 : 1);
         return Math.min(Math.abs(a), abs_b) * sign;
+    }
+
+    public static void updateLimelightPipeline(NetworkTableEntry pipeline, Number pipeline_index)
+    {
+        int current_pipeline_index = pipeline.getNumber(-1).intValue();
+        int new_pipeline_index = pipeline_index.intValue();
+        if (new_pipeline_index != current_pipeline_index) {
+            System.out.println("Setting Limelight Pipeline from "+current_pipeline_index+" to "+new_pipeline_index);
+            pipeline.setNumber(new_pipeline_index);
+        }
     }
 }
 
@@ -704,20 +715,27 @@ class LimelightDrive {
         //m_drive.setMaxOutput(0.5);
     }
 
-    public void autoDrive(double tx, double ty, double area, Double cap) {
+    public void autoDrive(int limelightPipeline, double tx, double ty, double area, Double cap) {
+
+        // Initialize configurations to RobotMap.LimelightPipeline.HATCH values.
         double KpAim = kAIM; //SmartDashboard.getNumber("AutoDrive_kAIM", kAIM);
         double KpDistance = kDistance; //SmartDashboard.getNumber("AutoDrive_kDistance", kDistance);
         double min_aim_command = kMinInc; //SmartDashboard.getNumber("AutoDrive_minInc", 0.05f);
-
-        double max_x = 23;
-        double min_x = -23;
         double max_area = 6.0;
-
         if (m_cargoState.isCargoPresent()) {
             max_area = 5.0;
         }
-        
         double min_area = 0.0;
+
+        // If we're actually in CARGO hunting mode, then tweak our values.
+        if (limelightPipeline == RobotMap.LimelightPipeline.CARGO) {
+
+        }
+
+        
+        double max_x = 23;
+        double min_x = -23;
+
         // Flip the area; it's inverted (bigger is target originally);
         if (area != 0.0f) {
             area = max_area-area;

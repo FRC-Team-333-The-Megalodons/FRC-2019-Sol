@@ -16,6 +16,9 @@ import frc.robot.subsystems.*;
 import frc.robot.subsystems.RobotMap.*;
 import edu.wpi.cscore.UsbCamera;
 import edu.wpi.first.cameraserver.CameraServer;
+import edu.wpi.first.networktables.NetworkTable;
+import edu.wpi.first.networktables.NetworkTableEntry;
+import edu.wpi.first.networktables.NetworkTableInstance;
 
 /**
  * The VM is configured to automatically run this class, and to call the
@@ -56,16 +59,27 @@ public class Robot extends TimedRobot {
             DriverStation.reportError("Couldn't instantiate Joystick", false);
         }
 
+        /* Limelight */
+        NetworkTable networkTable = null;
+        NetworkTableEntry pipeline = null;
+        try {
+            networkTable = NetworkTableInstance.getDefault().getTable("limelight");
+            pipeline = networkTable.getEntry("pipeline");
+            pipeline.setNumber(RobotMap.LimelightPipeline.HATCH); // Default to 0 (hatch_333)
+        } catch (Exception ex) {
+            DriverStation.reportError("Could not set up limelight network tables\n", false);
+        }
+
         /* Mech */
         try {
-            m_mech = new RobotMech();
+            m_mech = new RobotMech(pipeline);
         } catch (Exception ex) {
             DriverStation.reportError("Couldn't instantiate Mech", false);
         }
 
         /* Chassis */
         try {
-            m_chassis = new RobotChassis(m_mech.getHatchGrab(), m_mech.getRobotArm());
+            m_chassis = new RobotChassis(networkTable, pipeline, m_mech.getHatchGrab(), m_mech.getRobotArm());
         } catch (Exception ex) {
             DriverStation.reportError("Couldnt instantiate Chassis", false);
         }
