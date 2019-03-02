@@ -5,12 +5,12 @@ public class RobotMap {
     
     public static class PlayerButton {
         public static final int FORCE_LOW_TRANSMISSION  = 2;
-        public static final int CHASE_HATCH_1           = 3;
-        public static final int CHASE_CARGO_1           = 4;
-        public static final int CHASE_HATCH_2           = 5;
-        public static final int CHASE_CARGO_2           = 6;
-        public static final int ROTATE_ROLLERS_OUT_1    = 7;
-        public static final int ROTATE_ROLLERS_OUT_2    = 8;
+        public static final int CHASE_CARGO_1           = 3;
+        public static final int ROTATE_ROLLERS_OUT_1    = 4;
+        public static final int CHASE_CARGO_2           = 5;
+        public static final int ROTATE_ROLLERS_OUT_2    = 6;
+        public static final int CHASE_HATCH_1           = 7;
+        public static final int CHASE_HATCH_2           = 8;
         public static final int INTAKE_CARGO_HUMAN_1    = 9;
         public static final int INTAKE_CARGO_HUMAN_2    = 10;
         public static final int INTAKE_CARGO_FLOOR_1    = 11;
@@ -23,7 +23,7 @@ public class RobotMap {
         public static final int LOWER_ARM_SWITCH   =  2;
         public static final int INTAKE_OUT_SWITCH  =  3;
     }
-
+ 
     public static class AnalogPort {
         public static final int LEFT_PANEL_SENSOR  = 0;
         public static final int RIGHT_PANEL_SENSOR = 1;
