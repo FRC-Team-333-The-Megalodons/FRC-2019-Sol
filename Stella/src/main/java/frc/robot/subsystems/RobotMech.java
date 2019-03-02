@@ -153,13 +153,13 @@ public class RobotMech {
         return System.currentTimeMillis() - m_lastNoseStateChange;
     }
 
-    public boolean isCargoActuallyShot()
+    public boolean wasCargoRecentlyShot()
     {
         // No choice but to do this based on time.
-        final double SHOOT_TIME = 500;
+        final double SHOOT_TIME = 1000;
 
         if (m_lastShootOutChange != null) {
-            return (System.currentTimeMillis() - m_lastShootOutChange >= SHOOT_TIME);
+            return (System.currentTimeMillis() - m_lastShootOutChange <= SHOOT_TIME);
         }
         return false;
     }
@@ -202,7 +202,7 @@ public class RobotMech {
             m_intakeCargoFromHuman.do_intake();
             is_controller_invoked = true;
         } else {
-            if (m_arm.getCargoState().isCargoPresent()) {
+            if (m_arm.getCargoState().isCargoPresent() || wasCargoRecentlyShot()) {
                 if (stick.getTrigger()) {
                     m_shootCargoIntoShip.do_shoot();
                     is_controller_invoked = true;
@@ -215,14 +215,19 @@ public class RobotMech {
                 }
             }
         }
-        if (stick.getRawButton(PlayerButton.ROTATE_ROLLERS_OUT_1) || (stick.getRawButton(PlayerButton.ROTATE_ROLLERS_OUT_2) ||
-        (stick.getRawButton(PlayerButton.ROTATE_ROLLERS_OUT_3) || (stick.getRawButton(PlayerButton.ROTATE_ROLLERS_OUT_4))))) {
-            m_roller.pushRollerOut();
-        }
+
+        boolean isPressingRollerButton = (stick.getRawButton(PlayerButton.ROTATE_ROLLERS_OUT_1) || 
+                                          stick.getRawButton(PlayerButton.ROTATE_ROLLERS_OUT_2) || 
+                                          stick.getRawButton(PlayerButton.ROTATE_ROLLERS_OUT_3) || 
+                                          stick.getRawButton(PlayerButton.ROTATE_ROLLERS_OUT_4));
 
         if (!is_controller_invoked) {
             m_arm.stopArm();
-            stopIntakeRollers();
+            if (isPressingRollerButton) {
+                m_roller.pushRollerOut();
+            } else {
+                stopIntakeRollers();
+            }
             stopShooterRollers();
         }
     }

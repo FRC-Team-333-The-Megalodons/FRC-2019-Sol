@@ -11,6 +11,7 @@ public class ShootCargoIntoShip
     private final int STATE_CLAW_UP               = 3;
     private final int STATE_BALL_SHOT             = 4;
     
+    private int m_lastState = -1;
     private RobotMech m_mech;
     private RobotArm  m_arm;
 
@@ -20,25 +21,35 @@ public class ShootCargoIntoShip
         m_arm = arm;
     }
 
-    public int evaluateCurrentState()
+    public int evaluateCurrentState_impl()
     {
+        if (m_mech.wasCargoRecentlyShot()) {
+            return STATE_BALL_SHOT;
+        }
+
         if (!m_mech.isCargoPresent()) {
             return STATE_NO_CARGO;
         }
 
         if (m_mech.isNoseActuallyOut()) {
-            if (m_arm.isArmAtTarget(RobotArm.TOP_POSITION)) {
-                if (m_mech.isCargoActuallyShot()) {
-                    return STATE_BALL_SHOT;
-                } else {
-                    return STATE_CLAW_UP;
-                }
+            if (m_arm.isArmAtTarget(RobotArm.SHOOTING_POSITION)) {
+                return STATE_CLAW_UP;
             } else {
                 return STATE_NOSE_OUT_CLAW_DOWN;
             }
         } else {
             return STATE_NOSE_IN_CLAW_DOWN;
         }
+    }
+
+    public int evaluateCurrentState()
+    {
+        int state = evaluateCurrentState_impl();
+        if (m_lastState != state) {
+            System.out.println("ShootCargoIntoShip: previous="+m_lastState+", new="+state);
+        }
+        m_lastState = state;
+        return m_lastState;
     }
 
     // Will return true when we have a ball (at which point it will have turned off the rollers, but done no other movement)
@@ -57,10 +68,11 @@ public class ShootCargoIntoShip
                 return false;
             }
             case STATE_NOSE_OUT_CLAW_DOWN: {
-                m_arm.periodic(RobotArm.TOP_POSITION);
+                m_arm.periodic(RobotArm.SHOOTING_POSITION);
                 return false;
             }
-            case STATE_CLAW_UP: {
+            case STATE_CLAW_UP: 
+            case STATE_BALL_SHOT: {
                 m_arm.stopArm();
                 m_mech.pushOutShooterRollers();
                 return false;

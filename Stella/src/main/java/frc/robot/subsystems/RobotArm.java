@@ -20,7 +20,8 @@ public class RobotArm {
     private CANSparkMax m_armNeo;
 
     private RobotArmPos m_position;
-    public static final double TOP_POSITION          = RobotMap.RobotType.isFinal ? 130.0 : -109.0;
+    public static final double SHOOTING_POSITION     = RobotMap.RobotType.isFinal ? 115.0 : -109.0;
+    public static final double TOP_POSITION          = RobotMap.RobotType.isFinal ? 130.0 : -131.0;
     public static final double CARGO_TRAVEL_POSITION = RobotMap.RobotType.isFinal ? 50.0 : -40.0;
     public static final double BOTTOM_POSITION       = RobotMap.RobotType.isFinal ? 0.0 : 0.0;
     private final double UPWARD_MOTOR_POWER          = RobotMap.RobotType.isFinal ? 1.0 : -1.0;
@@ -123,12 +124,17 @@ public class RobotArm {
     }
 
     public boolean isArmAtTarget(double target)
+    {
+        return isArmAtTarget(target, 0.0);
+    }
+
+    public boolean isArmAtTarget(double target, double addtl_tolerance)
     {        
         double current = m_position.pidGet();
 
         double gap = Math.abs(current - target);
 
-        return (gap <= ARM_POS_TOLERANCE);
+        return (gap <= (addtl_tolerance+ARM_POS_TOLERANCE));
     }
 
     public boolean periodic(Double target_obj)

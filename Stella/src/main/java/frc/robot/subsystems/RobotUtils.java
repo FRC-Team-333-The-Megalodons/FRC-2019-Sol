@@ -484,7 +484,7 @@ class SimplePIDController {
 class TeleopTransDrive {
     public static final int TRANS_HISTORY_LEN_MS = 250;
     public static final int SPEED_HISTORY_LEN_MS = 1000;
-    public static final double HIGH_THRESHOLD = 0.99;
+    public static final double HIGH_THRESHOLD = 0.80;
     public static final double LOW_THRESHOLD = 0.40;
     public static final double SLOW_MODE_CAP = 0.70;
 
@@ -713,10 +713,10 @@ class LimelightDrive {
         double min_x = -23;
         double max_area = 6.0;
 
-        //TODO
-        /*if (m_cargoState.isCargoPresent()) {
+        if (m_cargoState.isCargoPresent()) {
             max_area = 5.0;
-        }*/
+        }
+        
         double min_area = 0.0;
         // Flip the area; it's inverted (bigger is target originally);
         if (area != 0.0f) {

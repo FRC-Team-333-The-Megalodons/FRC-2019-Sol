@@ -9,6 +9,9 @@ public class ActivateDefenseMode
     private final int STATE_CLAW_DOWN_NOSE_OUT    = 1;
     private final int STATE_CLAW_UP_NOSE_IN       = 2;
     private final int STATE_CLAW_UP_NOSE_OUT      = 3;
+
+
+    private int m_lastState = -1;
     
     private RobotMech m_mech;
     private RobotArm  m_arm;
@@ -19,10 +22,15 @@ public class ActivateDefenseMode
         m_arm = arm;
     }
 
-    public int evaluateCurrentState()
+    public int evaluateCurrentState_impl()
     {
         if (!m_mech.isNoseActuallyOut()) {
-            if (m_arm.isArmAtTarget(RobotArm.BOTTOM_POSITION)) {
+            double additional_tolerance = 0.0;
+            if (m_lastState == STATE_CLAW_DOWN_NOSE_IN) {
+                // If we made it to our final state, then add a little padding to help ensure we stay there.
+                additional_tolerance = 1.5;
+            }
+            if (m_arm.isArmAtTarget(RobotArm.BOTTOM_POSITION, additional_tolerance)) {
                 return STATE_CLAW_DOWN_NOSE_IN;
             } else {
                 return STATE_CLAW_UP_NOSE_IN;
@@ -34,6 +42,16 @@ public class ActivateDefenseMode
                 return STATE_CLAW_UP_NOSE_OUT;
             }
         }
+    }
+
+    public int evaluateCurrentState()
+    {
+        int state = evaluateCurrentState_impl();
+        if (m_lastState != state) {        
+            System.out.println("ActivateDefenseMode: previous="+m_lastState+", now="+state);
+        }
+        m_lastState = state;
+        return m_lastState;
     }
 
     // Will return true when we have a ball (at which point it will have turned off the rollers, but done no other movement)
