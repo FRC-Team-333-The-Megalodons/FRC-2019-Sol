@@ -20,14 +20,6 @@ import edu.wpi.first.wpilibj.DigitalInput;
 
 public class RobotMech {
 
-    public static final double MOTOR_POWER = 0.4;
-    public static final double SHOOTER_POWER = -1.0;
-    public static final double INTAKE_POWER = .5;
-    public static final double ARM_MAX_LIMIT = 49.0;
-    public static final double ARM_MIN_LIMIT = 40;
-    public static final double defaultUpSpeed  = .75;
-    public static final double slowUpSpeed = defaultUpSpeed*0.7;
-
     public static final boolean CARGO_IN = false;
     public static final boolean CARGO_OUT = true;
 
@@ -45,16 +37,12 @@ public class RobotMech {
     private EjectCargoToFloor m_ejectCargoToFloor;
     private ShootCargoIntoShip m_shootCargoIntoShip;
     private ActivateDefenseMode m_activateDefenseMode;
-    private Solenoid m_panelIndicatorLight;
     private DigitalInput m_intakeOutLimitSwitch;
-    private NetworkTableEntry m_pipeline;
-
 
   //  public double armPos = m_armPotentiometer.get();
 
 
     public RobotMech(NetworkTableEntry pipeline) {
-        m_pipeline = pipeline;
         /* Roller */
         try {
             m_roller = new RobotRoller(CANSparkID.INTAKE_NEO);
@@ -86,15 +74,9 @@ public class RobotMech {
 
         /* Instantiate the Hatch grab */
         try {
-            m_hatchGrab = new RobotHatchGrab(SolenoidPort.HATCH_GRAB, AnalogPort.LEFT_PANEL_SENSOR, AnalogPort.RIGHT_PANEL_SENSOR);
+            m_hatchGrab = new RobotHatchGrab(SolenoidPort.HATCH_GRAB, AnalogPort.LEFT_PANEL_SENSOR, AnalogPort.RIGHT_PANEL_SENSOR, SolenoidPort.PANEL_INDICATOR_LIGHT);
         } catch (Exception ex) {
             DriverStation.reportError("Could not instantiate hatch grab mechanism\n", false);
-        }
-
-        try {
-            m_panelIndicatorLight = new Solenoid(SolenoidPort.PANEL_INDICATOR_LIGHT);
-        } catch (Exception ex) {
-            DriverStation.reportError("Could not instantiate Panel Indicator Light\n", false);
         }
 
         try {
@@ -148,12 +130,6 @@ public class RobotMech {
         }
     }
 
-
-    public void setPanelIndicator(boolean present)
-    {
-        m_panelIndicatorLight.set(present);
-    }
-
     public boolean isNoseOut()
     {
         return m_noseState;
@@ -202,6 +178,11 @@ public class RobotMech {
             return;
         }
 
+
+        if (hasPanel()) {
+            m_hatchGrab.activateIndicatorLight();
+        }
+
         if (stick.getThrottle() < 0) { // Defense mode! Activate defense mode.
             //RobotUtils.updateLimelightPipeline(m_pipeline, RobotMap.LimelightPipeline.CARGO);
             if (m_activateDefenseMode.do_defense()) {
@@ -209,7 +190,7 @@ public class RobotMech {
                     pullInShooterRollers();
                 } else {
                     if (stick.getRawButton(PlayerButton.EJECT_CARGO)) {
-                      pushOutShooterRollers();
+                      pushOutShooterRollers(RobotShooter.FULL_SHOOTER_POWER);
                     } else {
                       stopShooterRollers();
                     }
@@ -246,7 +227,8 @@ public class RobotMech {
                     boolean rocketShot = (stick.getRawButton(PlayerButton.ROCKET_MODE_1) ||
                                           stick.getRawButton(PlayerButton.ROCKET_MODE_2));
                     double position = (rocketShot ? RobotArm.ROCKET_SHOOTING_POS : RobotArm.SHOOTING_POSITION);
-                    m_shootCargoIntoShip.do_shoot(position);
+                    double power    = (rocketShot ? RobotShooter.ROCKET_SHOOTER_POWER : RobotShooter.FULL_SHOOTER_POWER);
+                    m_shootCargoIntoShip.do_shoot(position, power);
                     is_controller_invoked = true;
                 }
             } else if (!is_hatch_already_governed) {
@@ -304,13 +286,13 @@ public class RobotMech {
         m_shooter.intakeShooter();
     }
 
-    public void pushOutShooterRollers()
+    public void pushOutShooterRollers(double power)
     {
         if (m_lastShootOutChange == null) {
             m_lastShootOutChange = System.currentTimeMillis();
         }
         m_lastShootersInChange = null;
-        m_shooter.fireShooter();
+        m_shooter.fireShooter(power);
     }
 
     public void pullInIntakeRollers()

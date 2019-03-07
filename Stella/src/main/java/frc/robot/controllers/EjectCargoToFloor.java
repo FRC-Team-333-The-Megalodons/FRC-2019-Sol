@@ -64,7 +64,7 @@ public class EjectCargoToFloor
             case EJECT_STATE_JUST_EJECTED_CARGO:
             case EJECT_STATE_CLAW_IS_DOWN: {
                 m_arm.stopArm();
-                m_mech.pushOutShooterRollers();
+                m_mech.pushOutShooterRollers(RobotShooter.FULL_SHOOTER_POWER);
                 m_mech.pushOutIntakeRollers();
                 return false;
             }

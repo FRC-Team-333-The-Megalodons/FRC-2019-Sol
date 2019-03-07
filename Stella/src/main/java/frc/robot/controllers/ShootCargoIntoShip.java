@@ -53,7 +53,7 @@ public class ShootCargoIntoShip
     }
 
     // Will return true when we have a ball (at which point it will have turned off the rollers, but done no other movement)
-    public boolean do_shoot(double position)
+    public boolean do_shoot(double position, double power)
     {
         int state = evaluateCurrentState(position);
         switch (state) {
@@ -74,7 +74,7 @@ public class ShootCargoIntoShip
             case STATE_CLAW_UP: 
             case STATE_BALL_SHOT: {
                 m_arm.stopArm();
-                m_mech.pushOutShooterRollers();
+                m_mech.pushOutShooterRollers(power);
                 return false;
             }
             default: {

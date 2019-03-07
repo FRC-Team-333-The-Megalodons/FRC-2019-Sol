@@ -9,7 +9,8 @@ public class RobotShooter {
 
     public static final int INTAKE_BUTTON = 3;
     public static final int SHOOTER_BUTTON = 4;
-    public static final double SHOOTER_POWER = 1.0;
+    public static final double FULL_SHOOTER_POWER = 1.0;
+    public static final double ROCKET_SHOOTER_POWER = 0.75;
     public static final double INTAKE_POWER = -0.5;
     public static final boolean CARGO_OUT = true;
 
@@ -25,10 +26,10 @@ public class RobotShooter {
         }
     }
 
-    public void fireShooter()
+    public void fireShooter(double power)
     {
-        m_topSpark.set(SHOOTER_POWER);
-        m_bottomSpark.set(SHOOTER_POWER);
+        m_topSpark.set(power);
+        m_bottomSpark.set(power);
     }
 
     public void intakeShooter()

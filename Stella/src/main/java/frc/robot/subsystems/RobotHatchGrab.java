@@ -11,12 +11,13 @@ public class RobotHatchGrab
     
     private HatchPanelSensor m_rightPanelSensor;
     private HatchPanelSensor m_leftPanelSensor;
+    private LED m_indicatorLight;
 
     public static final double FULLYON = -1;
     public static String whichSide;
 
 
-    public RobotHatchGrab(int hatchSolenoidPort, int leftPanelSensor, int rightPanelSensor)
+    public RobotHatchGrab(int hatchSolenoidPort, int leftPanelSensor, int rightPanelSensor, int indicatorLightPort)
     {
 
         try {
@@ -36,7 +37,23 @@ public class RobotHatchGrab
         } catch (Exception ex) {
             DriverStation.reportError("Could not instantiate left panel sensor\n", false);
         }
+
+        try {
+            m_indicatorLight = new LED(indicatorLightPort);
+        } catch (Exception ex) {
+            DriverStation.reportError("Could not indicator light\n", false);
+        }
         
+    }
+
+    public void activateIndicatorLight()
+    {
+        m_indicatorLight.on();
+    }
+
+    public void deactivateIndicatorLight()
+    {
+        m_indicatorLight.off();
     }
 
     public boolean IsPanelOnLeft() {
@@ -80,6 +97,7 @@ public class RobotHatchGrab
 
     public void close()
     {
+        deactivateIndicatorLight();
         m_hatchGrab.set(true);
     }
 

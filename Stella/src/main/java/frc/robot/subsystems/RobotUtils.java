@@ -866,3 +866,23 @@ class History {
     private int m_historyLenMs;
     private boolean m_useAbsValue;
 }
+
+class LED
+{
+    private Solenoid m_led;
+
+    public LED(int port)
+    {
+        m_led = new Solenoid(port);
+    }
+
+    public void on()
+    {
+        m_led.set(true);
+    }
+
+    public void off()
+    {
+        m_led.set(false);
+    }
+}
