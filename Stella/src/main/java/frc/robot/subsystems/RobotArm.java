@@ -20,7 +20,7 @@ public class RobotArm {
     private CANSparkMax m_armNeo;
 
     private RobotArmPos m_position;
-    public static final double SHOOTING_POSITION     = RobotMap.RobotType.isFinal ? 115.0 : -109.0;
+    public static final double SHOOTING_POSITION     = RobotMap.RobotType.isFinal ? 133.0 : -109.0;
     public static final double TOP_POSITION          = RobotMap.RobotType.isFinal ? 130.0 : -131.0;
     public static final double CARGO_TRAVEL_POSITION = RobotMap.RobotType.isFinal ? 50.0 : -40.0;
     public static final double BOTTOM_POSITION       = RobotMap.RobotType.isFinal ? 0.0 : 0.0;
