@@ -28,7 +28,7 @@ public class IntakeCargoFromFloor
     {
         if (m_mech.isCargoPresent()) {
             if (m_mech.wasCargoRecentlyConsumed()) {
-                return INTAKE_STATE_CARGO_RECENTLY_CONSUMED:
+                return INTAKE_STATE_CARGO_RECENTLY_CONSUMED;
             }
             if (m_mech.isNoseActuallyOut()) {
                 if (m_arm.isArmAtTarget(RobotArm.CARGO_TRAVEL_POSITION)) {

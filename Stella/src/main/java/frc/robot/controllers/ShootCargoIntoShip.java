@@ -21,7 +21,7 @@ public class ShootCargoIntoShip
         m_arm = arm;
     }
 
-    public int evaluateCurrentState_impl(position)
+    public int evaluateCurrentState_impl(double position)
     {
         if (m_mech.wasCargoRecentlyShot()) {
             return STATE_BALL_SHOT;
