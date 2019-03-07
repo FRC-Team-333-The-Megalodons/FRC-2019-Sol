@@ -116,7 +116,7 @@ public class Robot extends TimedRobot {
         m_chassis.updateLatestVisionTargets();
         m_mech.updateDashboard();
         m_chassis.updateDashboard();
-        //m_mech.setPanelIndicator(m_mech.hasPanel());
+        m_mech.setPanelIndicator(m_mech.hasPanel());
         SmartDashboard.putNumber("Joystick X", m_driverJoystick.getX());
         SmartDashboard.putNumber("Joystick Y", m_driverJoystick.getY());
         SmartDashboard.putNumber("Joystick Z", m_driverJoystick.getZ());

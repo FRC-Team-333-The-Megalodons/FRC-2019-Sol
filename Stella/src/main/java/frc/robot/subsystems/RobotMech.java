@@ -42,6 +42,7 @@ public class RobotMech {
     private Long m_lastShootersInChange;
     private IntakeCargoFromFloor m_intakeCargoFromFloor;
     private IntakeCargoFromHuman m_intakeCargoFromHuman;
+    private EjectCargoToFloor m_ejectCargoToFloor;
     private ShootCargoIntoShip m_shootCargoIntoShip;
     private ActivateDefenseMode m_activateDefenseMode;
     private Solenoid m_panelIndicatorLight;
@@ -107,6 +108,7 @@ public class RobotMech {
         m_intakeCargoFromHuman = new IntakeCargoFromHuman(this, m_arm);
         m_shootCargoIntoShip   = new ShootCargoIntoShip(this, m_arm);
         m_activateDefenseMode  = new ActivateDefenseMode(this, m_arm);
+        m_ejectCargoToFloor    = new EjectCargoToFloor(this, m_arm);
     }
 
     public RobotArm getRobotArm()
@@ -114,10 +116,15 @@ public class RobotMech {
         return m_arm;
     }
 
+    public boolean hasPanel()
+    {
+        return m_hatchGrab.IsPanelOnLeft();
+    }
+
     public void updateDashboard() {   
         m_arm.updateDashboard();
         SmartDashboard.putBoolean("Is nose out:", isNoseActuallyOut());
-        SmartDashboard.putBoolean("hatchSensor", m_hatchGrab.IsPanelOnLeft());
+        SmartDashboard.putBoolean("hatchSensor", hasPanel());
         SmartDashboard.putNumber("hatch sensor raw voltage", m_hatchGrab.RawValue());
     }
 
@@ -201,7 +208,7 @@ public class RobotMech {
                 if (stick.getTrigger() && !m_arm.getCargoState().isCargoPresent()) {
                     pullInShooterRollers();
                 } else {
-                    if (stick.getRawButton(EJECT_CARGO)) {
+                    if (stick.getRawButton(PlayerButton.EJECT_CARGO)) {
                       pushOutShooterRollers();
                     } else {
                       stopShooterRollers();
@@ -229,6 +236,9 @@ public class RobotMech {
                    stick.getRawButton(PlayerButton.INTAKE_CARGO_HUMAN_2)) {
             m_intakeCargoFromHuman.do_intake();
             is_controller_invoked = true;
+        } else if (stick.getRawButton(PlayerButton.EJECT_CARGO)) {
+            m_ejectCargoToFloor.do_eject();
+            is_controller_invoked = true;
         } else {
             if (m_arm.getCargoState().isCargoPresent() || wasCargoRecentlyShot()) {
                 if (stick.getTrigger()) {
@@ -255,7 +265,7 @@ public class RobotMech {
         if (!is_controller_invoked) {
             m_arm.stopArm();
             if (isPressingRollerEjectButton) {
-                m_roller.pushRollerOut();
+                pushOutIntakeRollers();
             } else {
                 stopIntakeRollers();
             }
@@ -266,6 +276,11 @@ public class RobotMech {
     public RobotHatchGrab getHatchGrab()
     {
         return m_hatchGrab;
+    }
+
+    public void pushOutIntakeRollers()
+    {
+        m_roller.pushRollerOut();
     }
 
     public void stopShooterRollers()
