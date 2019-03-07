@@ -111,7 +111,9 @@ public class RobotChassis {
             double cap = 0.6; //SmartDashboard.getNumber("AutoDriveSpeedCap", 0.5f);
             int pipeline_index = chase_cargo ? RobotMap.LimelightPipeline.CARGO : RobotMap.LimelightPipeline.HATCH;
             RobotUtils.updateLimelightPipeline(m_pipeline, pipeline_index);
-            m_limelightDrive.autoDrive(pipeline_index, m_tx, m_ty, m_area, cap);
+
+            boolean rocketMode = (m_stick.getRawButton(PlayerButton.ROCKET_MODE_1) || m_stick.getRawButton(PlayerButton.ROCKET_MODE_2));
+            m_limelightDrive.autoDrive(pipeline_index, m_tx, m_ty, m_area, rocketMode);
         } else {
             m_teleopTransDrive.curvatureDrive(stick, abs_limit); // m_drive with arcade style
         }

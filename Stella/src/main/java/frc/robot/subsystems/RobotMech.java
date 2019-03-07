@@ -201,7 +201,11 @@ public class RobotMech {
                 if (stick.getTrigger() && !m_arm.getCargoState().isCargoPresent()) {
                     pullInShooterRollers();
                 } else {
-                    stopShooterRollers();
+                    if (stick.getRawButton(EJECT_CARGO)) {
+                      pushOutShooterRollers();
+                    } else {
+                      stopShooterRollers();
+                    }
                 }
             }
             return;
@@ -229,8 +233,8 @@ public class RobotMech {
             if (m_arm.getCargoState().isCargoPresent() || wasCargoRecentlyShot()) {
                 if (stick.getTrigger()) {
                     // If they're holding the Rocket Shot buttons, instead user the lower height.
-                    boolean rocketShot = (stick.getRawButton(PlayerButton.ROCKET_SHOOTER_HEIGHT_1) ||
-                                          stick.getRawButton(PlayerButton.ROCKET_SHOOTER_HEIGHT_2));
+                    boolean rocketShot = (stick.getRawButton(PlayerButton.ROCKET_MODE_1) ||
+                                          stick.getRawButton(PlayerButton.ROCKET_MODE_2));
                     double position = (rocketShot ? RobotArm.ROCKET_SHOOTING_POS : RobotArm.SHOOTING_POSITION);
                     m_shootCargoIntoShip.do_shoot(position);
                     is_controller_invoked = true;
@@ -246,18 +250,16 @@ public class RobotMech {
 
         //RobotUtils.updateLimelightPipeline(m_pipeline, limelight_pipeline);
 
-        boolean isPressingEjectButton = (stick.getRawButton(PlayerButton.EJECT_CARGO_1) || 
-                                         stick.getRawButton(PlayerButton.EJECT_CARGO_2));
+        boolean isPressingRollerEjectButton = stick.getRawButton(PlayerButton.EJECT_ROLLER);
 
         if (!is_controller_invoked) {
             m_arm.stopArm();
-            if (isPressingEjectButton) {
+            if (isPressingRollerEjectButton) {
                 m_roller.pushRollerOut();
-                pushOutShooterRollers();
             } else {
                 stopIntakeRollers();
-                stopShooterRollers();
             }
+            stopShooterRollers();
         }
     }
 

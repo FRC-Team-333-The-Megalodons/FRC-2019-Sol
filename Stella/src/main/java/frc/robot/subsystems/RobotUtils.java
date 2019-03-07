@@ -719,7 +719,7 @@ class LimelightDrive {
         //m_drive.setMaxOutput(0.5);
     }
 
-    public void autoDrive(int limelightPipeline, double tx, double ty, double area, Double cap) {
+    public void autoDrive(int limelightPipeline, double tx, double ty, double area, boolean rocketMode) {
 
         // Initialize configurations to RobotMap.LimelightPipeline.HATCH values.
         double KpAim = kAIM; //SmartDashboard.getNumber("AutoDrive_kAIM", kAIM);
@@ -728,6 +728,9 @@ class LimelightDrive {
         double max_area = 6.0;
         if (m_cargoState.isCargoPresent()) {
             max_area = 5.0;
+            if (rocketMode) {
+              max_area = 4.0;
+            }
         }
         double min_area = 0.0;
 
