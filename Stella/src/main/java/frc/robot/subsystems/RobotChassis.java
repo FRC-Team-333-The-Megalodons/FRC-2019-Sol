@@ -104,8 +104,8 @@ public class RobotChassis {
 
         boolean chase_hatch = stick.getRawButton(PlayerButton.CHASE_HATCH_1) ||
                               stick.getRawButton(PlayerButton.CHASE_HATCH_2);
-        boolean chase_cargo = stick.getRawButton(PlayerButton.CHASE_CARGO_1) ||
-                              stick.getRawButton(PlayerButton.CHASE_CARGO_2);
+        boolean chase_cargo = false; /*stick.getRawButton(PlayerButton.CHASE_CARGO_1) ||
+                                       stick.getRawButton(PlayerButton.CHASE_CARGO_2); */
         
         if (chase_hatch || chase_cargo) {
             double cap = 0.6; //SmartDashboard.getNumber("AutoDriveSpeedCap", 0.5f);

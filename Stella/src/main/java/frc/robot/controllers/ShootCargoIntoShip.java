@@ -21,7 +21,7 @@ public class ShootCargoIntoShip
         m_arm = arm;
     }
 
-    public int evaluateCurrentState_impl()
+    public int evaluateCurrentState_impl(position)
     {
         if (m_mech.wasCargoRecentlyShot()) {
             return STATE_BALL_SHOT;
@@ -32,7 +32,7 @@ public class ShootCargoIntoShip
         }
 
         if (m_mech.isNoseActuallyOut()) {
-            if (m_arm.isArmAtTarget(RobotArm.SHOOTING_POSITION)) {
+            if (m_arm.isArmAtTarget(position)) {
                 return STATE_CLAW_UP;
             } else {
                 return STATE_NOSE_OUT_CLAW_DOWN;
@@ -42,9 +42,9 @@ public class ShootCargoIntoShip
         }
     }
 
-    public int evaluateCurrentState()
+    public int evaluateCurrentState(double position)
     {
-        int state = evaluateCurrentState_impl();
+        int state = evaluateCurrentState_impl(position);
         if (m_lastState != state) {
             System.out.println("ShootCargoIntoShip: previous="+m_lastState+", new="+state);
         }
@@ -53,9 +53,9 @@ public class ShootCargoIntoShip
     }
 
     // Will return true when we have a ball (at which point it will have turned off the rollers, but done no other movement)
-    public boolean do_shoot()
+    public boolean do_shoot(double position)
     {
-        int state = evaluateCurrentState();
+        int state = evaluateCurrentState(position);
         switch (state) {
             case STATE_NO_CARGO: {
                 m_arm.stopArm();
@@ -68,7 +68,7 @@ public class ShootCargoIntoShip
                 return false;
             }
             case STATE_NOSE_OUT_CLAW_DOWN: {
-                m_arm.periodic(RobotArm.SHOOTING_POSITION);
+                m_arm.periodic(position);
                 return false;
             }
             case STATE_CLAW_UP: 

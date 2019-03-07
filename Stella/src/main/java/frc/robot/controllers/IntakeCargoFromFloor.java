@@ -13,6 +13,7 @@ public class IntakeCargoFromFloor
     private final int INTAKE_STATE_CLAW_IS_UP_AND_NOSE_IS_OUT      = 4;
     private final int INTAKE_STATE_CLAW_IS_DOWN_AND_NOSE_IS_IN     = 5;
     private final int INTAKE_STATE_CLAW_IS_DOWN_AND_NOSE_IS_OUT    = 6;
+    private final int INTAKE_STATE_CARGO_RECENTLY_CONSUMED         = 7;
 
     private RobotMech m_mech;
     private RobotArm  m_arm;
@@ -26,6 +27,9 @@ public class IntakeCargoFromFloor
     public int evaluateCurrentState()
     {
         if (m_mech.isCargoPresent()) {
+            if (m_mech.wasCargoRecentlyConsumed()) {
+                return INTAKE_STATE_CARGO_RECENTLY_CONSUMED:
+            }
             if (m_mech.isNoseActuallyOut()) {
                 if (m_arm.isArmAtTarget(RobotArm.CARGO_TRAVEL_POSITION)) {
                     return INTAKE_STATE_HAVE_CARGO_NOSE_OUT_CLAW_MIDDLE;
@@ -83,6 +87,12 @@ public class IntakeCargoFromFloor
             }
             case INTAKE_STATE_CLAW_IS_UP_AND_NOSE_IS_OUT: {
                 m_arm.periodic(RobotArm.BOTTOM_POSITION);
+                return false;
+            }
+            case INTAKE_STATE_CARGO_RECENTLY_CONSUMED: {
+                m_arm.stopArm();
+                m_mech.stopIntakeRollers();
+                m_mech.pullInShooterRollers();
                 return false;
             }
             case INTAKE_STATE_CLAW_IS_DOWN_AND_NOSE_IS_OUT: {

@@ -39,6 +39,7 @@ public class RobotMech {
     private boolean m_noseState;
     private long m_lastNoseStateChange;
     private Long m_lastShootOutChange;
+    private Long m_lastShootersInChange;
     private IntakeCargoFromFloor m_intakeCargoFromFloor;
     private IntakeCargoFromHuman m_intakeCargoFromHuman;
     private ShootCargoIntoShip m_shootCargoIntoShip;
@@ -167,6 +168,16 @@ public class RobotMech {
         return false;
     }
 
+    public boolean wasCargoRecentlyConsumed()
+    {
+        final double CONSUME_TIME = 500;
+
+        if (m_lastShootersInChange != null) {
+            return (System.currentTimeMillis() - m_lastShootersInChange <= CONSUME_TIME);
+        }
+        return false;
+    }
+
     public boolean isNoseActuallyOut()
     {
         return !m_intakeOutLimitSwitch.get();
@@ -198,6 +209,12 @@ public class RobotMech {
 
         //int limelight_pipeline = RobotMap.LimelightPipeline.HATCH;
 
+        boolean is_hatch_already_governed = false;
+        if (m_arm.getCargoState().isCargoPresent()) {
+            m_hatchGrab.close();
+            is_hatch_already_governed = true;
+        }
+
         boolean is_controller_invoked = false;
         if (stick.getRawButton(PlayerButton.INTAKE_CARGO_FLOOR_1) ||
             stick.getRawButton(PlayerButton.INTAKE_CARGO_FLOOR_2)) {
@@ -211,10 +228,14 @@ public class RobotMech {
         } else {
             if (m_arm.getCargoState().isCargoPresent() || wasCargoRecentlyShot()) {
                 if (stick.getTrigger()) {
-                    m_shootCargoIntoShip.do_shoot();
+                    // If they're holding the Rocket Shot buttons, instead user the lower height.
+                    boolean rocketShot = (stick.getRawButton(PlayerButton.ROCKET_SHOOTER_HEIGHT_1) ||
+                                          stick.getRawButton(PlayerButton.ROCKET_SHOOTER_HEIGHT_2));
+                    double position = (rocketShot ? RobotArm.ROCKET_SHOOTING_POS : RobotArm.SHOOTING_POSITION);
+                    m_shootCargoIntoShip.do_shoot(position);
                     is_controller_invoked = true;
                 }
-            } else {
+            } else if (!is_hatch_already_governed) {
                 if (stick.getTrigger()) {
                     m_hatchGrab.close();
                 } else {
@@ -225,17 +246,18 @@ public class RobotMech {
 
         //RobotUtils.updateLimelightPipeline(m_pipeline, limelight_pipeline);
 
-        boolean isPressingRollerButton = (stick.getRawButton(PlayerButton.ROTATE_ROLLERS_OUT_1) || 
-                                          stick.getRawButton(PlayerButton.ROTATE_ROLLERS_OUT_2));
+        boolean isPressingEjectButton = (stick.getRawButton(PlayerButton.EJECT_CARGO_1) || 
+                                         stick.getRawButton(PlayerButton.EJECT_CARGO_2));
 
         if (!is_controller_invoked) {
             m_arm.stopArm();
-            if (isPressingRollerButton) {
+            if (isPressingEjectButton) {
                 m_roller.pushRollerOut();
+                pushOutShooterRollers();
             } else {
                 stopIntakeRollers();
+                stopShooterRollers();
             }
-            stopShooterRollers();
         }
     }
 
@@ -247,6 +269,7 @@ public class RobotMech {
     public void stopShooterRollers()
     {
         m_lastShootOutChange = null;
+        m_lastShootersInChange = null;
         m_shooter.stopShooter();
     }
 
@@ -258,6 +281,9 @@ public class RobotMech {
     public void pullInShooterRollers()
     {
         m_lastShootOutChange = null;
+        if (m_lastShootersInChange == null) {
+          m_lastShootersInChange = System.currentTimeMillis();
+        }
         m_shooter.intakeShooter();
     }
 
@@ -266,6 +292,7 @@ public class RobotMech {
         if (m_lastShootOutChange == null) {
             m_lastShootOutChange = System.currentTimeMillis();
         }
+        m_lastShootersInChange = null;
         m_shooter.fireShooter();
     }
 

@@ -5,10 +5,10 @@ public class RobotMap {
     
     public static class PlayerButton {
         public static final int FORCE_LOW_TRANSMISSION  = 2;
-        public static final int CHASE_CARGO_1           = 3;
-        public static final int ROTATE_ROLLERS_OUT_1    = 4;
-        public static final int CHASE_CARGO_2           = 5;
-        public static final int ROTATE_ROLLERS_OUT_2    = 6;
+        public static final int ROCKET_SHOOTER_HEIGHT_1 = 3;
+        public static final int EJECT_CARGO_1           = 4;
+        public static final int ROCKET_SHOOTER_HEIGHT_2 = 5;
+        public static final int EJECT_CARGO_2           = 6;
         public static final int CHASE_HATCH_1           = 7;
         public static final int CHASE_HATCH_2           = 8;
         public static final int INTAKE_CARGO_HUMAN_1    = 9;
