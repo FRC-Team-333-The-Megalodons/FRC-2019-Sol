@@ -557,6 +557,9 @@ class TeleopTransDrive {
 
         double transHistoryAverage = m_transHistory.getHistoryAverage();
 
+        //TODO: Making changees to Auto Shifting here. The robot should always be in HIGH unless button 2 is pressed.
+        //Mike changed the Gear Ratio
+
         // If the driver is holding the joystick below the Low Transmission
         //   threshold for long enough, downshift into Low Gear.
         if (transHistoryAverage < LOW_THRESHOLD) {
@@ -573,6 +576,7 @@ class TeleopTransDrive {
             }
             return;
         }
+
         
     }
 
@@ -646,12 +650,12 @@ class TeleopTransDrive {
 
         // If the driver is holding the joystick below the Low Transmission
         //   threshold for long enough, downshift into Low Gear.
-        if (transHistoryAverage < LOW_THRESHOLD) {
+        /*if (transHistoryAverage < LOW_THRESHOLD) {
             if (lowTransmission()) {
                 System.out.println("Auto-Switching to Low Transmission");
             }
             return;
-        }
+        }*/
         // If the driver is holding the joystick above the High Transmission 
         //   threshold for long enough, upshift into High Gear.
         if (transHistoryAverage >= HIGH_THRESHOLD) {
@@ -664,7 +668,7 @@ class TeleopTransDrive {
     }
 
     public void arcadeDrive(double speed, double angle) {
-        lowTransmission();
+        highTransmission();
         if (m_drive != null) {
             if (speed == 0.0 && angle == 0.0) {
                 m_drive.stopMotor();
