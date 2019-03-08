@@ -190,7 +190,7 @@ public class Robot extends TimedRobot {
         m_chassis.periodic(m_driverJoystick, 1.0);
         m_mech.periodic(m_driverJoystick);
 
-        // Deal with the Brake/Coast on the drivetrain when in Defense.
+        /*** SPECIAL STUFF FOR DEFENSE MODE ***/
         if (m_driverJoystick.getThrottle() < 0) {
             // set idle to brake
             m_chassis.setIdleMode(IdleMode.kBrake);
