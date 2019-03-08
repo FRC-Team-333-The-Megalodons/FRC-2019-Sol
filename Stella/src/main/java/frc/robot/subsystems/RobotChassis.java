@@ -8,6 +8,7 @@ import frc.robot.subsystems.RobotMap.*;
 
 import com.revrobotics.CANEncoder;
 import com.revrobotics.CANSparkMax;
+import com.revrobotics.CANSparkMax.IdleMode;
 import com.revrobotics.CANSparkMaxLowLevel.MotorType;
 
 import edu.wpi.first.wpilibj.DriverStation;
@@ -30,6 +31,7 @@ public class RobotChassis {
     private NetworkTable m_networkTable;
     private double m_tx, m_ty, m_area;
     private NetworkTableEntry m_pipeline;
+    private IdleMode m_lastIdleMode;
 
     public RobotChassis(NetworkTable networkTable, NetworkTableEntry pipeline, RobotHatchGrab hatchGrab, RobotArm arm) {
 
@@ -148,6 +150,18 @@ public class RobotChassis {
 
     public void stop() {
         m_rawDifferentialDrive.arcadeDrive(0.0, 0.0);
+    }
+
+    public void setIdleMode(IdleMode mode)
+    {
+        if (m_lastIdleMode == null || m_lastIdleMode != mode) {
+            System.out.println("Setting idle mode to "+mode);
+            m_lastIdleMode = mode;
+            m_leftLeader.setIdleMode(mode);
+            m_leftFollower.setIdleMode(mode);
+            m_rightLeader.setIdleMode(mode);
+            m_rightFollower.setIdleMode(mode);
+        }
     }
 
 }

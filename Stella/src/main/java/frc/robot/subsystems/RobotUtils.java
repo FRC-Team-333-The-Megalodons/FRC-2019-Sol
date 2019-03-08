@@ -725,7 +725,7 @@ class LimelightDrive {
         double KpAim = kAIM; //SmartDashboard.getNumber("AutoDrive_kAIM", kAIM);
         double KpDistance = kDistance; //SmartDashboard.getNumber("AutoDrive_kDistance", kDistance);
         double min_aim_command = kMinInc; //SmartDashboard.getNumber("AutoDrive_minInc", 0.05f);
-        double max_area = 6.0;
+        double max_area = 6.333;
         if (m_cargoState.isCargoPresent()) {
             max_area = 5.0;
             if (rocketMode) {

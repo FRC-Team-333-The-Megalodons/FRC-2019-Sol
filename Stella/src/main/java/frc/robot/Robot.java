@@ -14,6 +14,9 @@ import edu.wpi.first.wpilibj.Joystick;
 import edu.wpi.first.wpilibj.DriverStation;
 import frc.robot.subsystems.*;
 import frc.robot.subsystems.RobotMap.*;
+
+import com.revrobotics.CANSparkMax.IdleMode;
+
 import edu.wpi.cscore.UsbCamera;
 import edu.wpi.first.cameraserver.CameraServer;
 import edu.wpi.first.networktables.NetworkTable;
@@ -52,6 +55,7 @@ public class Robot extends TimedRobot {
         SmartDashboard.putData("Auto choices", m_chooser);
         */
 
+
         /* Joystick */
         try {
             m_driverJoystick = new Joystick(JoystickPort.Joystick_Port);
@@ -80,6 +84,7 @@ public class Robot extends TimedRobot {
         /* Chassis */
         try {
             m_chassis = new RobotChassis(networkTable, pipeline, m_mech.getHatchGrab(), m_mech.getRobotArm());
+            m_chassis.setIdleMode(IdleMode.kCoast);
         } catch (Exception ex) {
             DriverStation.reportError("Couldnt instantiate Chassis", false);
         }
@@ -175,6 +180,15 @@ public class Robot extends TimedRobot {
         Timer.delay(0.005);
         m_chassis.periodic(m_driverJoystick, 1.0);
         m_mech.periodic(m_driverJoystick);
+
+        // Deal with the Brake/Coast on the drivetrain.
+        if (m_driverJoystick.getThrottle() < 0) {
+            // set idle to brake
+            m_chassis.setIdleMode(IdleMode.kBrake);
+        } else {
+            // set idle to coast
+            m_chassis.setIdleMode(IdleMode.kCoast);
+        }
 
     //  System.out.println("getValue: "+ultrasonic.getAverageValue());
     //  System.out.println("getVoltage: "+ultrasonic.getAverageVoltage());

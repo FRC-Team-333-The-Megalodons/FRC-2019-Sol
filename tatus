@@ -1,0 +1,314 @@
+[33mcommit b555547aad46e02f13fcf616752e5128fbf5a470[m[33m ([m[1;36mHEAD -> [m[1;32mmaster[m[33m, [m[1;31morigin/master[m[33m, [m[1;31morigin/HEAD[m[33m)[m
+Author: Shamily333 <shamily.shareen@yahoo.com>
+Date:   Sat Mar 2 15:45:54 2019 -0500
+
+    Setup buttons back to kingston's preferences
+
+[33mcommit 2dae34e05e37f41767213d4c5dcd793f9d27dd7a[m
+Author: Shamily333 <shamily.shareen@yahoo.com>
+Date:   Sat Mar 2 15:24:18 2019 -0500
+
+    Add original config, just in case
+
+[33mcommit 85f2f4972c3b23e3694842fd4007666479f669b7[m
+Author: Shamily333 <shamily.shareen@yahoo.com>
+Date:   Sat Mar 2 15:21:03 2019 -0500
+
+    Add in separate buttons for Hatch and Cargo chase
+
+[33mcommit 2cb37bb222603928913d50939f8f29b952cb7c40[m
+Author: Shamily333 <shamily.shareen@yahoo.com>
+Date:   Sat Mar 2 15:04:23 2019 -0500
+
+    Add limelight configs
+
+[33mcommit 06733582a30727cd83e823845526374532e6ed81[m
+Author: Shamily333 <shamily.shareen@yahoo.com>
+Date:   Sat Mar 2 12:28:18 2019 -0500
+
+    Fix defense mode; Fix Limelight-distance-to-target when have cargo; Fix shooter rollers to follow through
+
+[33mcommit 3784091e269fe92ccf89f13c537188f3efd26615[m
+Author: Shamily333 <shamily.shareen@yahoo.com>
+Date:   Fri Mar 1 18:47:41 2019 -0500
+
+    fixed settings for test robot and added ability to rollrollers out (works)
+
+[33mcommit 9ee6606f3a69f956862790bca7e45560da3f5060[m
+Author: Shamily333 <shamily.shareen@yahoo.com>
+Date:   Fri Mar 1 15:19:21 2019 -0500
+
+    added potential climber boys ;)
+
+[33mcommit edb3e5bad141a218ac0dfee8088cba927914b593[m
+Author: Shamily333 <shamily.shareen@yahoo.com>
+Date:   Wed Feb 27 20:50:09 2019 -0500
+
+    Fix things for the practice bot
+
+[33mcommit 892da25a51725624b6fee3dd161d11600c0fa46e[m
+Author: Shamily333 <shamily.shareen@yahoo.com>
+Date:   Wed Feb 27 18:59:39 2019 -0500
+
+    latest program from 2/27/19
+
+[33mcommit 0a552957e8350c088cb865ea732d76e627dbf7a2[m
+Author: Shamily333 <shamily.shareen@yahoo.com>
+Date:   Wed Feb 27 16:56:15 2019 -0500
+
+    latest program before switch to what works
+
+[33mcommit e9c76f64ae194d16f3186f062e11b50bc1b8c829[m
+Author: Shamily333 <shamily.shareen@yahoo.com>
+Date:   Tue Feb 26 19:38:00 2019 -0500
+
+    Lastest code as of Tuesday Feburary 26
+
+[33mcommit 6ceb84be185a9c2213d29f7c754cbd6e8d3ab413[m
+Merge: 1362125 19a954c
+Author: Unknown <zeusay170@gmail.com>
+Date:   Mon Feb 25 15:29:08 2019 -0500
+
+    Merge remote-tracking branch 'origin/master'
+
+[33mcommit 19a954c5dd8a9eaa6fbf2793cb88525093a687df[m
+Author: Shamily333 <shamily.shareen@yahoo.com>
+Date:   Tue Feb 19 20:25:26 2019 -0500
+
+    added camera to connect to roborio
+
+[33mcommit 1362125189a5774c16b0eed19a840c7bdddfa109[m
+Author: Unknown <zeusay170@gmail.com>
+Date:   Tue Feb 19 20:22:00 2019 -0500
+
+    Flipped some motors based on isfinal boolean in robotmap
+
+[33mcommit 705df1a879305e49a436e21a0c7ea6867197b304[m
+Author: Shamily333 <shamily.shareen@yahoo.com>
+Date:   Tue Feb 19 20:19:22 2019 -0500
+
+    code from when josh left
+
+[33mcommit b0010972728218fcd413400a7c81cf6c4ade1ab4[m
+Author: Shamily333 <shamily.shareen@yahoo.com>
+Date:   Tue Feb 19 18:47:32 2019 -0500
+
+    All systems go
+
+[33mcommit dc6fe5f38d0076735c21050c704ef2412b845b1c[m
+Author: Shamily333 <shamily.shareen@yahoo.com>
+Date:   Mon Feb 18 20:01:44 2019 -0500
+
+    latest program before revert to when stuff was working
+
+[33mcommit bacae3ed8dc44821cf985864b56f327367e52242[m
+Author: Shamily333 <shamily.shareen@yahoo.com>
+Date:   Mon Feb 18 18:35:17 2019 -0500
+
+    whitespace again
+
+[33mcommit 48a349f883a84aff0a6bb4293d9db04b082c5cbd[m
+Author: Shamily333 <shamily.shareen@yahoo.com>
+Date:   Mon Feb 18 18:32:54 2019 -0500
+
+    whitespace
+
+[33mcommit 488509eb8064cee753ea122b53133f58cfb186b9[m
+Author: Shamily333 <shamily.shareen@yahoo.com>
+Date:   Mon Feb 18 18:31:12 2019 -0500
+
+    Latest before swapping to new motor types
+
+[33mcommit a2529d84372c7ec39816baa4e35c66f3fd426e94[m
+Author: Shamily333 <shamily.shareen@yahoo.com>
+Date:   Mon Feb 18 16:52:35 2019 -0500
+
+    Refactor RobotHatchGrab into one class
+
+[33mcommit 31d2058502607d324f4a545a17748058ea5c726a[m
+Author: Shamily333 <shamily.shareen@yahoo.com>
+Date:   Mon Feb 18 16:40:27 2019 -0500
+
+    Add hatch panel thing
+
+[33mcommit 42b5c1b59fbac232eba37f805637265c84583fa9[m
+Author: Shamily333 <shamily.shareen@yahoo.com>
+Date:   Sat Feb 16 19:08:40 2019 -0500
+
+    yuig
+
+[33mcommit 1f3c94b08374b43e09c12633815bfd2979aa2672[m
+Merge: 81c90d2 0b8459a
+Author: Shamily333 <shamily.shareen@yahoo.com>
+Date:   Sat Feb 16 15:19:53 2019 -0500
+
+    Merge branch 'master' of https://github.com/FRC-Team-333/frc333-2019-stella
+
+[33mcommit 81c90d26d9881fbfbafa9a4a02c0cdb7f2b6f5a0[m
+Merge: cc9f25e cb39034
+Author: Shamily333 <shamily.shareen@yahoo.com>
+Date:   Sat Feb 16 15:19:35 2019 -0500
+
+    added curvature drive for smooth turning
+
+[33mcommit 0b8459a7b81f09d3b94db7de87812e7724359dc0[m
+Author: Unknown <zeusay170@gmail.com>
+Date:   Sat Feb 16 15:08:00 2019 -0500
+
+    competition fixes week 0
+
+[33mcommit 982747378aeee57929629e81873df3d9fc1eb5b4[m
+Author: Unknown <zeusay170@gmail.com>
+Date:   Fri Feb 15 21:28:24 2019 -0500
+
+    it didn't quite work
+
+[33mcommit cc9f25e9fe7f45fb32b0315cac5f0bb7b84044e3[m
+Author: Shamily333 <shamily.shareen@yahoo.com>
+Date:   Fri Feb 15 21:18:08 2019 -0500
+
+    .
+
+[33mcommit cb3903455c395a7f124542d7a04344a6ee7d49dc[m
+Author: Unknown <zeusay170@gmail.com>
+Date:   Fri Feb 15 21:00:05 2019 -0500
+
+    holy fuck it works
+
+[33mcommit c7647a032d9773e38508eb2ee56e3445a0a6ae02[m
+Author: Unknown <zeusay170@gmail.com>
+Date:   Fri Feb 15 16:19:44 2019 -0500
+
+    added CAN and cheesey/curvature drive
+
+[33mcommit 0fa55a25b305e9db2a9a86fe4b8359585aa0866f[m
+Author: Shamily333 <shamily.shareen@yahoo.com>
+Date:   Thu Feb 14 23:00:42 2019 -0500
+
+    took out empty try/catch
+
+[33mcommit f22ef4296e4d298c4ae4967ab0951a053e33181f[m
+Author: Shamily333 <shamily.shareen@yahoo.com>
+Date:   Thu Feb 14 22:56:32 2019 -0500
+
+    calculated speed for arm
+
+[33mcommit f9765cc42166a49f0ab7a60b30d63ff13a9339ae[m
+Author: Shamily333 <shamily.shareen@yahoo.com>
+Date:   Thu Feb 14 18:27:10 2019 -0500
+
+    .
+
+[33mcommit 679e6991292f26353f595836d64e1d3be2e63a16[m
+Author: Shamily333 <shamily.shareen@yahoo.com>
+Date:   Thu Feb 14 17:40:14 2019 -0500
+
+    Fixed potentiometer
+
+[33mcommit 3a0a3335160e5338cbadb436f6256fd69ee59132[m
+Author: Shamily333 <shamily.shareen@yahoo.com>
+Date:   Thu Feb 14 07:48:35 2019 -0500
+
+    changed default kAim and Kdistance for fully charged battery
+
+[33mcommit 6381c40e27d655686d2fc83348778701171c4c31[m
+Author: Shamily333 <shamily.shareen@yahoo.com>
+Date:   Thu Feb 14 07:45:24 2019 -0500
+
+    added potentiometer to smartdashboard and limelight only turns on during limelightDrive
+
+[33mcommit b6909ea8fec1cfbb6f295ad41f911aaea3baa781[m
+Author: Shamily333 <shamily.shareen@yahoo.com>
+Date:   Tue Feb 12 17:18:00 2019 -0500
+
+    Setup for CAN switch-over
+
+[33mcommit dc00ea5ceee00f93674ee30d4010d58198a3d922[m
+Author: Shamily333 <shamily.shareen@yahoo.com>
+Date:   Sun Feb 10 21:15:28 2019 -0500
+
+    Create Intake Controller
+
+[33mcommit 348bef5e0aca107743f2b794f729892f4cc7063b[m
+Author: Shamily333 <shamily.shareen@yahoo.com>
+Date:   Sun Feb 10 18:29:48 2019 -0500
+
+    Comment out first (failed) cut at Flip Protection, and remove unecessary source files
+
+[33mcommit 53d3099f90e65b0fac08ff812151fc88e1123004[m
+Author: Shamily333 <shamily.shareen@yahoo.com>
+Date:   Sun Feb 10 18:22:31 2019 -0500
+
+    Latest
+
+[33mcommit 76829eeb1e6a2d0591c175c113557fb012236761[m
+Author: Shamily333 <shamily.shareen@yahoo.com>
+Date:   Sun Feb 10 17:08:54 2019 -0500
+
+    Attempt at joystick speed limit
+
+[33mcommit acb78e0ba92465e844621cc593af9a7aaab88cef[m
+Author: Shamily333 <shamily.shareen@yahoo.com>
+Date:   Sun Feb 10 13:44:37 2019 -0500
+
+    Added arm limit switch for testing
+
+[33mcommit c30ad82258b5748e877a885fb31ac6b17cc8dc05[m
+Author: Shamily333 <shamily.shareen@yahoo.com>
+Date:   Sat Feb 9 19:39:13 2019 -0500
+
+    Update constants
+
+[33mcommit ecf06a39b446e338858efd3aa6eb574f06c70245[m
+Author: Shamily333 <shamily.shareen@yahoo.com>
+Date:   Sat Feb 9 17:07:16 2019 -0500
+
+    Limelight updates
+
+[33mcommit d7945e636952c3c01097de8b4c4eddf953c0f2f2[m
+Author: Shamily333 <shamily.shareen@yahoo.com>
+Date:   Sat Feb 9 14:41:45 2019 -0500
+
+    Incorporte Subsystem additions for Robot functionlity
+
+[33mcommit 0a7a9962e9cb06b460a8114dcdbabc3b0cff948b[m
+Author: Shamily333 <shamily.shareen@yahoo.com>
+Date:   Sat Feb 9 13:19:55 2019 -0500
+
+    Add limelight
+
+[33mcommit 2c9d8ae9fc615004219788e7c2d4454b5d7d9f2f[m
+Author: Shamily333 <shamily.shareen@yahoo.com>
+Date:   Fri Feb 8 12:40:45 2019 -0500
+
+    .
+
+[33mcommit 32272094306a265862d641f9853ab06b92a848f0[m
+Author: Shamily333 <shamily.shareen@yahoo.com>
+Date:   Wed Jan 30 19:57:35 2019 -0500
+
+    .
+
+[33mcommit e6978635a5a7d93525700035d75d9ae7227f1be4[m
+Author: Shamily333 <shamily.shareen@yahoo.com>
+Date:   Mon Jan 28 23:04:00 2019 -0500
+
+    .
+
+[33mcommit 33b12e777ec404f0c3d6c56a6131c4d5c8e3eb4b[m
+Author: Shamily333 <shamily.shareen@yahoo.com>
+Date:   Sat Jan 26 14:06:22 2019 -0500
+
+    Baseline working Stella code
+
+[33mcommit 903f8ac9515c1ef3d35096df3f1b66a079fdea18[m
+Author: root <root@Kaitlyn-Team333.localdomain>
+Date:   Sat Jan 26 14:02:53 2019 -0500
+
+    Blank WPILIBJ Project
+
+[33mcommit 95d71219f55c3892e0f4bdb23082c165f5590a9b[m
+Author: FRC-Team-333 <39463953+FRC-Team-333@users.noreply.github.com>
+Date:   Sat Jan 26 13:34:09 2019 -0500
+
+    Initial commit

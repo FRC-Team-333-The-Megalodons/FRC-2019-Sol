@@ -20,7 +20,7 @@ public class RobotArm {
     private CANSparkMax m_armNeo;
 
     private RobotArmPos m_position;
-    public static final double SHOOTING_POSITION     = RobotMap.RobotType.isFinal ? 133.0 : -109.0;
+    public static final double SHOOTING_POSITION     = RobotMap.RobotType.isFinal ? 100.0 : -109.0;
     public static final double TOP_POSITION          = RobotMap.RobotType.isFinal ? 130.0 : -131.0;
     public static final double CARGO_TRAVEL_POSITION = RobotMap.RobotType.isFinal ? 50.0 : -40.0;
     public static final double BOTTOM_POSITION       = RobotMap.RobotType.isFinal ? 0.0 : 0.0;
@@ -34,6 +34,7 @@ public class RobotArm {
     private final double ARM_MOTOR_MINIMUM_FACTOR = 0.2;
 
     public RobotArm(int port) {
+
         /* Instantiate the Arm */
         try {
             m_armNeo = new CANSparkMax(port, MotorType.kBrushless);
