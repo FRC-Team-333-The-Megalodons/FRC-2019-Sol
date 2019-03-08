@@ -702,16 +702,20 @@ class LimelightDrive {
     public static final double kAIM = 0.45;
     public static final double kDistance = 5.125;
     public static final double kMinInc = 0.05;
+    public static final double HATCH_PICKUP_DISTANCE = 6.15;
+    public static final double CARGO_SHOOT_DISTANCE = 5.0;
+    public static final double ROCKET_SHOOT_DISTANCE = 4.0;
     
     private DifferentialDrive m_drive;
     private Solenoidal m_transmission;
-    private RobotHatchGrab m_hatchGrab;
     private RobotCargoState m_cargoState;
+
+    //private RobotHatchGrab m_hatchGrab;
 
     public LimelightDrive(DifferentialDrive drive, Solenoidal transmission, RobotHatchGrab hatchGrab, RobotCargoState cargoState) {
         m_transmission = transmission;
         m_drive = drive;
-        m_hatchGrab = hatchGrab;
+        //m_hatchGrab = hatchGrab;
         m_cargoState = cargoState;
 
         //m_drive.setExpiration(0.1);
@@ -725,11 +729,11 @@ class LimelightDrive {
         double KpAim = kAIM; //SmartDashboard.getNumber("AutoDrive_kAIM", kAIM);
         double KpDistance = kDistance; //SmartDashboard.getNumber("AutoDrive_kDistance", kDistance);
         double min_aim_command = kMinInc; //SmartDashboard.getNumber("AutoDrive_minInc", 0.05f);
-        double max_area = 6.333;
+        double max_area = HATCH_PICKUP_DISTANCE;
         if (m_cargoState.isCargoPresent()) {
-            max_area = 5.0;
+            max_area = CARGO_SHOOT_DISTANCE;
             if (rocketMode) {
-              max_area = 4.0;
+              max_area = ROCKET_SHOOT_DISTANCE;
             }
         }
         double min_area = 0.0;

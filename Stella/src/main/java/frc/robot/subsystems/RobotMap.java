@@ -72,4 +72,11 @@ public class RobotMap {
         public static final int CARGO = 1;
     }
 
+    public static class LimelightLEDMode {
+        public static final int PIPELINE = 0;
+        public static final int OFF      = 1;
+        public static final int BLINK    = 2;
+        public static final int ON       = 3;
+    }
+
 }

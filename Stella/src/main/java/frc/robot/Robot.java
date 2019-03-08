@@ -39,7 +39,10 @@ public class Robot extends TimedRobot {
     private RobotChassis m_chassis;
     private RobotMech m_mech;
     private Joystick m_driverJoystick;
-
+    private NetworkTable m_networkTable = null;
+    private NetworkTableEntry m_limelightLedMode = null;
+    private boolean m_lastHatchLEDstate = false;
+    int m_lastLimelightLedMode = -1;
 
     //AnalogInput ultrasonic;
 
@@ -55,7 +58,6 @@ public class Robot extends TimedRobot {
         SmartDashboard.putData("Auto choices", m_chooser);
         */
 
-
         /* Joystick */
         try {
             m_driverJoystick = new Joystick(JoystickPort.Joystick_Port);
@@ -64,12 +66,12 @@ public class Robot extends TimedRobot {
         }
 
         /* Limelight */
-        NetworkTable networkTable = null;
         NetworkTableEntry pipeline = null;
         try {
-            networkTable = NetworkTableInstance.getDefault().getTable("limelight");
-            pipeline = networkTable.getEntry("pipeline");
+            m_networkTable = NetworkTableInstance.getDefault().getTable("limelight");
+            pipeline = m_networkTable.getEntry("pipeline");
             pipeline.setNumber(RobotMap.LimelightPipeline.HATCH); // Default to 0 (hatch_333)
+            m_limelightLedMode = m_networkTable.getEntry("ledMode");
         } catch (Exception ex) {
             DriverStation.reportError("Could not set up limelight network tables\n", false);
         }
@@ -83,7 +85,7 @@ public class Robot extends TimedRobot {
 
         /* Chassis */
         try {
-            m_chassis = new RobotChassis(networkTable, pipeline, m_mech.getHatchGrab(), m_mech.getRobotArm());
+            m_chassis = new RobotChassis(m_networkTable, pipeline, m_mech.getHatchGrab(), m_mech.getRobotArm());
             m_chassis.setIdleMode(IdleMode.kCoast);
         } catch (Exception ex) {
             DriverStation.reportError("Couldnt instantiate Chassis", false);
@@ -140,8 +142,10 @@ public class Robot extends TimedRobot {
      */
     @Override
     public void autonomousInit() {
-        // Autonomous just calls teleop.
-        teleopInit();
+        // Autonomous just pushes out the nose.
+
+        m_mech.pushNoseOut();
+
         /*
         m_autoSelected = m_chooser.getSelected();
         // autoSelected = SmartDashboard.getString("Auto Selector",
@@ -170,6 +174,11 @@ public class Robot extends TimedRobot {
         */
     }
 
+    @Override
+    public void teleopInit()
+    {
+    }
+
     /**
      * This function is called periodically during operator control.
      */
@@ -181,13 +190,29 @@ public class Robot extends TimedRobot {
         m_chassis.periodic(m_driverJoystick, 1.0);
         m_mech.periodic(m_driverJoystick);
 
-        // Deal with the Brake/Coast on the drivetrain.
+        // Deal with the Brake/Coast on the drivetrain when in Defense.
         if (m_driverJoystick.getThrottle() < 0) {
             // set idle to brake
             m_chassis.setIdleMode(IdleMode.kBrake);
+            if (m_lastLimelightLedMode != LimelightLEDMode.OFF) {
+                m_limelightLedMode.setNumber(LimelightLEDMode.OFF);
+                m_lastLimelightLedMode = LimelightLEDMode.OFF;
+            }
+            if (!m_lastHatchLEDstate) {
+                m_mech.getHatchGrab().activateIndicatorLight();
+                m_lastHatchLEDstate = true;
+            }
         } else {
             // set idle to coast
             m_chassis.setIdleMode(IdleMode.kCoast);
+            if (m_lastLimelightLedMode != LimelightLEDMode.PIPELINE) {
+                m_limelightLedMode.setNumber(LimelightLEDMode.PIPELINE);
+                m_lastLimelightLedMode = LimelightLEDMode.PIPELINE;
+            }
+            if (m_lastHatchLEDstate) {
+                m_mech.getHatchGrab().deactivateIndicatorLight();
+                m_lastHatchLEDstate = false;
+            }
         }
 
     //  System.out.println("getValue: "+ultrasonic.getAverageValue());
