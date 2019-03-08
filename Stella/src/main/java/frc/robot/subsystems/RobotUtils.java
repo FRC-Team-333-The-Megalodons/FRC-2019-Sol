@@ -734,10 +734,12 @@ class LimelightDrive {
         }
         double min_area = 0.0;
 
+        /*
         // If we're actually in CARGO hunting mode, then tweak our values.
         if (limelightPipeline == RobotMap.LimelightPipeline.CARGO) {
 
         }
+        */
 
         
         double max_x = 23;
