@@ -500,22 +500,23 @@ class TeleopTransDrive {
     public static final double SLOW_MODE_CAP = 0.70;
 
     private int m_button_forceLowTrans;
-    private History m_transHistory, m_speedHistory;
+    private boolean m_forceHighTrans;
+    private History m_transHistory;
     private DifferentialDrive m_drive;
     private Solenoidal m_transmission;
 
-    public TeleopTransDrive(DifferentialDrive drive, Solenoidal transmission, int button_forceLowTrans) {
+    public TeleopTransDrive(DifferentialDrive drive, Solenoidal transmission, int button_forceLowTrans, boolean forceHighTrans) {
         m_transmission = transmission;
         m_drive = drive;
         m_drive.setExpiration(0.1);
         m_drive.setSafetyEnabled(true);
         m_drive.setMaxOutput(1.0);
         m_button_forceLowTrans = button_forceLowTrans;
+        m_forceHighTrans = forceHighTrans;
         m_transHistory = new History(TRANS_HISTORY_LEN_MS, true);
-        m_speedHistory = new History(SPEED_HISTORY_LEN_MS, false);
     }
 
-    public void arcadeDrive(Joystick stick, Double abs_limit) {
+    public void drive(Joystick stick, boolean curvature, Double abs_limit) {
 
         double joystick_Y = stick.getY();
         double joystick_X = stick.getX();
@@ -526,39 +527,54 @@ class TeleopTransDrive {
             joystick_X = RobotUtils.abs_min(joystick_X, abs_limit.doubleValue());
         }
 
-        // Even if Auto isn't on, we should be keeping track of the history so we can
-        // turn it on later.
-        m_transHistory.appendToHistory(joystick_Y);
-        m_speedHistory.appendToHistory(joystick_Y);
+        boolean forceLowTrans = stick.getRawButton(m_button_forceLowTrans);
 
-        // See whether the differential in Speed will be too much and the robot will flip.
-        /*
-        final double speed_delta_limit = 0.5;
-        double speedHistoryAverage = m_speedHistory.getHistoryAverage();
-        if (Math.abs(joystick_Y - speedHistoryAverage) > speed_delta_limit) {
-            // The change is too much! Limit it down to only speed_delta_limit away.
-            double sign = Math.signum(joystick_Y);
-            double new_Y = speedHistoryAverage + (speed_delta_limit * sign);
-            System.out.println("History="+speedHistoryAverage+"; Y="+joystick_Y+"; Sign="+sign+"; new_Y="+new_Y);
-            joystick_Y = new_Y;
+        // Actually do the Drive
+        if (curvature && !forceLowTrans) {
+            boolean isQuickTurn = Math.abs(stick.getX()) > 0.9  //if the joystick x (sideways) value is above this pivot turns are possible as long as the driver isn't going forward
+                                  && Math.abs(stick.getY()) < 0.2; //controls how much the driver needs to go forward before curvature kicks in
+            double power = Math.pow(joystick_Y, 3);
+            double rotation = -joystick_X;
+            m_drive.curvatureDrive(power, rotation, isQuickTurn);
+        } else {
+            // We're running into an issue where the turning with Neos snaps too quickly. 
+            // TODO: Make this more quadratic.
+            //   For now, just taper off when joystick_X is below 0.95.
+
+            double REDUCTION_THRESHOLD_X = 0.95;
+            double REDUCTION_FACTOR_X = 0.65;
+            if (Math.abs(joystick_X) < REDUCTION_THRESHOLD_X) {
+                joystick_X *= REDUCTION_FACTOR_X;
+            }
+
+            m_drive.arcadeDrive(joystick_Y, -joystick_X);
         }
-        */
 
-        // Actually put the input into the drivetrain
-        m_drive.arcadeDrive(joystick_Y, -joystick_X);
+
+        // If forceHighTrans was specified
+        if (m_forceHighTrans && !forceLowTrans) {
+            if (highTransmission()) {
+                System.out.println("Auto-Switching to High Transmission");
+            }
+            return;
+        }
+
+        // Enter this section only if we're actually doing auto-shifting.
+
+        // If Auto shifting is on, we should be keeping track of the history, low or high gear.
+        m_transHistory.appendToHistory(joystick_Y);
 
         // If the driver is holding the Low Transmission button, force it into low transmission.
-        if (stick.getRawButton(m_button_forceLowTrans)) {
+        if (forceLowTrans) {
             if (lowTransmission()) {
                 System.out.println("Force-Switching to Low Transmission");
             }
             return;
         }
 
+        // If we've made it this far, we need to make a decision about 
+        //   shifting given the historical joystick averages!
         double transHistoryAverage = m_transHistory.getHistoryAverage();
-
-        //TODO: Making changees to Auto Shifting here. The robot should always be in HIGH unless button 2 is pressed.
-        //Mike changed the Gear Ratio
 
         // If the driver is holding the joystick below the Low Transmission
         //   threshold for long enough, downshift into Low Gear.
@@ -576,95 +592,15 @@ class TeleopTransDrive {
             }
             return;
         }
-
-        
     }
 
-    /*ADDED BY ZAC FOR CURVATURE*/
-    public static final double CURVATURE_TURN_SCALE = .25;   //scales turns in curvature drive
-    public static final double CURVATURE_DOWNSCALE_THRESHOLD = 0.9;
+    public void arcadeDrive(Joystick stick, Double abs_limit)
+    {
+      drive(stick, false, abs_limit);
+    }
 
     public void curvatureDrive(Joystick stick, Double abs_limit) {
-
-        // When the low transmission button is held, fall back to arcadeDrive
-        if (stick.getRawButton(PlayerButton.FORCE_LOW_TRANSMISSION)) {
-            arcadeDrive(stick, abs_limit);
-            return;
-        }
-
-        double joystick_Y = stick.getY();
-        double joystick_X = stick.getX();
-
-        final double CURVATURE_TURN_OVERRIDE_THRESHOLD = 0.9; //if the joystick x (sideways) value is above this pivot turns are possible as long as the driver isn't going forward
-        final double CURVATURE_FORWARD_OVERRIDE_THRESHOLD = 0.2;//controlls how much the driver needs to go forward before curvature kicks in
-    
-        boolean isQuickTurn = Math.abs(stick.getX()) > CURVATURE_TURN_OVERRIDE_THRESHOLD // Should we do an in-place turn?
-                                && Math.abs(stick.getY()) < CURVATURE_FORWARD_OVERRIDE_THRESHOLD;
-
-        // If the elevator is up, just limit our inputs.
-        if (abs_limit != null) {
-            joystick_Y = RobotUtils.abs_min(joystick_Y, abs_limit.doubleValue());
-            joystick_X = RobotUtils.abs_min(joystick_X, abs_limit.doubleValue());
-        }
-
-        // Even if Auto isn't on, we should be keeping track of the history so we can
-        // turn it on later.
-        m_transHistory.appendToHistory(joystick_Y);
-        m_speedHistory.appendToHistory(joystick_Y);
-
-        double power = Math.pow(joystick_Y, 3);
-        //if (isQuickTurn) { power = Math.abs(joystick_X); }
-
-        double rotation = -joystick_X;
-
-        /*
-        if (Math.abs(rotation) < CURVATURE_DOWNSCALE_THRESHOLD) {
-            rotation *= Math.pow(CURVATURE_TURN_SCALE, 2);
-        }
-        */
-
-        m_drive.curvatureDrive(power, rotation, isQuickTurn);
-
-        /*
-
-        // Actually put the input into the drivetrain 
-        m_drive.curvatureDrive(Math.pow(joystick_Y, 3),//scale the speed of the joystick going forward by raising it to the 3rd power
-                               (joystick_X >= .9 ? 
-                                    -joystick_X : 
-                                    (stick.getRawButton(PlayerButton.FORCE_NO_CURVATURE) ? 
-                                        -CURVATURE_TURN_SCALE*joystick_X : 
-                                        -CURVATURE_TURN_SCALE*.5*joystick_X)), //scale the joystick under a threashold
-                               (curvatureDriveEnabled || 
-                                    (Math.abs(joystick_X) > CURVATURE_TURN_OVERRIDE_THRESHOLD && Math.abs(joystick_Y) < CURVATURE_FORWARD_OVERRIDE_THRESHOLD))); // use curvature drive as long as the buttons arent being pressed and the driver isn't just going to the side
-        */
-
-        // If the driver is holding the Low Transmission button, force it into low transmission.
-        if (stick.getRawButton(m_button_forceLowTrans)) {
-            if (lowTransmission()) {
-                System.out.println("Force-Switching to Low Transmission");
-            }
-            return;
-        }
-
-        double transHistoryAverage = m_transHistory.getHistoryAverage();
-
-        // If the driver is holding the joystick below the Low Transmission
-        //   threshold for long enough, downshift into Low Gear.
-        /*if (transHistoryAverage < LOW_THRESHOLD) {
-            if (lowTransmission()) {
-                System.out.println("Auto-Switching to Low Transmission");
-            }
-            return;
-        }*/
-        // If the driver is holding the joystick above the High Transmission 
-        //   threshold for long enough, upshift into High Gear.
-        if (transHistoryAverage >= HIGH_THRESHOLD) {
-            if (highTransmission()) {
-                System.out.println("Auto-Switching to High Transmission");
-            }
-            return;
-        }
-        
+      drive(stick, true, abs_limit);
     }
 
     public void arcadeDrive(double speed, double angle) {
