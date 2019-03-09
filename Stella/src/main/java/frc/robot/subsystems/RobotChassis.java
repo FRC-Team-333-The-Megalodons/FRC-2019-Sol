@@ -70,7 +70,7 @@ public class RobotChassis {
 
             m_rawDifferentialDrive = new DifferentialDrive(m_leftLeader, m_rightLeader);
             //m_rawDifferentialDrive = new DifferentialDrive(CANLeftLeader, CANRightLeader);      //MEANT FOR CAN!
-            m_teleopTransDrive = new TeleopTransDrive(m_rawDifferentialDrive, m_transmission, PlayerButton.FORCE_LOW_TRANSMISSION);
+            m_teleopTransDrive = new TeleopTransDrive(m_rawDifferentialDrive, m_transmission, PlayerButton.FORCE_LOW_TRANSMISSION, true);
             m_limelightDrive = new LimelightDrive(m_rawDifferentialDrive, m_transmission, hatchGrab, arm.getCargoState());
         } catch (Exception ex) {
               DriverStation.reportError("Could not instantiate Drive Train Motors\n", false);

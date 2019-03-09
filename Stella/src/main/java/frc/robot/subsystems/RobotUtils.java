@@ -541,9 +541,9 @@ class TeleopTransDrive {
             // TODO: Make this more quadratic.
             //   For now, just taper off when joystick_X is below 0.95.
 
-            double REDUCTION_THRESHOLD_X = 0.95;
-            double REDUCTION_FACTOR_X = 0.65;
-            if (Math.abs(joystick_X) < REDUCTION_THRESHOLD_X) {
+            double REDUCTION_THRESHOLD_X = 1.0;
+            double REDUCTION_FACTOR_X = 0.75;
+            if (Math.abs(joystick_X) <= REDUCTION_THRESHOLD_X) {
                 joystick_X *= REDUCTION_FACTOR_X;
             }
 
