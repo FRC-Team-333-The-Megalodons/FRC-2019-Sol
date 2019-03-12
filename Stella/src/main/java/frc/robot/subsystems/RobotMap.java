@@ -64,7 +64,7 @@ public class RobotMap {
     };
 
     public static class RobotType{
-        public static final boolean isFinal = true;
+        public static final boolean isFinal = false;
     }
 
     public static class LimelightPipeline {

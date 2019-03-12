@@ -29,7 +29,7 @@ public class RobotChassis {
     private LimelightDrive m_limelightDrive;
     // private SerialPort m_arduino;
     private NetworkTable m_networkTable;
-    private double m_tx, m_ty, m_area;
+    private double m_tx, m_ty, m_area, m_skew, m_corner;
     private NetworkTableEntry m_pipeline;
     private IdleMode m_lastIdleMode;
 
@@ -131,6 +131,7 @@ public class RobotChassis {
         m_tx = m_networkTable.getEntry("tx").getDouble(0.0);
         m_ty = m_networkTable.getEntry("ty").getDouble(0.0);
         m_area = m_networkTable.getEntry("ta").getDouble(0.0);
+        m_skew = m_networkTable.getEntry("ts").getDouble(0.0);
     }
 
 
@@ -146,6 +147,7 @@ public class RobotChassis {
         SmartDashboard.putNumber("Limelight X", m_tx);
         SmartDashboard.putNumber("Limelight Y", m_ty);
         SmartDashboard.putNumber("Limelight Area", m_area);
+        SmartDashboard.putNumber("Limelight Skew", m_skew);
     }
 
     public void stop() {
