@@ -30,16 +30,18 @@ public class RobotMap {
     }
     
     public static class CANSparkID {
-        public static final int LEFT_LEADER     = 1;
-        public static final int LEFT_FOLLOWER   = 2;
-        public static final int RIGHT_LEADER    = 3;
-        public static final int RIGHT_FOLLOWER  = 4;
-        public static final int INTAKE_NEO      = 5;
-        public static final int SHOOTER_BOTTOM  = 6;
-        public static final int SHOOTER_TOP     = 7;
-        public static final int ARM_NEO         = 8;
-        public static final int RIGHT_CLIMBER   = 9;
-        public static final int LEFT_CLIMBER    = 10; 
+        public static final int LEFT_LEADER       = 1;
+        public static final int LEFT_FOLLOWER     = 2;
+        public static final int RIGHT_LEADER      = 3;
+        public static final int RIGHT_FOLLOWER    = 4;
+        public static final int INTAKE_NEO        = 5;
+        public static final int SHOOTER_BOTTOM    = 6;
+        public static final int SHOOTER_TOP       = 7;
+        public static final int ARM_NEO           = 8;
+        public static final int LEFT_FOLLOWER2    = 9;
+        public static final int RIGHT_FOLLOWER2   = 10;
+
+
     }
 
     public static class SolenoidPort {

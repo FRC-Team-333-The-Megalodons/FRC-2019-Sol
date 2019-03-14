@@ -24,8 +24,8 @@ public class RobotChassis {
     private Compressor m_compressor;
     private TeleopTransDrive m_teleopTransDrive;
     private CANSparkMax m_leftClimber, m_rightClimber;
-    private CANSparkMax m_leftLeader, m_leftFollower, m_rightLeader, m_rightFollower;
-    private CANEncoder m_leftLeaderEnc, m_leftFollowerEnc, m_rightLeaderEnc, m_rightFollowerEnc;
+    private CANSparkMax m_leftLeader, m_leftFollower, m_leftFollower2, m_rightLeader, m_rightFollower, m_rightFollower2;
+    private CANEncoder m_leftLeaderEnc, m_leftFollowerEnc, m_leftFollowerEnc2, m_rightLeaderEnc, m_rightFollowerEnc, m_rightFollowerEnc2;
     private LimelightDrive m_limelightDrive;
     // private SerialPort m_arduino;
     private NetworkTable m_networkTable;
@@ -54,18 +54,30 @@ public class RobotChassis {
 
             m_leftLeader = new CANSparkMax(CANSparkID.LEFT_LEADER, MotorType.kBrushless);    
             m_leftLeaderEnc = m_leftLeader.getEncoder();
+
             m_leftFollower = new CANSparkMax(CANSparkID.LEFT_FOLLOWER, MotorType.kBrushless);
             m_leftFollowerEnc = m_leftFollower.getEncoder();
             m_leftFollower.follow(m_leftLeader);
+
+            m_leftFollower2 = new CANSparkMax(CANSparkID.LEFT_FOLLOWER2, MotorType.kBrushless);
+            m_leftFollowerEnc2 = m_leftFollower2.getEncoder();
+            m_leftFollower2.follow(m_leftLeader);
+
             m_leftLeader.setRampRate(rampRate);
             //m_leftLeader.setInverted(true);
 
 
             m_rightLeader = new CANSparkMax(CANSparkID.RIGHT_LEADER, MotorType.kBrushless);
             m_rightLeaderEnc = m_rightLeader.getEncoder();
+
             m_rightFollower = new CANSparkMax(CANSparkID.RIGHT_FOLLOWER, MotorType.kBrushless);
             m_rightFollowerEnc = m_rightFollower.getEncoder();
             m_rightFollower.follow(m_rightLeader);
+
+            m_rightFollower2 = new CANSparkMax(CANSparkID.RIGHT_FOLLOWER2, MotorType.kBrushless);
+            m_rightFollowerEnc2 = m_rightFollower2.getEncoder();
+            m_rightFollower2.follow(m_rightLeader);
+
             m_rightLeader.setRampRate(rampRate);
 
             m_rawDifferentialDrive = new DifferentialDrive(m_leftLeader, m_rightLeader);
@@ -117,7 +129,8 @@ public class RobotChassis {
             boolean rocketMode = (stick.getRawButton(PlayerButton.ROCKET_MODE_1) || stick.getRawButton(PlayerButton.ROCKET_MODE_2));
             m_limelightDrive.autoDrive(pipeline_index, m_tx, m_ty, m_area, rocketMode);
         } else {
-            m_teleopTransDrive.curvatureDrive(stick, abs_limit); // m_drive with arcade style
+            //m_teleopTransDrive.curvatureDrive(stick, abs_limit); // m_drive with arcade style
+            m_teleopTransDrive.arcadeDrive(stick, abs_limit);
         }
 
 
