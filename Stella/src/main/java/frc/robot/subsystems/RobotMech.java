@@ -34,6 +34,7 @@ public class RobotMech {
     private Long m_lastShootersInChange;
     private IntakeCargoFromFloor m_intakeCargoFromFloor;
     private IntakeCargoFromHuman m_intakeCargoFromHuman;
+    private ShootCargoInShipFace m_shootCargoInShipFace;
     private EjectCargoToFloor m_ejectCargoToFloor;
     private ShootCargoIntoShip m_shootCargoIntoShip;
     private ActivateDefenseMode m_activateDefenseMode;
@@ -88,6 +89,7 @@ public class RobotMech {
         /* Controllers */
         m_intakeCargoFromFloor = new IntakeCargoFromFloor(this, m_arm);
         m_intakeCargoFromHuman = new IntakeCargoFromHuman(this, m_arm);
+        m_shootCargoInShipFace = new ShootCargoInShipFace(this, m_arm);
         m_shootCargoIntoShip   = new ShootCargoIntoShip(this, m_arm);
         m_activateDefenseMode  = new ActivateDefenseMode(this, m_arm);
         m_ejectCargoToFloor    = new EjectCargoToFloor(this, m_arm);
@@ -224,8 +226,7 @@ public class RobotMech {
             if (m_arm.getCargoState().isCargoPresent() || wasCargoRecentlyShot()) {
                 if (stick.getTrigger()) {
                     // If they're holding the Rocket Shot buttons, instead user the lower height.
-                    boolean rocketShot = (stick.getRawButton(PlayerButton.ROCKET_MODE_1) ||
-                                          stick.getRawButton(PlayerButton.ROCKET_MODE_2));
+                    boolean rocketShot = (stick.getRawButton(PlayerButton.ROCKET_MODE_1));
                     double position = (rocketShot ? RobotArm.ROCKET_SHOOTING_POS : RobotArm.SHOOTING_POSITION);
                     double power    = (rocketShot ? RobotShooter.ROCKET_SHOOTER_POWER : RobotShooter.FULL_SHOOTER_POWER);
                     m_shootCargoIntoShip.do_shoot(position, power);

@@ -638,7 +638,7 @@ class LimelightDrive {
     public static final double kAIM = 0.45;
     public static final double kDistance = 5.125;
     public static final double kMinInc = 0.05;
-    public static final double HATCH_PICKUP_DISTANCE = 6.05;
+    public static final double HATCH_PICKUP_DISTANCE = 5.00; //6.05;
     public static final double CARGO_SHOOT_DISTANCE = 5.0;
     public static final double ROCKET_SHOOT_DISTANCE = 4.0;
     
