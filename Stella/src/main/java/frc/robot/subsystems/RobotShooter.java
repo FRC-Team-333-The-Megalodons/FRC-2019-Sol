@@ -11,6 +11,7 @@ public class RobotShooter {
     public static final int SHOOTER_BUTTON = 4;
     public static final double FULL_SHOOTER_POWER = 0.8;
     public static final double ROCKET_SHOOTER_POWER = 0.75;
+    public static final double SHIP_FACE_POWER = 0.5;
     public static final double INTAKE_POWER = -0.5;
     public static final boolean CARGO_OUT = true;
 

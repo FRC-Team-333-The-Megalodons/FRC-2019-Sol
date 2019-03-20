@@ -10,6 +10,8 @@ public class ShootCargoInShipFace
     private final int STATE_NOSE_OUT_CLAW_DOWN    = 2;
     private final int STATE_CLAW_UP               = 3;
     private final int STATE_BALL_SHOT             = 4;
+    private final int STATE_NOSE_IN_CLAW_UP       = 5;
+    private final int STATE_NOSE_OUT_CLAW_UP      = 6;
     
     private int m_lastState = -1;
     private RobotMech m_mech;
@@ -29,6 +31,18 @@ public class ShootCargoInShipFace
 
         if (!m_mech.isCargoPresent()) {
             return STATE_NO_CARGO;
+        }
+
+        if (m_arm.isArmAtTarget(position)) {
+            if (m_mech.isNoseActuallyOut()) {
+                return STATE_NOSE_OUT_CLAW_UP;
+            }
+        }
+        
+        if (m_arm.isArmAtTarget(position)) {
+            if (!m_mech.isNoseActuallyOut()) {
+                return STATE_NOSE_IN_CLAW_UP;
+            }
         }
 
         if (m_mech.isNoseActuallyOut()) {
@@ -71,7 +85,13 @@ public class ShootCargoInShipFace
                 m_arm.periodic(position);
                 return false;
             }
-            case STATE_CLAW_UP: 
+            case STATE_NOSE_OUT_CLAW_UP: {
+                m_mech.getHatchGrab().close();
+                m_mech.pullNoseIn();
+                m_arm.stopArm();
+                return false;
+            } 
+            case STATE_NOSE_IN_CLAW_UP: 
             case STATE_BALL_SHOT: {
                 m_arm.stopArm();
                 m_mech.pushOutShooterRollers(power);
