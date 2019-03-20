@@ -7,7 +7,7 @@ public class RobotMap {
         public static final int FORCE_LOW_TRANSMISSION  = 2;
         public static final int ROCKET_MODE_1           = 3;
         public static final int EJECT_ROLLER            = 4;
-        public static final int ROCKET_MODE_2           = 5;
+        public static final int CARGO_SHIP_FACE         = 5;
         public static final int EJECT_CARGO             = 6;
         public static final int CHASE_HATCH_1           = 7;
         public static final int CHASE_HATCH_2           = 8;

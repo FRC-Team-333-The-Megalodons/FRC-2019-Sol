@@ -227,7 +227,7 @@ public class RobotMech {
                 if (stick.getTrigger()) {
                     // If they're holding the Rocket Shot buttons, instead user the lower height.
                     boolean rocketShot   = (stick.getRawButton(PlayerButton.ROCKET_MODE_1));
-                    boolean shipFaceShot = (stick.getRawButton(PlayerButton.ROCKET_MODE_2));
+                    boolean shipFaceShot = (stick.getRawButton(PlayerButton.CARGO_SHIP_FACE));
                     double position;
                     double power; 
                     if (rocketShot) {
