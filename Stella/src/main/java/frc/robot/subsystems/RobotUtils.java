@@ -21,6 +21,7 @@ import edu.wpi.first.wpilibj.Ultrasonic;
 import edu.wpi.first.wpilibj.Victor;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import frc.robot.subsystems.RobotMap.PlayerButton;
+import frc.robot.subsystems.RobotMap.RobotType;
 
 public class RobotUtils {
 
@@ -638,7 +639,7 @@ class LimelightDrive {
     public static final double kAIM = 0.45;
     public static final double kDistance = 5.125;
     public static final double kMinInc = 0.05;
-    public static final double HATCH_PICKUP_DISTANCE = 5.00; //6.05;
+    public static final double HATCH_PICKUP_DISTANCE = (RobotType.isFinal ? 6.05 : 5.50);
     public static final double CARGO_SHOOT_DISTANCE = 5.0;
     public static final double ROCKET_SHOOT_DISTANCE = 4.0;
     

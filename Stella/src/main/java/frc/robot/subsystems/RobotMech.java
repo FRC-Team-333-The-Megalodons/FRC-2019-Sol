@@ -221,29 +221,16 @@ public class RobotMech {
             is_controller_invoked = true;
         } else if (stick.getRawButton(PlayerButton.EJECT_CARGO)) {
             m_ejectCargoToFloor.do_eject();
-            is_controller_invoked = true; 
+            is_controller_invoked = true;
         } else {
             if (m_arm.getCargoState().isCargoPresent() || wasCargoRecentlyShot()) {
                 if (stick.getTrigger()) {
                     // If they're holding the Rocket Shot buttons, instead user the lower height.
-                    boolean rocketShot   = (stick.getRawButton(PlayerButton.ROCKET_MODE_1));
-                    boolean shipFaceShot = (stick.getRawButton(PlayerButton.CARGO_SHIP_FACE));
-                    double position;
-                    double power; 
-                    if (rocketShot) {
-                        position = RobotArm.ROCKET_SHOOTING_POS;
-                        power    = RobotShooter.ROCKET_SHOOTER_POWER;
-                    } else if (shipFaceShot) {
-                        position = RobotArm.TOP_POSITION;
-                        power    = RobotShooter.SHIP_FACE_POWER;
-                    } else {
-                        position = RobotArm.SHOOTING_POSITION;
-                        power    = RobotShooter.FULL_SHOOTER_POWER;
-                    }
-
-                    if (!shipFaceShot){
+                    boolean rocketShot = ((stick.getRawButton(PlayerButton.ROCKET_MODE_1) ||
+                     (stick.getRawButton(PlayerButton.ROCKET_MODE_2))));
+                    double position = (rocketShot ? RobotArm.ROCKET_SHOOTING_POS : RobotArm.SHOOTING_POSITION);
+                    double power    = (rocketShot ? RobotShooter.ROCKET_SHOOTER_POWER : RobotShooter.FULL_SHOOTER_POWER);
                     m_shootCargoIntoShip.do_shoot(position, power);
-                    }
                     is_controller_invoked = true;
                 }
             } else if (!is_hatch_already_governed) {
