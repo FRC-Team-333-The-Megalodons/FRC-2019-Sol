@@ -158,20 +158,10 @@ public class Robot extends TimedRobot {
      * This function is called periodically during autonomous.
      */
     @Override
-    public void autonomousPeriodic() {
+    public void autonomousPeriodic() 
+    {
         // Autonomous just calls teleop.
-        teleopPeriodic();
-        /*
-        switch (m_autoSelected) {
-        case kCustomAuto:
-            // Put custom auto code here
-            break;
-        case kDefaultAuto:
-        default:
-            // Put default auto code here
-            break;
-        }
-        */
+        teleopPeriodic(true);
     }
 
     @Override
@@ -184,16 +174,23 @@ public class Robot extends TimedRobot {
      */
     @Override
     public void teleopPeriodic() {
+        teleopPeriodic(false);
+    }
+
+    public void teleopPeriodic(boolean sandstorm)
+    {
         if (!isEnabled()) { return; }
 
         Timer.delay(0.005);
-        m_chassis.periodic(m_driverJoystick, 1.0);
-        m_mech.periodic(m_driverJoystick);
+        m_chassis.periodic(m_driverJoystick, 1.0, sandstorm);
+        m_mech.periodic(m_driverJoystick, sandstorm);
 
         /*** SPECIAL STUFF FOR DEFENSE MODE ***/
         if (m_driverJoystick.getThrottle() < 0) {
             // set idle to brake
-            m_chassis.setIdleMode(IdleMode.kBrake);
+            if (!sandstorm) {
+                m_chassis.setIdleMode(IdleMode.kBrake);
+            }
             if (m_lastLimelightLedMode != LimelightLEDMode.OFF) {
                 m_limelightLedMode.setNumber(LimelightLEDMode.OFF);
                 m_lastLimelightLedMode = LimelightLEDMode.OFF;
@@ -204,7 +201,9 @@ public class Robot extends TimedRobot {
             }
         } else {
             // set idle to coast
-            m_chassis.setIdleMode(IdleMode.kCoast);
+            if (!sandstorm) {
+                m_chassis.setIdleMode(IdleMode.kCoast);
+            }
             if (m_lastLimelightLedMode != LimelightLEDMode.PIPELINE) {
                 m_limelightLedMode.setNumber(LimelightLEDMode.PIPELINE);
                 m_lastLimelightLedMode = LimelightLEDMode.PIPELINE;

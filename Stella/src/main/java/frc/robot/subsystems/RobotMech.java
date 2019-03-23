@@ -174,7 +174,7 @@ public class RobotMech {
         */
     }
 
-    public void periodic(Joystick stick) {
+    public void periodic(Joystick stick, boolean sandstorm) {
         if (stick == null) {
             DriverStation.reportError("No Joystick, cannot run Mech periodic\n", false);
             return;
@@ -215,8 +215,8 @@ public class RobotMech {
             //limelight_pipeline = RobotMap.LimelightPipeline.CARGO;
             m_intakeCargoFromFloor.do_intake();
             is_controller_invoked = true;
-        } else if (stick.getRawButton(PlayerButton.INTAKE_CARGO_HUMAN_1) ||
-                   stick.getRawButton(PlayerButton.INTAKE_CARGO_HUMAN_2)) {
+        } else if (!sandstorm && (stick.getRawButton(PlayerButton.INTAKE_CARGO_HUMAN_1) ||
+                                  stick.getRawButton(PlayerButton.INTAKE_CARGO_HUMAN_2))) {
             m_intakeCargoFromHuman.do_intake();
             is_controller_invoked = true;
         } else if (stick.getRawButton(PlayerButton.EJECT_CARGO)) {

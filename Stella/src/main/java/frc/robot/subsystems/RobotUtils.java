@@ -3,6 +3,9 @@ package frc.robot.subsystems;
 import java.util.ArrayDeque;
 import java.util.ArrayList;
 
+import com.revrobotics.CANEncoder;
+import com.revrobotics.CANSparkMax;
+
 import edu.wpi.first.networktables.NetworkTableEntry;
 import edu.wpi.first.wpilibj.AnalogPotentiometer;
 import edu.wpi.first.wpilibj.DigitalInput;
@@ -282,107 +285,29 @@ class MultiSpeedController implements SpeedController {
     }
 }
 
-class DriveTrainEncoder implements PIDSource {
-    private Encoder m_leftEncoder, m_rightEncoder;
+class HistoryWrapper
+{
+    private History m_history = null;
 
-    public DriveTrainEncoder(Encoder left, Encoder right) {
-        m_leftEncoder = left;
-        m_rightEncoder = right;
+    HistoryWrapper(History history)
+    {
+        m_history = history;
     }
 
-    public double getLeftDistance() {
-        return m_leftEncoder.getDistance();
-    }
-
-    public double getRightDistance() {
-        return m_rightEncoder.getDistance();
-    }
-
-    public double averageEncoderDistance() {
-        return (m_leftEncoder.getDistance() + m_rightEncoder.getDistance()) / 2;
-    }
-
-    public double getLeftRaw() {
-        return m_leftEncoder.getRaw();
-    }
-
-    public double getRightRaw() {
-        return m_rightEncoder.getRaw();
-    }
-
-    public double getLeftRate() {
-        return m_leftEncoder.getRate();
-    }
-
-    public double getRightRate() {
-        return m_rightEncoder.getRate();
-    }
-
-    public double leftPidGet() {
-        return m_leftEncoder.pidGet();
-    }
-
-    public double rightPidGet() {
-        return m_rightEncoder.pidGet();
-    }
-
-    public void reset() {
-        m_leftEncoder.reset();
-        m_rightEncoder.reset();
-    }
-
-    public void setDistancePerPulse(double value) {
-        m_leftEncoder.setDistancePerPulse(value);
-        m_rightEncoder.setDistancePerPulse(value);
-    }
-
-    @Override
-    public void setPIDSourceType(PIDSourceType pidSource) {
-        m_leftEncoder.setPIDSourceType(pidSource);
-        m_rightEncoder.setPIDSourceType(pidSource);
-    }
-
-    @Override
-    public PIDSourceType getPIDSourceType() {
-        if (m_leftEncoder.getPIDSourceType() != m_rightEncoder.getPIDSourceType()) {
-            DriverStation.reportError("PID SOURCE TYPE MISMATCH!!!", false);
+    double getHistoryAverage(double value)
+    {
+        if (m_history == null) {
+            return value;
         }
-        return m_leftEncoder.getPIDSourceType();
+        m_history.appendToHistory(value);
+        return m_history.getHistoryAverage();
     }
 
-    @Override
-    public double pidGet() {
-        return (m_leftEncoder.pidGet() + m_rightEncoder.pidGet()) / 2.0;
-    }
-}
-
-class MotorEncoder {
-    private Encoder m_encoder;
-    private boolean m_inverse;
-
-    public MotorEncoder(Encoder encoder) {
-        m_encoder = encoder;
-        // m_inverse = inverse;
-    }
-
-    public double getDistance() {
-        return m_encoder.getDistance() * (m_inverse ? -1 : 1.0);
-    }
-
-    public void reset() {
-        m_encoder.reset();
-    }
-
-    public double getRaw() {
-        return m_encoder.get();
-    }
-
-    public void setDistancePerPulse(double distancePerPulse) {
-        m_encoder.setDistancePerPulse(distancePerPulse);
-    }
-
-    public double getRate() {
-        return m_encoder.getRate();
+    double getHistoryAverageWithSalt(double value) {
+        if (m_history == null) {
+            return value;
+        }
+        return m_history.getHistoryAverageWithSalt(value);
     }
 }
 
@@ -391,14 +316,26 @@ class MotorEncoder {
 // background thread.
 class SimplePIDController {
 
+    private double m_abs_output_min, m_abs_output_max, m_threshold_delta, m_tolerance, m_speedModifier;
+    private Double m_target;
+    private PIDSource m_source;
+    private PIDOutput m_output;
+    private DigitalInput m_lowerLimitSwitch, m_upperLimitSwitch;
+    private HistoryWrapper m_transHistory;
+
     // Assume that min & max are absolute values, and can be negative on our real
     // output device.
-    public SimplePIDController(PIDSource source, PIDOutput output, DigitalInput lowerLimitSwitch,
-            DigitalInput upperLimitSwitch, // Limit Switches (can be null)
-            double abs_output_min, double abs_output_max, // Output Min/Max
-            double threshold_delta, double tolerance, int history_len_ms) {
+    public SimplePIDController(PIDSource source, PIDOutput output, 
+                               DigitalInput lowerLimitSwitch,
+                               DigitalInput upperLimitSwitch, // Limit Switches (can be null)
+                               double abs_output_min, double abs_output_max, // Output Min/Max
+                               double threshold_delta, double tolerance, int history_len_ms) {
 
-        m_transHistory = new History(history_len_ms, false);
+        History history = null;
+        if (history_len_ms > 0) {
+            history = new History(history_len_ms, false);
+        }
+        m_transHistory = new HistoryWrapper(history);
         m_abs_output_min = abs_output_min;
         m_abs_output_max = abs_output_max;
         m_source = source;
@@ -450,8 +387,7 @@ class SimplePIDController {
             return;
         }
 
-        m_transHistory.appendToHistory(m_source.pidGet());
-        double current = m_transHistory.getHistoryAverage();
+        double current = m_transHistory.getHistoryAverage(m_source.pidGet());
         double target = m_target.doubleValue();
         double delta = Math.abs(current - target);
         if (delta <= m_tolerance) {
@@ -473,18 +409,109 @@ class SimplePIDController {
         }
         output *= m_speedModifier;
 
+        System.out.println("Target="+target+"; Current="+current+"; Planned Output="+output);
+
         // System.out.println("PIDWRITE "+output+" (sign=" + sign +", cap="+
         // m_abs_output_max+")");
         m_output.pidWrite(output);
     }
-
-    private double m_abs_output_min, m_abs_output_max, m_threshold_delta, m_tolerance, m_speedModifier;
-    private Double m_target;
-    private PIDSource m_source;
-    private PIDOutput m_output;
-    private DigitalInput m_lowerLimitSwitch, m_upperLimitSwitch;
-    private History m_transHistory;
 }
+
+class DriveTrainMotor implements PIDSource, PIDOutput
+{
+    private CANSparkMax m_motor;
+    private CANEncoder m_encoder;
+    private PIDSourceType m_pidType;
+
+    public DriveTrainMotor(CANSparkMax motor)
+    {
+        m_motor = motor;
+        m_encoder = m_motor.getEncoder();
+        m_pidType = PIDSourceType.kDisplacement;
+    }
+
+    // The real PID routines!
+    @Override
+    public double pidGet() {
+        switch (m_pidType)  {
+            case kDisplacement:
+                return m_encoder.getPosition();
+            case kRate:
+                return m_encoder.getVelocity();
+            default:
+                return -1.0;
+        }
+    }
+
+    @Override
+    public void pidWrite(double output) {
+        m_motor.set(-output);
+    }
+
+    // Other routines we don't use, but are technically required by the interface
+    @Override
+    public void setPIDSourceType(PIDSourceType pidType) {
+        m_pidType = pidType;
+    }
+
+    @Override
+    public PIDSourceType getPIDSourceType() {
+        return m_pidType;
+    }
+}
+
+// for Cargo Hatch:
+//   - Left cap at 0.7, Right cap at 0.6
+//   - Left = -56.3, right = 53.6
+
+// for Rocket hatch
+//   - Left cap at 0.8, Right cap at 0.6
+//   - Left = -72.57, right = 66.52
+
+class AutonArcDrive {
+    private double m_leftTarget, m_rightTarget;
+    SimplePIDController m_leftController, m_rightController;
+    private DriveTrainMotor m_leftMotor, m_rightMotor;
+
+    public AutonArcDrive(CANSparkMax leftMotor, CANSparkMax rightMotor,
+                      double leftTarget, double rightTarget,
+                      double leftCap, double rightCap)
+    {                
+        m_leftMotor = new DriveTrainMotor(leftMotor);
+        m_rightMotor = new DriveTrainMotor(rightMotor);
+        m_leftTarget = leftTarget;
+        m_rightTarget = rightTarget;
+
+        m_leftController = new SimplePIDController(m_leftMotor, m_leftMotor, null, null, 0.0, leftCap, 20.0, 2.0, 0);
+        m_rightController = new SimplePIDController(m_rightMotor, m_rightMotor, null, null, 0.0, rightCap, 20.0, 2.0, 0);
+
+        // At this point, we can figure out a ratio that we can apply to set a multiplier to get the arc that we'd like.
+
+
+    }
+
+    public boolean periodic()
+    {
+        boolean arrived = m_leftController.hasArrived(m_leftTarget) &&
+                          m_rightController.hasArrived(m_rightTarget);
+        if (arrived) {
+            stop();
+            return true;
+        }
+
+        m_leftController.setSetpoint(m_leftTarget);
+        m_rightController.setSetpoint(m_rightTarget);
+        return false;
+    }
+
+    public void stop()
+    {
+        m_leftController.stop();
+        m_rightController.stop();
+    }
+
+}
+
 
 // This is wrapper class around RobotDrive that acts as an automatic
 // transmission.

@@ -32,6 +32,8 @@ public class RobotChassis {
     private double m_tx, m_ty, m_area, m_skew, m_corner;
     private NetworkTableEntry m_pipeline;
     private IdleMode m_lastIdleMode;
+    private AutonArcDrive m_autonArcDrive;
+    //private AutonTurnDrive m_autonTurnDrive;
 
     public RobotChassis(NetworkTable networkTable, NetworkTableEntry pipeline, RobotHatchGrab hatchGrab, RobotArm arm) {
 
@@ -84,8 +86,9 @@ public class RobotChassis {
             //m_rawDifferentialDrive = new DifferentialDrive(CANLeftLeader, CANRightLeader);      //MEANT FOR CAN!
             m_teleopTransDrive = new TeleopTransDrive(m_rawDifferentialDrive, m_transmission, PlayerButton.FORCE_LOW_TRANSMISSION, true);
             m_limelightDrive = new LimelightDrive(m_rawDifferentialDrive, m_transmission, hatchGrab, arm.getCargoState());
+            
         } catch (Exception ex) {
-              DriverStation.reportError("Could not instantiate Drive Train Motors\n", false);
+            DriverStation.reportError("Could not instantiate Drive Train Motors\n", false);
         }
 /*
         try {
@@ -110,7 +113,7 @@ public class RobotChassis {
          */
     }
 
-    public void periodic(Joystick stick, Double abs_limit) {
+    public void periodic(Joystick stick, Double abs_limit, boolean sandstorm) {
         if (stick == null) {
             DriverStation.reportError("No Joystick, cannot run Chassis periodic\n", false);
             return;
@@ -118,21 +121,47 @@ public class RobotChassis {
 
         boolean chase_hatch = stick.getRawButton(PlayerButton.CHASE_HATCH_1) ||
                               stick.getRawButton(PlayerButton.CHASE_HATCH_2);
-        boolean chase_cargo = false; /*stick.getRawButton(PlayerButton.CHASE_CARGO_1) ||
-                                       stick.getRawButton(PlayerButton.CHASE_CARGO_2); */
-        
-        if (chase_hatch || chase_cargo) {
+        boolean auton_drive = sandstorm && (stick.getRawButton(PlayerButton.INTAKE_CARGO_HUMAN_1) ||
+                                            stick.getRawButton(PlayerButton.INTAKE_CARGO_HUMAN_2));
+        IdleMode idleMode = IdleMode.kCoast;
+        if (chase_hatch) {
             double cap = 0.6; //SmartDashboard.getNumber("AutoDriveSpeedCap", 0.5f);
-            int pipeline_index = chase_cargo ? RobotMap.LimelightPipeline.CARGO : RobotMap.LimelightPipeline.HATCH;
+            int pipeline_index = /* chase_cargo ? RobotMap.LimelightPipeline.CARGO :*/ RobotMap.LimelightPipeline.HATCH;
             RobotUtils.updateLimelightPipeline(m_pipeline, pipeline_index);
 
-            boolean rocketMode = (stick.getRawButton(PlayerButton.ROCKET_MODE_1));
+            boolean rocketMode = (stick.getRawButton(PlayerButton.ROCKET_MODE_1) || stick.getRawButton(PlayerButton.ROCKET_MODE_2));
             m_limelightDrive.autoDrive(pipeline_index, m_tx, m_ty, m_area, rocketMode);
+        } else if (auton_drive) {
+            idleMode = IdleMode.kBrake;
+
+            if (m_autonArcDrive == null) {
+                double leftTarget = -56.28, rightTarget = 53.64;
+                double leftCap    =   0.7, rightCap    = 0.6;
+
+                if (stick.getRawButton(PlayerButton.INTAKE_CARGO_HUMAN_2)) {
+                    leftTarget = -72.57;
+                    rightTarget = 66.52;
+                    leftCap    =   0.75;
+                    rightCap    =  0.55;
+                }
+                // for Cargo Hatch:
+                //   - Left cap at 0.7, Right cap at 0.6
+                //   - Left = -56.3, right = 53.6
+
+                // for Rocket hatch
+                //   - Left cap at 0.8, Right cap at 0.6
+                //   - Left = -72.57, right = 66.52
+                m_autonArcDrive = new AutonArcDrive(m_leftLeader, m_rightLeader, leftTarget, rightTarget, leftCap, rightCap);
+
+            }
+
+            m_autonArcDrive.periodic();
         } else {
             //m_teleopTransDrive.curvatureDrive(stick, abs_limit); // m_drive with arcade style
             m_teleopTransDrive.arcadeDrive(stick, abs_limit);
-        }
+        }   
 
+        setIdleMode(idleMode);
 
 
         if (m_compressor != null) {
