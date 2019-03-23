@@ -93,7 +93,7 @@ public class Robot extends TimedRobot {
 
         try {
             UsbCamera camera = CameraServer.getInstance().startAutomaticCapture();
-            camera.setResolution(320, 240);
+            camera.setResolution(160, 120); //320, 240);
         } catch (Exception e) {
             DriverStation.reportError("Could not instantiate driver camera\n", false);
 
