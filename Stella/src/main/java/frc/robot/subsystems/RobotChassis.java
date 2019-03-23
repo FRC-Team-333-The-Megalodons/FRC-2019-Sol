@@ -156,6 +156,8 @@ public class RobotChassis {
             }
 
             m_autonArcDrive.periodic();
+
+            // After the turn, for the Cargo Ship Hatch, we need to turn to left=-50.5, right=60.57
         } else {
             //m_teleopTransDrive.curvatureDrive(stick, abs_limit); // m_drive with arcade style
             m_teleopTransDrive.arcadeDrive(stick, abs_limit);
