@@ -17,6 +17,14 @@ public class RobotMap {
         public static final int INTAKE_CARGO_FLOOR_2    = 12;
     }
 
+    public static class DefensePlayerButton {
+
+        public static final int CLIMBER_UP_1            = 9;
+        public static final int CLIMBER_UP_2            = 10;
+        public static final int CLIMBER_DOWN_1          = 11;
+        public static final int CLIMBER_DOWN_2          = 12;
+    }
+
     public static class DigitalInputPort {
         public static final int CLAW_SWITCH        =  0;
         public static final int UPPER_ARM_SWITCH   =  1;
@@ -67,6 +75,10 @@ public class RobotMap {
 
     public static class RobotType{
         public static final boolean isFinal = false;
+    }
+
+    public static class LimelightType{
+        public static final boolean isOriginal = true;
     }
 
     public static class LimelightPipeline {
