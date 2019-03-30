@@ -11,7 +11,8 @@ public class RobotShooter {
     public static final int SHOOTER_BUTTON = 4;
     public static final double FULL_SHOOTER_POWER = 0.8;
     public static final double ROCKET_SHOOTER_POWER = 0.75;
-    public static final double SHIP_FACE_POWER = 0.5;
+    public static final double DROOL_TOP_POWER = 0.333;
+    public static final double DROOL_BOTTOM_POWER = 0.333;
     public static final double INTAKE_POWER = -0.5;
     public static final boolean CARGO_OUT = true;
 
@@ -25,6 +26,17 @@ public class RobotShooter {
         } catch (Exception ex) {
             DriverStation.reportError("Could not instantiate the Shooter\n", false);
         }
+    }
+
+    public void droolShot()
+    {
+        droolShot(DROOL_TOP_POWER, DROOL_BOTTOM_POWER);
+    }
+
+    private void droolShot(double topPower, double bottomPower)
+    {
+        m_topSpark.set(topPower);
+        m_bottomSpark.set(bottomPower);
     }
 
     public void fireShooter(double power)

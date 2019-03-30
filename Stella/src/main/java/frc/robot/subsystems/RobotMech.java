@@ -38,6 +38,7 @@ public class RobotMech {
     private EjectCargoToFloor m_ejectCargoToFloor;
     private ShootCargoIntoShip m_shootCargoIntoShip;
     private ActivateDefenseMode m_activateDefenseMode;
+    private ShootCargoInShipFace m_shootCargoIntoShipFace;
     private DigitalInput m_intakeOutLimitSwitch;
 
   //  public double armPos = m_armPotentiometer.get();
@@ -91,6 +92,7 @@ public class RobotMech {
         m_intakeCargoFromHuman = new IntakeCargoFromHuman(this, m_arm);
         m_shootCargoInShipFace = new ShootCargoInShipFace(this, m_arm);
         m_shootCargoIntoShip   = new ShootCargoIntoShip(this, m_arm);
+        m_shootCargoIntoShipFace = new ShootCargoInShipFace(this, m_arm);
         m_activateDefenseMode  = new ActivateDefenseMode(this, m_arm);
         m_ejectCargoToFloor    = new EjectCargoToFloor(this, m_arm);
     }
@@ -226,11 +228,15 @@ public class RobotMech {
             if (m_arm.getCargoState().isCargoPresent() || wasCargoRecentlyShot()) {
                 if (stick.getTrigger()) {
                     // If they're holding the Rocket Shot buttons, instead user the lower height.
-                    boolean rocketShot = ((stick.getRawButton(PlayerButton.ROCKET_MODE_1) ||
-                     (stick.getRawButton(PlayerButton.ROCKET_MODE_2))));
-                    double position = (rocketShot ? RobotArm.ROCKET_SHOOTING_POS : RobotArm.SHOOTING_POSITION);
-                    double power    = (rocketShot ? RobotShooter.ROCKET_SHOOTER_POWER : RobotShooter.FULL_SHOOTER_POWER);
-                    m_shootCargoIntoShip.do_shoot(position, power);
+                    boolean rocketShot = stick.getRawButton(PlayerButton.ROCKET_MODE);
+                    boolean shipFaceShot = stick.getRawButton(PlayerButton.SHIP_FACE_MODE);
+                    if (shipFaceShot) {
+                        m_shootCargoIntoShipFace.do_drool(RobotArm.TOP_POSITION);
+                    } else {
+                        double position = (rocketShot ? RobotArm.ROCKET_SHOOTING_POS : RobotArm.SHOOTING_POSITION);
+                        double power    = (rocketShot ? RobotShooter.ROCKET_SHOOTER_POWER : RobotShooter.FULL_SHOOTER_POWER);
+                        m_shootCargoIntoShip.do_shoot(position, power);
+                    }
                     is_controller_invoked = true;
                 }
             } else if (!is_hatch_already_governed) {
@@ -286,6 +292,15 @@ public class RobotMech {
           m_lastShootersInChange = System.currentTimeMillis();
         }
         m_shooter.intakeShooter();
+    }
+
+    public void droolOutShooterRollers()
+    {
+        if (m_lastShootOutChange == null) {
+            m_lastShootOutChange = System.currentTimeMillis();
+        }
+        m_lastShootersInChange = null;
+        m_shooter.droolShot();
     }
 
     public void pushOutShooterRollers(double power)

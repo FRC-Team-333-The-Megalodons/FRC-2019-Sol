@@ -129,7 +129,8 @@ public class RobotChassis {
             int pipeline_index = /* chase_cargo ? RobotMap.LimelightPipeline.CARGO :*/ RobotMap.LimelightPipeline.HATCH;
             RobotUtils.updateLimelightPipeline(m_pipeline, pipeline_index);
 
-            boolean rocketMode = (stick.getRawButton(PlayerButton.ROCKET_MODE_1) || stick.getRawButton(PlayerButton.ROCKET_MODE_2));
+            boolean rocketMode = stick.getRawButton(PlayerButton.ROCKET_MODE);
+            // || stick.getRawButton(PlayerButton.ROCKET_MODE_2));
             m_limelightDrive.autoDrive(pipeline_index, m_tx, m_ty, m_area, rocketMode);
         } else if (auton_drive) {
             idleMode = IdleMode.kBrake;

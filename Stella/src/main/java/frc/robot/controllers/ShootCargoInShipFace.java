@@ -5,13 +5,13 @@ import frc.robot.subsystems.*;
 
 public class ShootCargoInShipFace
 {
-    private final int STATE_NO_CARGO              = 0;
-    private final int STATE_NOSE_IN_CLAW_DOWN     = 1;
-    private final int STATE_NOSE_OUT_CLAW_DOWN    = 2;
-    private final int STATE_CLAW_UP               = 3;
-    private final int STATE_BALL_SHOT             = 4;
-    private final int STATE_NOSE_IN_CLAW_UP       = 5;
-    private final int STATE_NOSE_OUT_CLAW_UP      = 6;
+    private final int STATE_NO_CARGO          = 0;
+    private final int STATE_ARM_DOWN_NOSE_IN  = 1;
+    private final int STATE_ARM_DOWN_NOSE_OUT = 2;
+    private final int STATE_ARM_UP_NOSE_OUT   = 3;
+    private final int STATE_ARM_UP_NOSE_IN    = 4;
+    private final int STATE_CREEP_COMPLETE    = 5;
+    private final int STATE_BALL_SHOT         = 6;
     
     private int m_lastState = -1;
     private RobotMech m_mech;
@@ -35,25 +35,19 @@ public class ShootCargoInShipFace
 
         if (m_arm.isArmAtTarget(position)) {
             if (m_mech.isNoseActuallyOut()) {
-                return STATE_NOSE_OUT_CLAW_UP;
+                return STATE_ARM_UP_NOSE_OUT;
+            } else {
+                // check in here for whether we have CREEPed yet
+                return STATE_ARM_UP_NOSE_IN;
             }
-        }
-        
-        if (m_arm.isArmAtTarget(position)) {
-            if (!m_mech.isNoseActuallyOut()) {
-                return STATE_NOSE_IN_CLAW_UP;
+        } else {
+            if (m_mech.isNoseActuallyOut()) {
+                return STATE_ARM_DOWN_NOSE_OUT;
+            } else {
+                return STATE_ARM_DOWN_NOSE_IN;
             }
         }
 
-        if (m_mech.isNoseActuallyOut()) {
-            if (m_arm.isArmAtTarget(position)) {
-                return STATE_CLAW_UP;
-            } else {
-                return STATE_NOSE_OUT_CLAW_DOWN;
-            }
-        } else {
-            return STATE_NOSE_IN_CLAW_DOWN;
-        }
     }
 
     public int evaluateCurrentState(double position)
@@ -67,8 +61,16 @@ public class ShootCargoInShipFace
     }
 
     // Will return true when we have a ball (at which point it will have turned off the rollers, but done no other movement)
-    public boolean do_shoot(double position, double power)
+    public boolean do_drool(double position)
     {
+
+        //
+        m_mech.droolOutShooterRollers();
+
+        if (0 < System.currentTimeMillis()) {
+            return false;
+        }
+
         int state = evaluateCurrentState(position);
         switch (state) {
             case STATE_NO_CARGO: {
@@ -94,7 +96,7 @@ public class ShootCargoInShipFace
             case STATE_NOSE_IN_CLAW_UP: 
             case STATE_BALL_SHOT: {
                 m_arm.stopArm();
-                m_mech.pushOutShooterRollers(power);
+                m_mech.droolOutShooterRollers();
                 return false;
             }
             default: {
