@@ -78,7 +78,7 @@ public class ActivateDefenseMode
                 return false;
             }
             default: {
-                DriverStation.reportError("UNHANDLED IntakeCargoFromHumanState = "+state+"\n",false);
+                DriverStation.reportError("UNHANDLED ActivateDefenseMode = "+state+"\n",false);
                 m_arm.stopArm();
                 m_mech.stopIntakeRollers();
                 m_mech.stopShooterRollers();

@@ -80,6 +80,9 @@ public class Robot extends TimedRobot {
         try {
             m_mech = new RobotMech(pipeline);
         } catch (Exception ex) {
+            for (int i = 0; i < ex.getStackTrace().length; i++) {
+                System.out.println(i+" : "+ex.getStackTrace()[i]);
+            }
             DriverStation.reportError("Couldn't instantiate Mech", false);
         }
 
@@ -87,7 +90,11 @@ public class Robot extends TimedRobot {
         try {
             m_chassis = new RobotChassis(m_networkTable, pipeline, m_mech.getHatchGrab(), m_mech.getRobotArm());
             m_chassis.setIdleMode(IdleMode.kCoast);
+            m_mech.setChassis(m_chassis);
         } catch (Exception ex) {
+            for (int i = 0; i < ex.getStackTrace().length; i++) {
+                System.out.println(i+" : "+ex.getStackTrace()[i]);
+            }
             DriverStation.reportError("Couldnt instantiate Chassis", false);
         }
 
@@ -127,6 +134,7 @@ public class Robot extends TimedRobot {
         SmartDashboard.putNumber("Joystick Y", m_driverJoystick.getY());
         SmartDashboard.putNumber("Joystick Z", m_driverJoystick.getZ());
         SmartDashboard.putNumber("Joystick Throttle", m_driverJoystick.getThrottle());
+        SmartDashboard.putNumber("Joystick POV", m_driverJoystick.getPOV());
     }
 
     /**
@@ -182,14 +190,30 @@ public class Robot extends TimedRobot {
         if (!isEnabled()) { return; }
 
         Timer.delay(0.005);
-        m_chassis.periodic(m_driverJoystick, 1.0, sandstorm);
-        m_mech.periodic(m_driverJoystick, sandstorm);
-
+        
+        IdleMode idleMode = IdleMode.kCoast;
+        
+        // This order is important: Mech first, as it will tell us whether it's
+        //  temporarily taking control of the DriveTrain motors (needed for some control sequences)
+        boolean ignoreJoystickInChassis = m_mech.periodic(m_driverJoystick, sandstorm);
+        
+        // This admittedly gets weird: If the Mech has told us it's taking control
+        //  of the DriveTrain motors, we should not do Periodic on the Chassis,
+        //  and we should force into Brake Mode and Low Transmission to let it do
+        //  its thing.
+        if (ignoreJoystickInChassis) {
+            m_chassis.lowTransmission();
+            idleMode = IdleMode.kBrake;
+        } else {
+            idleMode = m_chassis.periodic(m_driverJoystick, 1.0, sandstorm);
+        }
+        
         /*** SPECIAL STUFF FOR DEFENSE MODE ***/
         if (m_driverJoystick.getThrottle() < 0) {
             // set idle to brake
+            // TODO: Why not be in Brake if in Defense during Sandstorm?
             if (!sandstorm) {
-                m_chassis.setIdleMode(IdleMode.kBrake);
+                idleMode = IdleMode.kBrake;
             }
             if (m_lastLimelightLedMode != LimelightLEDMode.OFF) {
                 m_limelightLedMode.setNumber(LimelightLEDMode.OFF);
@@ -200,10 +224,6 @@ public class Robot extends TimedRobot {
                 m_lastHatchLEDstate = true;
             }
         } else {
-            // set idle to coast
-            if (!sandstorm) {
-                m_chassis.setIdleMode(IdleMode.kCoast);
-            }
             if (m_lastLimelightLedMode != LimelightLEDMode.PIPELINE) {
                 m_limelightLedMode.setNumber(LimelightLEDMode.PIPELINE);
                 m_lastLimelightLedMode = LimelightLEDMode.PIPELINE;
@@ -213,6 +233,8 @@ public class Robot extends TimedRobot {
                 m_lastHatchLEDstate = false;
             }
         }
+
+        m_chassis.setIdleMode(idleMode);
 
     //  System.out.println("getValue: "+ultrasonic.getAverageValue());
     //  System.out.println("getVoltage: "+ultrasonic.getAverageVoltage());

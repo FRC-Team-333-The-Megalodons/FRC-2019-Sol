@@ -11,8 +11,10 @@ import edu.wpi.first.wpilibj.DoubleSolenoid.Value;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
 import frc.robot.subsystems.RobotMap.*;
+import frc.robot.subsystems.*;
 import frc.robot.controllers.*;
 
+import com.revrobotics.CANSparkMax.IdleMode;
 import com.revrobotics.CANSparkMaxLowLevel.MotorType;
 
 import edu.wpi.first.networktables.NetworkTableEntry;
@@ -38,8 +40,8 @@ public class RobotMech {
     private EjectCargoToFloor m_ejectCargoToFloor;
     private ShootCargoIntoShip m_shootCargoIntoShip;
     private ActivateDefenseMode m_activateDefenseMode;
-    private ShootCargoInShipFace m_shootCargoIntoShipFace;
     private DigitalInput m_intakeOutLimitSwitch;
+    private RobotChassis m_chassis;
 
   //  public double armPos = m_armPotentiometer.get();
 
@@ -90,11 +92,15 @@ public class RobotMech {
         /* Controllers */
         m_intakeCargoFromFloor = new IntakeCargoFromFloor(this, m_arm);
         m_intakeCargoFromHuman = new IntakeCargoFromHuman(this, m_arm);
-        m_shootCargoInShipFace = new ShootCargoInShipFace(this, m_arm);
         m_shootCargoIntoShip   = new ShootCargoIntoShip(this, m_arm);
-        m_shootCargoIntoShipFace = new ShootCargoInShipFace(this, m_arm);
         m_activateDefenseMode  = new ActivateDefenseMode(this, m_arm);
         m_ejectCargoToFloor    = new EjectCargoToFloor(this, m_arm);
+    }
+
+    public void setChassis(RobotChassis chassis)
+    {
+        m_chassis = chassis;
+        m_shootCargoInShipFace = new ShootCargoInShipFace(this, m_arm, m_chassis.getLeftLeaderNeo(), m_chassis.getRightLeaderNeo());
     }
 
     public RobotArm getRobotArm()
@@ -176,10 +182,12 @@ public class RobotMech {
         */
     }
 
-    public void periodic(Joystick stick, boolean sandstorm) {
+    public boolean periodic(Joystick stick, boolean sandstorm) {
+        boolean forceChassisIgnoreJoystick = false;
+
         if (stick == null) {
             DriverStation.reportError("No Joystick, cannot run Mech periodic\n", false);
-            return;
+            return forceChassisIgnoreJoystick;
         }
 
 
@@ -200,7 +208,7 @@ public class RobotMech {
                     }
                 }
             }
-            return;
+            return forceChassisIgnoreJoystick;
         } 
 
         //int limelight_pipeline = RobotMap.LimelightPipeline.HATCH;
@@ -229,9 +237,16 @@ public class RobotMech {
                 if (stick.getTrigger()) {
                     // If they're holding the Rocket Shot buttons, instead user the lower height.
                     boolean rocketShot = stick.getRawButton(PlayerButton.ROCKET_MODE);
-                    boolean shipFaceShot = stick.getRawButton(PlayerButton.SHIP_FACE_MODE);
+                    boolean shipFaceLeftShot = stick.getPOV() > 180.0;
+                    boolean shipFaceRightShot = stick.getPOV() > 0.0 && stick.getPOV() < 180.0;
+                    boolean shipFaceShot = stick.getRawButton(PlayerButton.SHIP_FACE_MODE) ||
+                                           shipFaceLeftShot || shipFaceRightShot;
                     if (shipFaceShot) {
-                        m_shootCargoIntoShipFace.do_drool(RobotArm.TOP_POSITION);
+                        double adjust = 0.0;
+                        if (shipFaceLeftShot) { adjust = -2.0; }
+                        if (shipFaceRightShot) { adjust = 2.0; }
+                        m_shootCargoInShipFace.do_drool(RobotArm.TOP_POSITION, adjust);
+                        forceChassisIgnoreJoystick = true;
                     } else {
                         double position = (rocketShot ? RobotArm.ROCKET_SHOOTING_POS : RobotArm.SHOOTING_POSITION);
                         double power    = (rocketShot ? RobotShooter.ROCKET_SHOOTER_POWER : RobotShooter.FULL_SHOOTER_POWER);
@@ -261,6 +276,8 @@ public class RobotMech {
             }
             stopShooterRollers();
         }
+
+        return forceChassisIgnoreJoystick;
     }
 
     public RobotHatchGrab getHatchGrab()

@@ -113,17 +113,38 @@ public class RobotChassis {
          */
     }
 
-    public void periodic(Joystick stick, Double abs_limit, boolean sandstorm) {
+    public boolean lowTransmission()
+    {
+        return m_teleopTransDrive.lowTransmission();
+    }
+
+    public boolean highTransmission()
+    {
+        return m_teleopTransDrive.highTransmission();
+    }
+
+    public CANSparkMax getLeftLeaderNeo()
+    {
+        return m_leftLeader;
+    }
+
+    public CANSparkMax getRightLeaderNeo()
+    {
+        return m_rightLeader; 
+    }
+
+    public IdleMode periodic(Joystick stick, Double abs_limit, boolean sandstorm) {
+        IdleMode idleMode = IdleMode.kCoast;
+
         if (stick == null) {
             DriverStation.reportError("No Joystick, cannot run Chassis periodic\n", false);
-            return;
+            return idleMode;
         }
 
         boolean chase_hatch = stick.getRawButton(PlayerButton.CHASE_HATCH_1) ||
                               stick.getRawButton(PlayerButton.CHASE_HATCH_2);
         boolean auton_drive = sandstorm && (stick.getRawButton(PlayerButton.INTAKE_CARGO_HUMAN_1) ||
                                             stick.getRawButton(PlayerButton.INTAKE_CARGO_HUMAN_2));
-        IdleMode idleMode = IdleMode.kCoast;
         if (chase_hatch) {
             double cap = 0.6; //SmartDashboard.getNumber("AutoDriveSpeedCap", 0.5f);
             int pipeline_index = /* chase_cargo ? RobotMap.LimelightPipeline.CARGO :*/ RobotMap.LimelightPipeline.HATCH;
@@ -164,12 +185,11 @@ public class RobotChassis {
             m_teleopTransDrive.arcadeDrive(stick, abs_limit);
         }   
 
-        setIdleMode(idleMode);
-
-
         if (m_compressor != null) {
             m_compressor.setClosedLoopControl(true);
         }
+
+        return idleMode;
     }
 
     public void updateLatestVisionTargets() {

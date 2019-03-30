@@ -78,7 +78,7 @@ public class ShootCargoIntoShip
                 return false;
             }
             default: {
-                DriverStation.reportError("UNHANDLED IntakeCargoFromHumanState = "+state+"\n",false);
+                DriverStation.reportError("UNHANDLED ShootCargoIntoShip = "+state+"\n",false);
                 m_arm.stopArm();
                 m_mech.stopIntakeRollers();
                 m_mech.stopShooterRollers();
