@@ -23,9 +23,10 @@ public class RobotChassis {
     private Solenoidal m_transmission;
     private Compressor m_compressor;
     private TeleopTransDrive m_teleopTransDrive;
-    private CANSparkMax m_leftClimber, m_rightClimber;
+    private CANSparkMax m_rightClimber, m_climber;
     private CANSparkMax m_leftLeader, m_leftFollower, m_leftFollower2, m_rightLeader, m_rightFollower, m_rightFollower2;
     private CANEncoder m_leftLeaderEnc, m_leftFollowerEnc, m_leftFollowerEnc2, m_rightLeaderEnc, m_rightFollowerEnc, m_rightFollowerEnc2;
+    private CANEncoder m_climberEnc;
     private LimelightDrive m_limelightDrive;
     // private SerialPort m_arduino;
     private NetworkTable m_networkTable;
@@ -90,14 +91,16 @@ public class RobotChassis {
         } catch (Exception ex) {
             DriverStation.reportError("Could not instantiate Drive Train Motors\n", false);
         }
-/*
+
         try {
-            m_rightClimber = new CANSparkMax(CANSparkID.RIGHT_CLIMBER, MotorType.kBrushed);
-            m_leftClimber = new CANSparkMax(CANSparkID.LEFT_CLIMBER, MotorType.kBrushed);
+            m_rightClimber = new CANSparkMax(CANSparkID.RIGHT_CLIMBER, MotorType.kBrushless);
+            m_climber = new CANSparkMax(CANSparkID.LEFT_CLIMBER, MotorType.kBrushless);
+            m_rightClimber.follow(m_climber, true);
+            m_climberEnc = m_rightClimber.getEncoder();
         } catch (Exception ex) {
             DriverStation.reportError("Could not instantiate Climber\n", false);
         }
-*/
+
        /* try {
             m_ultrasonic = new AnalogInput(AnalogPort.ULTRASONIC_SENSOR);
         } catch (Exception e) {
@@ -139,6 +142,12 @@ public class RobotChassis {
         if (stick == null) {
             DriverStation.reportError("No Joystick, cannot run Chassis periodic\n", false);
             return idleMode;
+        }
+
+        if (stick.getThrottle() < 0.0 && stick.getPOV() > 270 && stick.getPOV() < 90) {  // if you push the POV up
+            m_climber.set(.5);
+        } else if (stick.getThrottle() < 0.0 && stick.getPOV() < 270 && stick.getPOV() > 90) {
+            m_climber.set(-.5);
         }
 
         boolean chase_hatch = stick.getRawButton(PlayerButton.CHASE_HATCH_1) ||

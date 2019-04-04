@@ -48,6 +48,8 @@ public class RobotMap {
         public static final int ARM_NEO           = 8;
         public static final int LEFT_FOLLOWER2    = 9;
         public static final int RIGHT_FOLLOWER2   = 10;
+        public static final int RIGHT_CLIMBER     = 11;
+        public static final int LEFT_CLIMBER      = 12;
 
 
     }
