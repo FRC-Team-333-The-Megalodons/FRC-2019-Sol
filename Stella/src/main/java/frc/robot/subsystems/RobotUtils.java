@@ -667,7 +667,7 @@ class LimelightDrive {
     public static final double kAIM = 0.45;
     public static final double kDistance = 5.125;
     public static final double kMinInc = 0.05;
-    public static final double HATCH_PICKUP_DISTANCE = (RobotType.isFinal ? LimelightType.isOriginal ? 4.75 : 0.0 : LimelightType.isOriginal ? 5.50 : 0.0); //TODO: Change zeros into actual values.
+    public static final double HATCH_PICKUP_DISTANCE = (RobotType.isFinal ? 6.05 : 5.50); //TODO: Change zeros into actual values.
     public static final double CARGO_SHOOT_DISTANCE = LimelightType.isOriginal ? 5.0 : 0.0;
     public static final double ROCKET_SHOOT_DISTANCE = LimelightType.isOriginal ? 4.5 : 0.0; 
     
