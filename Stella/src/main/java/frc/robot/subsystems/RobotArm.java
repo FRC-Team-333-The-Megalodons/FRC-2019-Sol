@@ -24,7 +24,7 @@ public class RobotArm {
     public static final double TOP_POSITION          = RobotMap.RobotType.isFinal ? 130.0 : -131.0;
     public static final double CARGO_TRAVEL_POSITION = RobotMap.RobotType.isFinal ? 50.0 : -40.0;
     public static final double BOTTOM_POSITION       = RobotMap.RobotType.isFinal ? 0.0 : 0.0;
-    public static final double ROCKET_SHOOTING_POS   = RobotMap.RobotType.isFinal ? 67.5 : -69.5;
+    public static final double ROCKET_SHOOTING_POS   = RobotMap.RobotType.isFinal ? 70.50 : -69.5;
     private final double UPWARD_MOTOR_POWER          = RobotMap.RobotType.isFinal ? 1.0 : -1.0;
     private final double DOWNWARD_MOTOR_POWER        = RobotMap.RobotType.isFinal ? -1.0 : 1.0;
     private final double UPPER_LIMIT_SWITCH_POS      = RobotMap.RobotType.isFinal ? 150.0 : -137.0;
