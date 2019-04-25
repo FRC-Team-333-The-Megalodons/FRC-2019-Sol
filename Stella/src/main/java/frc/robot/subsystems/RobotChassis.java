@@ -4,6 +4,7 @@ import edu.wpi.first.networktables.NetworkTable;
 import edu.wpi.first.networktables.NetworkTableEntry;
 import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.wpilibj.Compressor;
+import frc.robot.Robot;
 import frc.robot.subsystems.RobotMap.*;
 
 import com.revrobotics.CANEncoder;
@@ -143,15 +144,7 @@ public class RobotChassis {
             DriverStation.reportError("No Joystick, cannot run Chassis periodic\n", false);
             return idleMode;
         }
-/*
-        if (stick.getThrottle() < 0.0 && stick.getPOV() > 270 && stick.getPOV() < 90) {  // if you push the POV up
-            m_climber.set(.5);
-        } else if (stick.getThrottle() < 0.0 && stick.getPOV() < 270 && stick.getPOV() > 90) {
-            m_climber.set(-.5);
-        }
-*/
-        boolean chase_hatch = stick.getRawButton(PlayerButton.CHASE_HATCH_1) ||
-                              stick.getRawButton(PlayerButton.CHASE_HATCH_2);
+        boolean chase_hatch = Robot.is_limelight_chase(stick);
         boolean auton_drive = sandstorm && (stick.getRawButton(PlayerButton.INTAKE_CARGO_HUMAN_1) ||
                                             stick.getRawButton(PlayerButton.INTAKE_CARGO_HUMAN_2));
         if (chase_hatch) {

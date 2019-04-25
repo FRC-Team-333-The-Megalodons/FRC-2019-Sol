@@ -14,6 +14,7 @@ import edu.wpi.first.wpilibj.Joystick;
 import edu.wpi.first.wpilibj.DriverStation;
 import frc.robot.subsystems.*;
 import frc.robot.subsystems.RobotMap.*;
+import frc.robot.subsystems.RobotUtils.*;
 
 import com.revrobotics.CANSparkMax.IdleMode;
 
@@ -31,6 +32,42 @@ import edu.wpi.first.networktables.NetworkTableInstance;
  * project.
  */
 public class Robot extends TimedRobot {
+
+    class LimelightLED
+    {
+        private int m_lastLimelightLedMode = -1;
+        private NetworkTableEntry m_limelightLedMode = null;
+        private Integer m_turnOffBuffer;
+        private long m_lastSetTime = 0;
+
+        LimelightLED(NetworkTableEntry limelightLedMode)
+        {
+            m_limelightLedMode = limelightLedMode;
+            if (RobotMap.LimelightConservativeLED.isDoomsday) {
+                m_turnOffBuffer = 5000;
+            }
+        }
+
+        void set(int mode) { set(mode, false); }
+        
+        void set(int mode, boolean ignoreTurnOffBuffer) {
+            if (m_lastLimelightLedMode != mode) {
+                long now = System.currentTimeMillis();
+                if (mode == RobotMap.LimelightLEDMode.OFF // Are we trying to turn off the light?
+                    && m_turnOffBuffer != null            // ...and do we have a "Turn Off" buffer because we're in Doomsday Mode?
+                    && !ignoreTurnOffBuffer               // ...and has the caller not explicitly told us to ignore the "Turn Off" buffer?
+                    && (now - m_lastSetTime) < m_turnOffBuffer.intValue()) // ...and has the "Turn Off" buffer not yet been passed?
+                { // If all of that was true, don't actually do anything!
+                    return;
+                }
+                
+                m_lastSetTime = System.currentTimeMillis();
+                m_limelightLedMode.setNumber(mode);
+                m_lastLimelightLedMode = mode;
+            }
+        }
+    }
+
     /*
     private static final String kDefaultAuto = "Default";
     private static final String kCustomAuto = "My Auto";
@@ -40,9 +77,8 @@ public class Robot extends TimedRobot {
     private RobotMech m_mech;
     private Joystick m_driverJoystick;
     private NetworkTable m_networkTable = null;
-    private NetworkTableEntry m_limelightLedMode = null;
+    private LimelightLED m_limelightLED;
     private boolean m_lastHatchLEDstate = false;
-    int m_lastLimelightLedMode = -1;
 
     //AnalogInput ultrasonic;
 
@@ -69,9 +105,11 @@ public class Robot extends TimedRobot {
         NetworkTableEntry pipeline = null;
         try {
             m_networkTable = NetworkTableInstance.getDefault().getTable("limelight");
+            System.out.println("Got networktable"+m_networkTable.toString());
             pipeline = m_networkTable.getEntry("pipeline");
+            System.out.println("Got pipeline:"+pipeline.toString());
             pipeline.setNumber(RobotMap.LimelightPipeline.HATCH); // Default to 0 (hatch_333)
-            m_limelightLedMode = m_networkTable.getEntry("ledMode");
+            m_limelightLED = new LimelightLED(m_networkTable.getEntry("ledMode"));
         } catch (Exception ex) {
             DriverStation.reportError("Could not set up limelight network tables\n", false);
         }
@@ -215,18 +253,16 @@ public class Robot extends TimedRobot {
             if (!sandstorm) {
                 idleMode = IdleMode.kBrake;
             }
-            if (m_lastLimelightLedMode != LimelightLEDMode.OFF) {
-                m_limelightLedMode.setNumber(LimelightLEDMode.OFF);
-                m_lastLimelightLedMode = LimelightLEDMode.OFF;
-            }
+            m_limelightLED.set(LimelightLEDMode.OFF, true); // Don't respect the "Turn Off" buffer when going into defense.
             if (!m_lastHatchLEDstate) {
                 m_mech.getHatchGrab().activateIndicatorLight();
                 m_lastHatchLEDstate = true;
             }
         } else {
-            if (m_lastLimelightLedMode != LimelightLEDMode.PIPELINE) {
-                m_limelightLedMode.setNumber(LimelightLEDMode.PIPELINE);
-                m_lastLimelightLedMode = LimelightLEDMode.PIPELINE;
+            if (RobotMap.LimelightConservativeLED.isDoomsday && !is_limelight_toggle(m_driverJoystick)) {
+                m_limelightLED.set(LimelightLEDMode.OFF);
+            } else {
+                m_limelightLED.set(LimelightLEDMode.ON);
             }
             if (m_lastHatchLEDstate) {
                 m_mech.getHatchGrab().deactivateIndicatorLight();
@@ -256,5 +292,17 @@ public class Robot extends TimedRobot {
         //SmartDashboard.setDefaultNumber("AutoDrive_kAIM", 0.7f);
         //SmartDashboard.setDefaultNumber("AutoDrive_kDistance", 1.0f);
         //SmartDashboard.setDefaultNumber("AutoDrive_minInc", 0.05f);
+    }
+
+    public static boolean is_limelight_toggle(Joystick stick)
+    {
+        return stick.getRawButton(PlayerButton.CHASE_HATCH_1) ||
+               stick.getRawButton(PlayerButton.CHASE_HATCH_2);
+    }
+
+    public static boolean is_limelight_chase(Joystick stick)
+    {
+        return stick.getRawButton(PlayerButton.CHASE_HATCH_2) ||
+               (!RobotMap.LimelightConservativeLED.isDoomsday && stick.getRawButton(PlayerButton.CHASE_HATCH_1));
     }
 }

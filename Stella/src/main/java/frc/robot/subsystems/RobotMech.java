@@ -40,7 +40,7 @@ public class RobotMech {
     private EjectCargoToFloor m_ejectCargoToFloor;
     private ShootCargoIntoShip m_shootCargoIntoShip;
     private ActivateDefenseMode m_activateDefenseMode;
-    private DigitalInput m_intakeOutLimitSwitch;
+    private MultiLimitSwitch m_intakeOutLimitSwitch;
     private RobotChassis m_chassis;
 
   //  public double armPos = m_armPotentiometer.get();
@@ -83,11 +83,19 @@ public class RobotMech {
             DriverStation.reportError("Could not instantiate hatch grab mechanism\n", false);
         }
 
+        DigitalInput limitswitch1 = null, limitswitch2 = null;
         try {
-            m_intakeOutLimitSwitch = new DigitalInput(DigitalInputPort.INTAKE_OUT_SWITCH);
+            limitswitch1 = new DigitalInput(DigitalInputPort.INTAKE_OUT_SWITCH);
         } catch (Exception ex) {
-            DriverStation.reportError("Could not instant limit switch for intake in outward position\n", false);
+            DriverStation.reportError("Could not instant limit switch 1 for intake in outward position\n", false);
         }
+        try {
+            limitswitch2 = new DigitalInput(DigitalInputPort.INTAKE_OUT_SWITCH_2);
+        } catch (Exception ex) {
+            DriverStation.reportError("Could not instant limit switch 2 for intake in outward position\n", false);
+        }
+        m_intakeOutLimitSwitch = new MultiLimitSwitch(limitswitch1, limitswitch2);
+
 
         /* Controllers */
         m_intakeCargoFromFloor = new IntakeCargoFromFloor(this, m_arm);
@@ -243,8 +251,8 @@ public class RobotMech {
                                            shipFaceLeftShot || shipFaceRightShot;
                     if (shipFaceShot) {
                         double adjust = 0.0;
-                        if (shipFaceLeftShot) { adjust = -2.0; }
-                        if (shipFaceRightShot) { adjust = 2.0; }
+                        if (shipFaceLeftShot) { adjust = -3.0; }
+                        if (shipFaceRightShot) { adjust = 3.0; }
                         m_shootCargoInShipFace.do_drool(RobotArm.TOP_POSITION, adjust);
                         forceChassisIgnoreJoystick = true;
                     } else {

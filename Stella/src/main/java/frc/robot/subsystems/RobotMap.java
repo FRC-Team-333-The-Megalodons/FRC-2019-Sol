@@ -26,10 +26,11 @@ public class RobotMap {
     }
 
     public static class DigitalInputPort {
-        public static final int CLAW_SWITCH        =  0;
-        public static final int UPPER_ARM_SWITCH   =  1;
-        public static final int LOWER_ARM_SWITCH   =  2;
-        public static final int INTAKE_OUT_SWITCH  =  3;
+        public static final int CLAW_SWITCH         = 0;
+        public static final int UPPER_ARM_SWITCH    = 1;
+        public static final int LOWER_ARM_SWITCH    = 2;
+        public static final int INTAKE_OUT_SWITCH   = 3;
+        public static final int INTAKE_OUT_SWITCH_2 = 4;
     }
  
     public static class AnalogPort {
@@ -77,6 +78,10 @@ public class RobotMap {
 
     public static class RobotType{
         public static final boolean isFinal = true;
+    }
+
+    public static class LimelightConservativeLED {
+        public static final boolean isDoomsday = false;
     }
 
     public static class LimelightType{

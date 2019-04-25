@@ -23,6 +23,7 @@ import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.Ultrasonic;
 import edu.wpi.first.wpilibj.Victor;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+import frc.robot.subsystems.RobotMap.LimelightLEDMode;
 import frc.robot.subsystems.RobotMap.LimelightType;
 import frc.robot.subsystems.RobotMap.PlayerButton;
 import frc.robot.subsystems.RobotMap.RobotType;
@@ -224,6 +225,24 @@ class DummyAHRS {
     private ArrayList<Double> m_transHistory;
     private static double HISTORY_LIMIT = 20;
     public static double MAX_RANGE = 4800.0;
+}
+
+class MultiLimitSwitch {
+    private DigitalInput[] m_limitSwitches;
+
+    public MultiLimitSwitch(DigitalInput... limitSwitches) {
+        m_limitSwitches = limitSwitches;
+    }
+
+    public boolean get()
+    {
+        for (DigitalInput limitSwitch : m_limitSwitches) {
+            if (limitSwitch != null && !limitSwitch.get()) {
+                return false;
+            }
+        }
+        return true;
+    }
 }
 
 class MultiSpeedController implements SpeedController {
@@ -692,7 +711,7 @@ class LimelightDrive {
 
         // Initialize configurations to RobotMap.LimelightPipeline.HATCH values.
         double KpAim = kAIM; //SmartDashboard.getNumber("AutoDrive_kAIM", kAIM);
-        double KpDistance = kDistance; //SmartDashboard.getNumber("AutoDrive_kDistance", kDistance);
+        double KpDistance = kDistance; //SmartDashboard.getNumber("AutoDri ve_kDistance", kDistance);
         double min_aim_command = kMinInc; //SmartDashboard.getNumber("AutoDrive_minInc", 0.05f);
         double max_area = HATCH_PICKUP_DISTANCE;
         if (m_cargoState.isCargoPresent()) {
@@ -857,3 +876,5 @@ class LED
         m_led.set(false);
     }
 }
+
+
