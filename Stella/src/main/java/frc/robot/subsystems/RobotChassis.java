@@ -35,10 +35,11 @@ public class RobotChassis {
     private NetworkTableEntry m_pipeline;
     private IdleMode m_lastIdleMode;
     private AutonArcDrive m_autonArcDrive;
+    private RobotUtils.LimelightLED m_led;
     //private AutonTurnDrive m_autonTurnDrive;
 
-    public RobotChassis(NetworkTable networkTable, NetworkTableEntry pipeline, RobotHatchGrab hatchGrab, RobotArm arm) {
-
+    public RobotChassis(NetworkTable networkTable, NetworkTableEntry pipeline, RobotHatchGrab hatchGrab, RobotArm arm, RobotUtils.LimelightLED led) {
+        m_led = led;
         // Instantiate the compressor
         try {
             m_compressor = new Compressor(RobotMap.CompressorPort.MAIN_COMPRESSOR);
@@ -144,7 +145,7 @@ public class RobotChassis {
             DriverStation.reportError("No Joystick, cannot run Chassis periodic\n", false);
             return idleMode;
         }
-        boolean chase_hatch = Robot.is_limelight_chase(stick);
+        boolean chase_hatch = Robot.is_limelight_chase(stick, m_led);
         boolean auton_drive = sandstorm && (stick.getRawButton(PlayerButton.INTAKE_CARGO_HUMAN_1) ||
                                             stick.getRawButton(PlayerButton.INTAKE_CARGO_HUMAN_2));
         if (chase_hatch) {

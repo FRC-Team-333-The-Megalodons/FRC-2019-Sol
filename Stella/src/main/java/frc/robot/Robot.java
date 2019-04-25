@@ -33,41 +33,6 @@ import edu.wpi.first.networktables.NetworkTableInstance;
  */
 public class Robot extends TimedRobot {
 
-    class LimelightLED
-    {
-        private int m_lastLimelightLedMode = -1;
-        private NetworkTableEntry m_limelightLedMode = null;
-        private Integer m_turnOffBuffer;
-        private long m_lastSetTime = 0;
-
-        LimelightLED(NetworkTableEntry limelightLedMode)
-        {
-            m_limelightLedMode = limelightLedMode;
-            if (RobotMap.LimelightConservativeLED.isDoomsday) {
-                set(RobotMap.LimelightLEDMode.OFF);
-                m_turnOffBuffer = 2000;
-            }
-        }
-
-        void set(int mode) { set(mode, false); }
-        
-        void set(int mode, boolean ignoreTurnOffBuffer) {
-            if (m_lastLimelightLedMode != mode) {
-                long now = System.currentTimeMillis();
-                if (mode == RobotMap.LimelightLEDMode.OFF // Are we trying to turn off the light?
-                    && m_turnOffBuffer != null            // ...and do we have a "Turn Off" buffer because we're in Doomsday Mode?
-                    && !ignoreTurnOffBuffer               // ...and has the caller not explicitly told us to ignore the "Turn Off" buffer?
-                    && (now - m_lastSetTime) < m_turnOffBuffer.intValue()) // ...and has the "Turn Off" buffer not yet been passed?
-                { // If all of that was true, don't actually do anything!
-                    return;
-                }
-                
-                m_limelightLedMode.setNumber(mode);
-                m_lastLimelightLedMode = mode;
-            } 
-            m_lastSetTime = System.currentTimeMillis();
-        }
-    }
 
     /*
     private static final String kDefaultAuto = "Default";
@@ -80,6 +45,7 @@ public class Robot extends TimedRobot {
     private NetworkTable m_networkTable = null;
     private LimelightLED m_limelightLED;
     private boolean m_lastHatchLEDstate = false;
+    private boolean m_hasMatchStarted = false;
 
     //AnalogInput ultrasonic;
 
@@ -127,7 +93,7 @@ public class Robot extends TimedRobot {
 
         /* Chassis */
         try {
-            m_chassis = new RobotChassis(m_networkTable, pipeline, m_mech.getHatchGrab(), m_mech.getRobotArm());
+            m_chassis = new RobotChassis(m_networkTable, pipeline, m_mech.getHatchGrab(), m_mech.getRobotArm(), m_limelightLED);
             m_chassis.setIdleMode(IdleMode.kCoast);
             m_mech.setChassis(m_chassis);
         } catch (Exception ex) {
@@ -166,6 +132,9 @@ public class Robot extends TimedRobot {
      */
     @Override
     public void robotPeriodic() {
+        if (!m_hasMatchStarted) {
+            m_limelightLED.set(RobotMap.LimelightLEDMode.OFF);
+        }
         m_chassis.updateLatestVisionTargets();
         m_mech.updateDashboard();
         m_chassis.updateDashboard();
@@ -190,7 +159,7 @@ public class Robot extends TimedRobot {
     @Override
     public void autonomousInit() {
         // Autonomous just pushes out the nose.
-
+        m_hasMatchStarted = true;
         m_mech.pushNoseOut();
 
         /*
@@ -214,6 +183,7 @@ public class Robot extends TimedRobot {
     @Override
     public void teleopInit()
     {
+        m_hasMatchStarted = true;
     }
 
     /**
@@ -226,6 +196,7 @@ public class Robot extends TimedRobot {
 
     public void teleopPeriodic(boolean sandstorm)
     {
+        m_hasMatchStarted = true;   
         if (!isEnabled()) { return; }
 
         Timer.delay(0.005);
@@ -301,9 +272,15 @@ public class Robot extends TimedRobot {
                stick.getRawButton(PlayerButton.CHASE_HATCH_2);
     }
 
-    public static boolean is_limelight_chase(Joystick stick)
+    public static boolean is_limelight_chase(Joystick stick, LimelightLED led)
     {
-        return stick.getRawButton(PlayerButton.CHASE_HATCH_2) ||
-               (!RobotMap.LimelightConservativeLED.isDoomsday && stick.getRawButton(PlayerButton.CHASE_HATCH_1));
+        if (RobotMap.LimelightConservativeLED.isDoomsday) {
+            if (!led.hasLightBeenOnLongEnoughForAutoDrive()) {
+                return false;
+            }
+            return stick.getRawButton(PlayerButton.CHASE_HATCH_2);
+        } 
+        // Not-doomsday mode below:
+        return is_limelight_toggle(stick);
     }
 }

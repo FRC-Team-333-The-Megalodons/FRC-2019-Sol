@@ -52,7 +52,67 @@ public class RobotUtils {
             pipeline.setNumber(new_pipeline_index);
         }
     }
+
+    public static class LimelightLED
+    {
+        /* Configurables */
+        public static final int END_BUFFER_TIME = 2000;
+        public static final int DRIVE_BUFFER_TIME = 1250;
+
+        /* No touchy below here. */
+        private int m_lastLimelightLedMode = -1;
+        private NetworkTableEntry m_limelightLedMode = null;
+        private Integer m_turnOffBuffer;
+        private long m_lastSetTime = 0;
+        private Long m_lastTurnedOnTime = null;
+
+        public LimelightLED(NetworkTableEntry limelightLedMode)
+        {
+            m_limelightLedMode = limelightLedMode;
+            if (RobotMap.LimelightConservativeLED.isDoomsday) {
+                m_turnOffBuffer = END_BUFFER_TIME;
+            }
+        }
+
+        public void set(int mode) { set(mode, false); }
+        
+        public void set(int mode, boolean ignoreTurnOffBuffer) {
+            if (m_lastLimelightLedMode != mode) {
+                long now = System.currentTimeMillis();
+                if (mode == RobotMap.LimelightLEDMode.OFF // Are we trying to turn off the light?
+                    && m_turnOffBuffer != null            // ...and do we have a "Turn Off" buffer because we're in Doomsday Mode?
+                    && !ignoreTurnOffBuffer               // ...and has the caller not explicitly told us to ignore the "Turn Off" buffer?
+                    && (now - m_lastSetTime) < m_turnOffBuffer.intValue()) // ...and has the "Turn Off" buffer not yet been passed?
+                { // If all of that was true, don't actually do anything!
+                    return;
+                }
+                
+                // We only reach this code if we're specifically *changing* the mode!
+                m_limelightLedMode.setNumber(mode);
+                m_lastLimelightLedMode = mode;
+                if (mode == RobotMap.LimelightLEDMode.ON) {
+                    m_lastTurnedOnTime = System.currentTimeMillis();
+                } else {
+                    m_lastTurnedOnTime = null;
+                }
+            } 
+            m_lastSetTime = System.currentTimeMillis();
+        }
+
+        public boolean hasLightBeenOnLongEnoughForAutoDrive()
+        {
+            long now = System.currentTimeMillis();
+            if (m_lastTurnedOnTime != null
+                && (now - m_lastTurnedOnTime > DRIVE_BUFFER_TIME)) {
+                return true;
+            }
+            return false;
+        }
+    }
+
 }
+
+
 
 class SolenoidT {
     private Solenoid m_solenoid;
