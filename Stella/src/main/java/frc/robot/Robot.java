@@ -44,7 +44,8 @@ public class Robot extends TimedRobot {
         {
             m_limelightLedMode = limelightLedMode;
             if (RobotMap.LimelightConservativeLED.isDoomsday) {
-                m_turnOffBuffer = 5000;
+                set(RobotMap.LimelightLEDMode.OFF);
+                m_turnOffBuffer = 2000;
             }
         }
 
@@ -61,10 +62,10 @@ public class Robot extends TimedRobot {
                     return;
                 }
                 
-                m_lastSetTime = System.currentTimeMillis();
                 m_limelightLedMode.setNumber(mode);
                 m_lastLimelightLedMode = mode;
-            }
+            } 
+            m_lastSetTime = System.currentTimeMillis();
         }
     }
 

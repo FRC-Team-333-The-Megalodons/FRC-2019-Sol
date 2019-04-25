@@ -81,7 +81,7 @@ public class RobotMap {
     }
 
     public static class LimelightConservativeLED {
-        public static final boolean isDoomsday = false;
+        public static final boolean isDoomsday = true;
     }
 
     public static class LimelightType{
