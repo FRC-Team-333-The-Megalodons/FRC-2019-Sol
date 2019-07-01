@@ -68,4 +68,8 @@ public class Gaussian {
         return (1/Math.pow(2*Math.PI*variance, 1/2))*Math.pow(Math.E, Math.pow(x-mean, 2)/2*variance);
         //gaussian formula
     }
+
+    public String toString(){
+        return "mean : " + mean + " variance : " + variance;
+    }
 }
