@@ -1,12 +1,17 @@
 package frc.robot.kalmanfilter.multivariate;
 
 public class MatrixUtils {
+
+    public static double [] dot(double [][] A, double [] B){
+        double [] [] newB = transpose(B);
+        return getCollum(dot(A, newB),0);
+    }
     
     public static double [][] dot(double [][] A, double [] [] B){
         double [][] output = new double [Math.min(A.length, B.length)][Math.min(A[0].length, B[0].length)];
 
         for (int i = 0; i < output.length; i++) {
-            for (int j = 0; i < output[0].length; j++) {
+            for (int j = 0; j < output[0].length; j++) {
                 output[i][j] = dotProd(A[i], getCollum(B , j));
             }
         }
@@ -17,11 +22,7 @@ public class MatrixUtils {
     public static double dotProd(double[] A, double[] B) {
         double prod = 0;
 
-        if(A.length != B.length){
-            return -1;
-        }
-
-        for (int i = 0; i < A.length; i++) {
+        for (int i = 0; i < Math.min(A.length, B.length); i++) {
             prod += A[i]*B[i];
         }
         
@@ -103,7 +104,9 @@ public class MatrixUtils {
     public static double[] getCollum(double[][] b, int collumNum) {
         double [] collum = new double [b.length];
 
+        
         for (int i = 0; i < b.length; i++) {
+            System.out.println("i :" + i);
             collum[i] = b[i][collumNum];
         }
 
@@ -111,9 +114,18 @@ public class MatrixUtils {
     }
 
     public static double[][] transpose(double[][] A){
-        double[][] x = A;
-        for (int i = 0; i < x[0].length; i++) {
-        x[i] = getCollum(A, i);
+        double[][] x = new double[A[0].length][A.length];
+
+        for (int i = 0; i < x.length; i++) {
+            x[i] = getCollum(A, i);
+        }
+        return x;
+    }
+
+    public static double[][] transpose(double[] A){
+        double[][] x = new double[A.length][1];
+        for (int i = 0; i < A.length; i++) {
+            x[i][0] = A[i];
         }
         return x;
     }
@@ -153,5 +165,20 @@ public class MatrixUtils {
             A[i] = raise(A[i], X);
         }
         return A;
+    }
+
+    public static void printArray(double [] x){
+        System.out.print("X size :" + x.length + "[ ");
+        for (double b : x) {
+            System.out.print(b+",");
+        }
+        System.out.println("]");
+    }
+
+    public static void printArray(double [][] x){
+        System.out.println("y size :" + x[0].length);
+        for (double[] b : x) {
+            printArray(b);
+        }
     }
 }

@@ -3,8 +3,8 @@ package frc.robot;
 //import static org.junit.Assert.assertEquals;
 
 import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.assertArrayEquals;
 
-import org.hamcrest.*;
 import org.junit.Test;
 import frc.robot.kalmanfilter.multivariate.MatrixUtils;
 
@@ -34,4 +34,25 @@ public class MatrixUtilsTest{
         assertArrayEquals(expectedResult, MatrixUtils.mask(toTest, 0 ,0));
     }
 
+    @Test
+    public void dotTest(){
+        double [][] x = {{1,2}, {3,4}};
+        double [] y = {10, 4.5};
+        double [] expectedResult = {19,48};
+        assertArrayEquals(expectedResult, MatrixUtils.dot(x,y));
+    }
+
+    @Test
+    public void dotProduct(){
+        double [] x = {8,57};
+        double [] y = {25,258};
+        assertEquals(14906, MatrixUtils.dotProd(x,y), 0.0);
+    }
+
+    @Test
+    public void transTest(){
+        double [][] y = {{1}, {3},{7}};
+        double [][] result = {{1,3,7}};
+        assertArrayEquals(result, MatrixUtils.transpose(y));
+    }
 }
