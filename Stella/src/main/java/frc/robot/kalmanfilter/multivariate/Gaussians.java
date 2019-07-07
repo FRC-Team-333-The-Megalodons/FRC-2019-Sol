@@ -1,5 +1,7 @@
 package frc.robot.kalmanfilter.multivariate;
 
+import java.util.HashMap;
+import frc.robot.kalmanfilter.multivariate.MatrixUtils;
 
 public class Gaussians{
 
@@ -18,7 +20,7 @@ public class Gaussians{
     }
 
     public Gaussians(double [] initalMeans, double [] initalVariance, String [] meanNames){
-        
+
         this.meanNames= meanNames;
         this.means = initalMeans;
 
@@ -63,12 +65,41 @@ public class Gaussians{
 
     }
 
+    @Override
     public String toString(){
         return "this is an "+ size + "D kalmnan filter" + 
         "\nThe means are :" + means.toString() + 
-        "\nThe values represnt are :" + meanNames.toString()+ 
+        "\nThe means represnt :" + meanNames.toString()+ 
         "\nThe covariances are :" + covarianceMatrix.toString();
     }
+
+    public HashMap<String , Double> getMeans(){
+        
+        HashMap<String , Double> meansWithNames = new HashMap<>(means.length+1, 1);
+
+        for (int i = 0; i < means.length; i++) {
+            meansWithNames.put(meanNames[i],means[i]);
+        }
+
+        return meansWithNames;
+    }
+
+    public int getSize() {
+        return this.size;
+    }
+
+    /*public double getLikelyhood(double [] values){
+        double[] [] verticalmeans = new double [0][means.length];
+        verticalmeans[0] = MatrixUtils.subtract(values, means);
+
+        double normalizationTerm = 1/Math.pow(Math.pow(2*Math.PI, values.length)*MatrixUtils.determinant(covarianceMatrix), 1/2);
+
+        return Math.pow(Math.E, MatrixUtils.multiply(MatrixUtils.dot(MatrixUtils.dot(MatrixUtils.transpose(verticalmeans), verticalmeans), MatrixUtils.raise(covarianceMatrix, -1)), -1/2));
+    } 
+    IDK how this formula works butr it's not strictly nessary sooooooo
+    */
+
+    
 }
 
 class NameNotFoundException extends Exception {

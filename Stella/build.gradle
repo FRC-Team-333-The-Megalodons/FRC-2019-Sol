@@ -35,7 +35,7 @@ deploy {
 }
 
 // Set this to true to enable desktop support.
-def includeDesktopSupport = false
+def includeDesktopSupport = false 
 
 // Maven central needed for JUnit
 repositories {
@@ -49,8 +49,12 @@ dependencies {
     compile wpi.deps.vendor.java()
     nativeZip wpi.deps.vendor.jni(wpi.platforms.roborio)
     nativeDesktopZip wpi.deps.vendor.jni(wpi.platforms.desktop)
-    testCompile 'junit:junit:4.12'
+   testImplementation 'org.junit.jupiter:junit-jupiter-api:5.1.0'
+    testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine:5.1.0'
+    testCompileOnly 'junit:junit:4.12'
+    testRuntimeOnly 'org.junit.vintage:junit-vintage-engine:5.1.0'
 }
+
 
 // Setting up my Jar File. In this case, adding all libraries into the main jar ('fat jar')
 // in order to make them all available at runtime. Also adding the manifest so WPILib
@@ -59,3 +63,22 @@ jar {
     from { configurations.compile.collect { it.isDirectory() ? it : zipTree(it) } }
     manifest edu.wpi.first.gradlerio.GradleRIOPlugin.javaManifest(ROBOT_MAIN_CLASS)
 }
+//test {
+  //  useJUnitPlatform()
+  //  scanForTestClasses = true
+ //   include 'src/test/**'
+
+ //   onOutput { descriptor, event ->
+ //    logger.lifecycle("Test: " + descriptor + " produced standard out/err: " + event.message )
+//}
+// } 
+
+//sourceSets {
+  //  test {
+ //       java {
+  //          srcDirs = ['src/test/**']
+       
+   //     }
+   // }
+//}
+

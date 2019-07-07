@@ -1,4 +1,4 @@
-package frc.robot.kalmanfilter;
+package frc.robot.kalmanfilter.univariate;
 
 import com.revrobotics.*;
 

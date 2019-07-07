@@ -1,4 +1,5 @@
-package frc.robot.kalmanfilter;
+package frc.robot.kalmanfilter.univariate;
+
 abstract class prosses_model{
 
     double variance;

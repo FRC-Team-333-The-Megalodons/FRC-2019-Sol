@@ -1,4 +1,5 @@
-package frc.robot.kalmanfilter;
+package frc.robot.kalmanfilter.univariate;
+
 public class uniVariateFilter {
 
     private double sensorVariance;
