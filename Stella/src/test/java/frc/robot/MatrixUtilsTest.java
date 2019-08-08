@@ -6,6 +6,8 @@ import static org.junit.Assert.*;
 import static org.junit.jupiter.api.Assertions.assertArrayEquals;
 
 import org.junit.Test;
+
+import frc.robot.kalmanfilter.multivariate.Gaussians;
 import frc.robot.kalmanfilter.multivariate.MatrixUtils;
 
 public class MatrixUtilsTest{
@@ -54,5 +56,22 @@ public class MatrixUtilsTest{
         double [][] y = {{1}, {3},{7}};
         double [][] result = {{1,3,7}};
         assertArrayEquals(result, MatrixUtils.transpose(y));
+    }
+
+    @Test
+    public void CovarianceMatrixTest(){
+        double [] input = {1,4,3,4,5};
+        double [] dummyMeans ={0,0,0,0,0};
+        String [] names = {"one","two","three","four", "five"};
+
+        Gaussians G = new Gaussians(dummyMeans, input, names);
+
+        double [][] expectedResult = {{1,0,0,0,0},
+                                    {0,4,0,0,0},
+                                    {0,0,3,0,0},
+                                    {0,0,0,4,0},
+                                    {0,0,0,0,5}};
+
+        assertArrayEquals(expectedResult, G.getCovariance(), G.toString());
     }
 }

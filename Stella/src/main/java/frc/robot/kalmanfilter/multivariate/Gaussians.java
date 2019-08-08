@@ -1,7 +1,7 @@
 package frc.robot.kalmanfilter.multivariate;
 
+import java.lang.annotation.Retention;
 import java.util.HashMap;
-import frc.robot.kalmanfilter.multivariate.MatrixUtils;
 
 public class Gaussians{
 
@@ -42,7 +42,7 @@ public class Gaussians{
         this.covarianceMatrix = new double[initalVariance.length][initalVariance.length];
 
         for (int i = 0; i < initalVariance.length; i++) {
-           for (int j = 0; j < initalVariance.length; i++) {
+           for (int j = 0; j < initalVariance.length; j++) {
                if(i == j){
                    this.covarianceMatrix[i][j] = initalVariance[i];
                }else{
@@ -51,6 +51,9 @@ public class Gaussians{
            } 
         }
         
+    }
+    public double[][] getCovariance(){
+        return covarianceMatrix;
     }
 
     public double getMean(String meanName) throws NameNotFoundException {
