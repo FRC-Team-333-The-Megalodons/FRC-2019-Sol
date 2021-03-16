@@ -1,3 +1,3 @@
 # frc333-2019-stella
 Code for Stella
-![alt text](https://www.google.com/url?sa=i&url=https%3A%2F%2Fsecure.givelively.org%2Fevent%2Ffirst-nyc%2Ffrc-new-york-city-regional&psig=AOvVaw3p7SEqES_GVoCrCM-81XzB&ust=1616002041568000&source=images&cd=vfe&ved=0CAIQjRxqFwoTCPCX4e-qte8CFQAAAAAdAAAAABAY)
+![original_8acbd9fbe6694069e19987e1674b1e08fdee1fd7d240070b659bece1cee90816_social](https://user-images.githubusercontent.com/54345350/111354191-6b492100-865c-11eb-9ae5-d625da585d7b.jpeg)
